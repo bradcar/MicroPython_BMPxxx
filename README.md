@@ -36,7 +36,7 @@ The table below is Bosch's recommended oversampling setting for bmp390.
 | Low power |  001     | x2     | x1     |
 | Standard resolution |  010     | x4     | x1     |
 | High resolution |  011     | x8     | x1     |
-| Ultra high resolution |  100     | x16     | x1     |
+| Ultra high resolution |  100     | x16     | x2     |
 | Highest resolution|  101     | x32     | x2     |
 
 bmp58x.OSR1 corresponds to x1 for all sensors, bmp58x.OSR2 corresponds to x2 for all sensors, bmp58x.OSR4 corresponds to x4 for all sensors, etc.
