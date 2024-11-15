@@ -10,9 +10,12 @@ MicroPython Driver for the Bosch BMP585, BMP581, and BMP390 pressure sensors
  
 ## Micropython bmp58x driver
 Code includes:
-* All pressure results returned in hPA
-* Temperature results returned as Celsius
-* Code enables setting OverSampling, IIR values
+* All pressures use the hPA metric
+* Temperatures use Celsius
+* Code enables setting OverSampling, IIR values, and sea level pressure
+  * for sea level pressure the driver defaults to 1013.25 hpa, but weather causes to vary by more than the range of 990 hPa to 1040 hPA for sea level presssure
+  * best on each use to set sea level pressure to that of the nearest airport, for example: https://www.weather.gov/wrh/timeseries?site=KPDX
+  * not setting nearest sea level pressure will cause any altitude reading to be way off
   
 ## Recommended Oversampling rates form Bosch datasheets
 The table below is Bosch's recommended oversampling setting for bmp585 and bmp581.
