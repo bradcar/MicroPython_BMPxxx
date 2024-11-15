@@ -15,7 +15,7 @@ Code includes:
 * Code enables setting OverSampling, IIR values
   
 ## Recommended Oversampling rates form Bosch datasheets
-Below is the recommended table for bmp585.
+The table below is Bosch's recommended oversampling setting for bmp585 and bmp581.
 
 | Oversampling setting | OSR Pressure | Pressure oversampling | Pressure oversampling |
 |------------------|------------------|------------------|------------------|
@@ -28,5 +28,15 @@ Below is the recommended table for bmp585.
 | |  110     | x64     | x4     |
 | Highest resolution |  111     | x128     | x8     |
 
+The table below is Bosch's recommended oversampling setting for bmp390.
+
+| Oversampling setting | OSR Pressure | Pressure oversampling | Pressure oversampling |
+|------------------|------------------|------------------|------------------|
+| Ultra low power |  000     | x1     | x1     |
+| Low power |  001     | x2     | x1     |
+| Standard resolution |  010     | x4     | x1     |
+| High resolution |  011     | x8     | x1     |
+| Ultra high resolution |  100     | x16     | x1     |
+| Highest resolution|  101     | x32     | x2     |
 
 bmp58x.OSR1 corresponds to x1 for all sensors, bmp58x.OSR2 corresponds to x2 for all sensors, bmp58x.OSR4 corresponds to x4 for all sensors, etc.
