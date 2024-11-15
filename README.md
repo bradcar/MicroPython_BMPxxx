@@ -13,12 +13,12 @@ Code includes:
 * All pressures use the hPA metric
 * Temperatures use Celsius
 * Code enables setting OverSampling, IIR values, and sea level pressure
-  * for sea level pressure the driver defaults to 1013.25 hpa, but weather causes to vary by more than the range of 990 hPa to 1040 hPA for sea level presssure
-  * best on each use to set sea level pressure to that of the nearest airport, for example: https://www.weather.gov/wrh/timeseries?site=KPDX
-  * not setting nearest sea level pressure will cause any altitude reading to be way off
+  * For sea level pressure, the driver defaults to 1013.25 hpa the international accepted world-wide average hPA, but weather causes sea level presssure to vary by more than the range of 990 hPa to 1040 hPA.
+  * It is best to set sea level pressure on each use to that of the nearest airport, for example: https://www.weather.gov/wrh/timeseries?site=KPDX
+  * Not setting nearest sea level pressure will cause any altitude reading to be way off.
   
 ## Recommended Oversampling rates form Bosch datasheets
-The table below is Bosch's recommended oversampling setting for bmp585 and bmp581.
+The table below is Bosch's recommended oversampling setting for bmp585 and bmp581. Higher sampling rates effect the refresh rate and the power consumption. Please checked the Bosch datasheets for that information https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/
 
 | Oversampling setting | OSR Pressure | Pressure oversampling | Pressure oversampling |
 |------------------|------------------|------------------|------------------|
