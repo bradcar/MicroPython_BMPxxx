@@ -17,7 +17,7 @@ Code includes:
   * It is best to set sea level pressure on each use to that of the nearest airport, for example: https://www.weather.gov/wrh/timeseries?site=KPDX
   * Not setting nearest sea level pressure will cause any altitude reading to be way off.
   
-## Recommended Oversampling rates form Bosch datasheets
+## Recommended Oversampling rates fron Bosch datasheets
 The table below is Bosch's recommended oversampling setting for bmp585 and bmp581. Higher sampling rates effect the refresh rate and the power consumption. Please checked the Bosch datasheets for that information https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/
 
 | Oversampling setting | OSR Pressure | Pressure oversampling | Pressure oversampling |
