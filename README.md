@@ -31,7 +31,9 @@ The table below is Bosch's recommended oversampling pressure and temperature set
 | |  110     | x64     | x4     |
 | Highest resolution |  111     | x128     | x8     |
 
-The table below is Bosch's recommended oversampling pressure and temperature settings for bmp390.
+The bmp585 and bmp581 do not have recommended IIR filters to go with the table abovel
+
+The table below is Bosch's recommended oversampling pressure and temperature settings for bmp390. There are recommended IIR filter settings for the bmp390 in section 3.5. Filter section, page 17, in bmp390 datasheet
 
 | Oversampling setting | OSR Pressure | Pressure oversampling | Pressure oversampling |
 |------------------|------------------|------------------|------------------|
