@@ -18,7 +18,7 @@ Code includes:
   * Not setting nearest sea level pressure will cause any altitude reading to be way off.
   
 ## Recommended Oversampling rates fron Bosch datasheets
-The table below is Bosch's recommended oversampling setting for bmp585 and bmp581. Higher sampling rates effect the refresh rate and the power consumption. Please checked the Bosch datasheets for that information https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/
+The table below is Bosch's recommended oversampling pressure and temperature settings for bmp585 and bmp581. Higher sampling rates effect the refresh rate and the power consumption. Please checked the Bosch datasheets for that information https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/
 
 | Oversampling setting | OSR Pressure | Pressure oversampling | Pressure oversampling |
 |------------------|------------------|------------------|------------------|
@@ -31,7 +31,7 @@ The table below is Bosch's recommended oversampling setting for bmp585 and bmp58
 | |  110     | x64     | x4     |
 | Highest resolution |  111     | x128     | x8     |
 
-The table below is Bosch's recommended oversampling setting for bmp390.
+The table below is Bosch's recommended oversampling pressure and temperature settings for bmp390.
 
 | Oversampling setting | OSR Pressure | Pressure oversampling | Pressure oversampling |
 |------------------|------------------|------------------|------------------|
