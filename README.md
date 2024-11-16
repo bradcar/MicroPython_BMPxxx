@@ -74,14 +74,13 @@ bmp58x.OSR1 corresponds to x1 for all sensors, bmp58x.OSR2 corresponds to x2 for
     def __init__(self, i2c, address: int = 0x47) -> None:
         super().__init__(i2c, address)
 
-        # Check if the device is actually a BMP581
+        # Check if the device is actually a BMP585
         if self._device_id != 0x51:  
-            raise RuntimeError("Failed to find the BMP581 sensor")
+            raise RuntimeError("Failed to find the BMP585 sensor")
         
         # Initialize any BMP581-specific attributes or configurations
         # For example, register differences on constant differences
 
     # Override or add any BMP581-specific methods or properties as needed.
     ```
-Override Device-Specific Attributes or Methods: If the BMP581 differs in specific register addresses, initialization parameters, or data handling, override these in the BMP581 class.
-* then add the bmp390 as a class
+* then add the bmp390 as a sub-class, be very careful because of the many specific changes
