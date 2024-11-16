@@ -22,7 +22,8 @@ Code includes:
 ## Recommended Oversampling rates fron Bosch datasheets
 The table below is Bosch's recommended oversampling pressure and temperature settings for bmp585 and bmp581. Higher sampling rates effect the refresh rate and the power consumption. Please checked the Bosch datasheets for that information https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/
 
-| Oversampling setting | OSR Pressure | Pressure oversampling | Pressure oversampling |
+Table 1: BMP585/BMP581 Recommendations from Bosch
+| Oversampling setting | OSR Pressure | Pressure<br /> oversampling | Pressure<br /> oversampling |
 | :--- | :---: | :---: | :---: |
 | Lowest Power |  000     | x1     | x1     |
 | |  001     | x2     | x1     |
@@ -37,7 +38,8 @@ The bmp585 and bmp581 do not have recommended IIR filters to go with the table a
 
 The table below is Bosch's recommended oversampling pressure and temperature settings for bmp390. There are recommended IIR filter settings for the bmp390 in section 3.5. Filter section, page 17, in bmp390 datasheet
 
-| Oversampling setting | OSR Pressure | Pressure oversampling | Pressure oversampling |
+Table 2: BMP390 Recommendations from Bosch
+| Oversampling setting | OSR Pressure | Pressure<br /> oversampling | Pressure<br /> oversampling |
 | :--- | :---: | :---: | :---: |
 | Ultra low power |  000     | x1     | x1     |
 | Low power |  001     | x2     | x1     |
