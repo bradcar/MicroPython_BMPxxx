@@ -24,15 +24,6 @@ import array
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/bradcar/MicroPython_BMP58x.git"
 
-### notice all of these are different locations than bmp591
-_REG_WHOAMI = const(0x00)
-_CONFIG = const(0x1f)
-_ODR_CONFIG = const(0x1d)
-_OSR_CONF = const(0x1c)
-_PWR_CTRL = const(0x1b)
-_TEMP_DATA =  const(0x07)
-_PRESS_DATA = const(0x04)
-
 # Power Modes
 STANDBY = const(0x00)
 NORMAL = const(0x01)
@@ -127,6 +118,14 @@ class BMP390:
             raise RuntimeError("Failed to find the BMP581 sensor")
 
     """
+    ###  BMP390 Constants - notice very different than bmp591
+    _REG_WHOAMI = const(0x00)
+    _CONFIG = const(0x1f)
+    _ODR_CONFIG = const(0x1d)
+    _OSR_CONF = const(0x1c)
+    _PWR_CTRL = const(0x1b)
+    _TEMP_DATA =  const(0x07)
+    _PRESS_DATA = const(0x04)
 
     _device_id = RegisterStruct(_REG_WHOAMI, "B")
 
