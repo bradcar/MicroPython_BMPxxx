@@ -22,8 +22,7 @@ from micropython_bmp58x.i2c_helpers import CBits, RegisterStruct
 import array
 
 __version__ = "0.0.0+auto.0"
-# BRAD UPDATE TODO ????????????????????????????????????????????
-__repo__ = "https://github.com/jposada202020/MicroPython_BMP581.git"
+__repo__ = "https://github.com/bradcar/MicroPython_BMP58x.git"
 
 ### notice all of these are different locations than bmp591
 _REG_WHOAMI = const(0x00)
@@ -141,28 +140,28 @@ class BMP390:
     _temperature = CBits(24, _TEMP_DATA, 0, 3)
     _pressure = CBits(24, _PRESS_DATA, 0, 3)
 
-    _t_par_t1_msb = CBits(8, 0x32, 0)  # Most significant byte of par_t1
-    _t_par_t1_lsb = CBits(8, 0x31, 0)  # Least significant byte of par_t1
-    _t_par_t2_msb = CBits(8, 0x34, 0)  # Most significant byte of par_t2
-    _t_par_t2_lsb = CBits(8, 0x33, 0)  # Least significant byte of par_t2
-    _t_par_t3 = CBits(8, 0x35, 0)      # Only byte for par_t3
+    _par_t1_msb = CBits(8, 0x32, 0)  # Most significant byte of par_t1
+    _par_t1_lsb = CBits(8, 0x31, 0)  # Least significant byte of par_t1
+    _par_t2_msb = CBits(8, 0x34, 0)  # Most significant byte of par_t2
+    _par_t2_lsb = CBits(8, 0x33, 0)  # Least significant byte of par_t2
+    _par_t3 = CBits(8, 0x35, 0)      # Only byte for par_t3
     
-    _p_par_p1_msb = CBits(8, 0x37, 0)  # Most significant byte of par_p1
-    _p_par_p1_lsb = CBits(8, 0x36, 0)  # Least significant byte of par_p1 
-    _p_par_p2_msb = CBits(8, 0x39, 0)  # Most significant byte of par_p2
-    _p_par_p2_lsb = CBits(8, 0x38, 0)  # Least significant byte of par_p2
-    _p_par_p3 = CBits(8, 0x3A, 0)      # Only byte for par_p3
-    _p_par_p4 = CBits(8, 0x3B, 0)      # Only byte for par_p4
-    _p_par_p5_msb = CBits(8, 0x3D, 0)  # Most significant byte of par_p5
-    _p_par_p5_lsb = CBits(8, 0x3C, 0)  # Least significant byte of par_p5
-    _p_par_p6_msb = CBits(8, 0x3F, 0)  # Most significant byte of par_p6
-    _p_par_p6_lsb = CBits(8, 0x3E, 0)  # Least significant byte of par_p6
-    _p_par_p7 = CBits(8, 0x40, 0)      # Only byte for par_p7
-    _p_par_p8 = CBits(8, 0x41, 0)      # Only byte for par_p8
-    _p_par_p9_msb = CBits(8, 0x43, 0)  # Most significant byte of par_p9
-    _p_par_p9_lsb = CBits(8, 0x42, 0)  # Least significant byte of par_p9
-    _p_par_p10 = CBits(8, 0x44, 0)     # Only byte for par_p10
-    _p_par_p11 = CBits(8, 0x45, 0)     # Only byte for par_p11
+    _par_p1_msb = CBits(8, 0x37, 0)  # Most significant byte of par_p1
+    _par_p1_lsb = CBits(8, 0x36, 0)  # Least significant byte of par_p1 
+    _par_p2_msb = CBits(8, 0x39, 0)  # Most significant byte of par_p2
+    _par_p2_lsb = CBits(8, 0x38, 0)  # Least significant byte of par_p2
+    _par_p3 = CBits(8, 0x3A, 0)      # Only byte for par_p3
+    _par_p4 = CBits(8, 0x3B, 0)      # Only byte for par_p4
+    _par_p5_msb = CBits(8, 0x3D, 0)  # Most significant byte of par_p5
+    _par_p5_lsb = CBits(8, 0x3C, 0)  # Least significant byte of par_p5
+    _par_p6_msb = CBits(8, 0x3F, 0)  # Most significant byte of par_p6
+    _par_p6_lsb = CBits(8, 0x3E, 0)  # Least significant byte of par_p6
+    _par_p7 = CBits(8, 0x40, 0)      # Only byte for par_p7
+    _par_p8 = CBits(8, 0x41, 0)      # Only byte for par_p8
+    _par_p9_msb = CBits(8, 0x43, 0)  # Most significant byte of par_p9
+    _par_p9_lsb = CBits(8, 0x42, 0)  # Least significant byte of par_p9
+    _par_p10 = CBits(8, 0x44, 0)     # Only byte for par_p10
+    _par_p11 = CBits(8, 0x45, 0)     # Only byte for par_p11
 
     def __init__(self, i2c, address: int = 0x7f) -> None:
         self._i2c = i2c
@@ -176,29 +175,29 @@ class BMP390:
         self.sea_level_pressure = 1013.25  # International standard, but can be +/- 20 hPa
         
     @property
-    def t_par_t1(self) -> int:
-        """Combine _t_par_t1_msb and _t_par_t1_lsb into a single 16-bit integer."""
-        msb_value = self._t_par_t1_msb  # Reads CBits value
-        lsb_value = self._t_par_t1_lsb  # Reads CBits value
+    def par_t1(self) -> int:
+        """Combine _par_t1_msb and _par_t1_lsb into a single 16-bit integer."""
+        msb_value = self._par_t1_msb  # Reads CBits value
+        lsb_value = self._par_t1_lsb  # Reads CBits value
         return ((msb_value << 8) | lsb_value) & 0xFFFF
 
     @property
-    def t_par_t2(self) -> int:
-        """Combine _t_par_t2_msb and _t_par_t2_lsb into a single 16-bit integer."""
-        msb_value = self._t_par_t2_msb  # Reads CBits value
-        lsb_value = self._t_par_t2_lsb  # Reads CBits value
+    def par_t2(self) -> int:
+        """Combine _par_t2_msb and _par_t2_lsb into a single 16-bit integer."""
+        msb_value = self._par_t2_msb  # Reads CBits value
+        lsb_value = self._par_t2_lsb  # Reads CBits value
         return ((msb_value << 8) | lsb_value) & 0xFFFF
 
     @property
-    def t_par_t3(self) -> int:
-        """Read the single-byte _t_par_t3 value."""
-        return self._t_par_t3 if self._t_par_t3 <= 127 else self._t_par_t3 - 256
+    def par_t3(self) -> int:
+        """Read the single-byte _par_t3 value."""
+        return self._par_t3 if self._par_t3 <= 127 else self._par_t3 - 256
     
     @property
-    def p_par_p1(self) -> int:
-        """Combine _p_par_p1_msb and _p_par_p1_lsb into a single 16-bit integer."""
-        msb_value = self._p_par_p1_msb  # Reads CBits value
-        lsb_value = self._p_par_p1_lsb  # Reads CBits value
+    def par_p1(self) -> int:
+        """Combine _par_p1_msb and _par_p1_lsb into a single 16-bit integer."""
+        msb_value = self._par_p1_msb  # Reads CBits value
+        lsb_value = self._par_p1_lsb  # Reads CBits value
         combined_value = (msb_value << 8) | lsb_value
     
         # Convert to signed 16-bit value (two's complement)
@@ -207,10 +206,10 @@ class BMP390:
         return combined_value
 
     @property
-    def p_par_p2(self) -> int:
-        """Combine _p_par_p2_msb and _p_par_tp_lsb into a single 16-bit integer."""
-        msb_value = self._p_par_p2_msb  # Reads CBits value
-        lsb_value = self._p_par_p2_lsb  # Reads CBits value
+    def par_p2(self) -> int:
+        """Combine _par_p2_msb and _p_par_tp_lsb into a single 16-bit integer."""
+        msb_value = self._par_p2_msb  # Reads CBits value
+        lsb_value = self._par_p2_lsb  # Reads CBits value
         combined_value = (msb_value << 8) | lsb_value
         # Convert to signed 16-bit value (two's complement)
         if combined_value >= 0x8000:  # If the value is greater than or equal to 32768
@@ -218,44 +217,44 @@ class BMP390:
         return combined_value
 
     @property
-    def p_par_p3(self) -> int:
-        """Read the single-byte _p_par_p3 value."""
-        return self._p_par_p3 if self._p_par_p3 <= 127 else self._p_par_p3 - 256
+    def par_p3(self) -> int:
+        """Read the single-byte _par_p3 value."""
+        return self._par_p3 if self._par_p3 <= 127 else self._par_p3 - 256
 
     @property
-    def p_par_p4(self) -> int:
-        """Read the single-byte _p_par_p4 value."""
-        return self._p_par_p4 if self._p_par_p4 <= 127 else self._p_par_p4 - 256
+    def par_p4(self) -> int:
+        """Read the single-byte _par_p4 value."""
+        return self._par_p4 if self._par_p4 <= 127 else self._par_p4 - 256
     
     @property
-    def p_par_p5(self) -> int:
-        """Combine _p_par_p5_msb and _p_par_p5_lsb into a single 16-bit integer."""
-        msb_value = self._p_par_p5_msb  # Reads CBits value
-        lsb_value = self._p_par_p5_lsb  # Reads CBits value
+    def par_p5(self) -> int:
+        """Combine _par_p5_msb and _par_p5_lsb into a single 16-bit integer."""
+        msb_value = self._par_p5_msb  # Reads CBits value
+        lsb_value = self._par_p5_lsb  # Reads CBits value
         return (msb_value << 8) | lsb_value
 
     @property
-    def p_par_p6(self) -> int:
-        """Combine _p_par_p6_msb and _p_par_p6_lsb into a single 16-bit integer."""
-        msb_value = self._p_par_p6_msb  # Reads CBits value
-        lsb_value = self._p_par_p6_lsb  # Reads CBits value
+    def par_p6(self) -> int:
+        """Combine _par_p6_msb and _par_p6_lsb into a single 16-bit integer."""
+        msb_value = self._par_p6_msb  # Reads CBits value
+        lsb_value = self._par_p6_lsb  # Reads CBits value
         return (msb_value << 8) | lsb_value
     
     @property
-    def p_par_p7(self) -> int:
-        """Read the single-byte _p_par_p7 value."""
-        return self._p_par_p7 if self._p_par_p7 <= 127 else self._p_par_p7 - 256
+    def par_p7(self) -> int:
+        """Read the single-byte _par_p7 value."""
+        return self._par_p7 if self._par_p7 <= 127 else self._par_p7 - 256
 
     @property
-    def p_par_p8(self) -> int:
-        """Read the single-byte _p_par_p8 value."""
-        return self._p_par_p8 if self._p_par_p8 <= 127 else self._p_par_p8 - 256
+    def par_p8(self) -> int:
+        """Read the single-byte _par_p8 value."""
+        return self._par_p8 if self._par_p8 <= 127 else self._par_p8 - 256
     
     @property
-    def p_par_p9(self) -> int:
-        """Combine _p_par_p9_msb and _p_par_p9_lsb into a single 16-bit integer."""
-        msb_value = self._p_par_p9_msb  # Reads CBits value
-        lsb_value = self._p_par_p9_lsb  # Reads CBits value
+    def par_p9(self) -> int:
+        """Combine _par_p9_msb and _par_p9_lsb into a single 16-bit integer."""
+        msb_value = self._par_p9_msb  # Reads CBits value
+        lsb_value = self._par_p9_lsb  # Reads CBits value
         combined_value = (msb_value << 8) | lsb_value
         # Convert to signed 16-bit value (two's complement)
         if combined_value >= 0x8000:  # If the value is greater than or equal to 32768
@@ -263,14 +262,14 @@ class BMP390:
         return combined_value
     
     @property
-    def p_par_p10(self) -> int:
-        """Read the single-byte _p_par_p10 value."""
-        return self._p_par_p10 if self._p_par_p10 <= 127 else self._p_par_p10 - 256
+    def par_p10(self) -> int:
+        """Read the single-byte _par_p10 value."""
+        return self._par_p10 if self._par_p10 <= 127 else self._par_p10 - 256
     
     @property
-    def p_par_p11(self) -> int:
-        """Read the single-byte _p_par_p11 value."""
-        return self._p_par_p11 if self._p_par_p11 <= 127 else self._p_par_p11 - 256
+    def par_p11(self) -> int:
+        """Read the single-byte _par_p11 value."""
+        return self._par_p11 if self._par_p11 <= 127 else self._par_p11 - 256
 
     @property
     def power_mode(self) -> str:
@@ -406,11 +405,11 @@ class BMP390:
         raw_temp = self._temperature
         
         # Step-by-step compensation calculation, p55 in data sheet
-        partial_data1 = float(raw_temp - (self.t_par_t1 / 2.0 ** -8))
-        partial_data2 = partial_data1 * (self.t_par_t2 / 2.0 ** 30)
+        partial_data1 = float(raw_temp - (self.par_t1 / 2.0 ** -8))
+        partial_data2 = partial_data1 * (self.par_t2 / 2.0 ** 30)
 
         # Update the compensated temperature in calib_data (needed for pressure calculation)
-        tempc = partial_data2 + (partial_data1 ** 2) * (self.t_par_t3 / 2.0 ** 48)
+        tempc = partial_data2 + (partial_data1 ** 2) * (self.par_t3 / 2.0 ** 48)
 
         # Return the compensated temperature
         return tempc
@@ -425,27 +424,27 @@ class BMP390:
         raw_temp = float(self._temperature)
         
         # Step-by-step compensation calculation
-        partial_data1 = float(raw_temp - (self.t_par_t1 / 2.0 ** -8))
-        partial_data2 = partial_data1 * (self.t_par_t2 / 2.0 ** 30)
+        partial_data1 = float(raw_temp - (self.par_t1 / 2.0 ** -8))
+        partial_data2 = partial_data1 * (self.par_t2 / 2.0 ** 30)
 
         # Update the compensated temperature in calib_data (needed for pressure calculation)
-        tempc = partial_data2 + (partial_data1 ** 2) * (self.t_par_t3 / 2.0 ** 48)
+        tempc = partial_data2 + (partial_data1 ** 2) * (self.par_t3 / 2.0 ** 48)
         
         # calculate calibrated pressure 
-        partial_data1 = (self.p_par_p6 / 2.0 ** 6) * tempc
-        partial_data2 = (self.p_par_p7 / 2.0 ** 8) * (tempc ** 2)
-        partial_data3 = (self.p_par_p8 / 2.0 ** 15) * (tempc ** 3)
-        partial_out1 = (self.p_par_p5 / 2.0 ** -3) + partial_data1 + partial_data2 + partial_data3
+        partial_data1 = (self.par_p6 / 2.0 ** 6) * tempc
+        partial_data2 = (self.par_p7 / 2.0 ** 8) * (tempc ** 2)
+        partial_data3 = (self.par_p8 / 2.0 ** 15) * (tempc ** 3)
+        partial_out1 = (self.par_p5 / 2.0 ** -3) + partial_data1 + partial_data2 + partial_data3
     
-        partial_data1 = ((self.p_par_p2 - 2.0 ** 14) / 2.0 ** 29) * tempc
-        partial_data2 = (self.p_par_p3 / 2.0 ** 32) * (tempc ** 2)
-        partial_data3 = (self.p_par_p4 / 2.0 ** 37) * (tempc ** 3)
-        partial_out2 = raw_pressure * (((self.p_par_p1 - 2.0 ** 14)/ 2.0 ** 20) + partial_data1 + partial_data2 + partial_data3)
+        partial_data1 = ((self.par_p2 - 2.0 ** 14) / 2.0 ** 29) * tempc
+        partial_data2 = (self.par_p3 / 2.0 ** 32) * (tempc ** 2)
+        partial_data3 = (self.par_p4 / 2.0 ** 37) * (tempc ** 3)
+        partial_out2 = raw_pressure * (((self.par_p1 - 2.0 ** 14)/ 2.0 ** 20) + partial_data1 + partial_data2 + partial_data3)
     
         partial_data1 = raw_pressure ** 2
-        partial_data2 = (self.p_par_p9 / 2.0 ** 48) + (self.p_par_p10/ 2.0 ** 48) * tempc
+        partial_data2 = (self.par_p9 / 2.0 ** 48) + (self.par_p10/ 2.0 ** 48) * tempc
         partial_data3 = partial_data1 * partial_data2
-        partial_data4 = partial_data3 + (raw_pressure ** 3) * (self.p_par_p11 / 2.0 ** 65)
+        partial_data4 = partial_data3 + (raw_pressure ** 3) * (self.par_p11 / 2.0 ** 65)
     
         # Compensated pressure, in Pa, return in hPa
         comp_press = partial_out1 + partial_out2 + partial_data4
