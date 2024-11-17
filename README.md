@@ -16,25 +16,22 @@ Code includes:
 * All temperatures are in Celsius.
 * Code enables setting Pressure/Temperature OverSampling and IIR values.
 * It also can calculate altitude based on current pressure and sea level pressure.
-* One can adjusting sea level pressure setting.
+* One can adjusting sea level pressure setting to known local measurements.
   * For sea level pressure, the driver defaults to 1013.25 hpa which is the international accepted world-wide average hPa. However you should know that weather causes sea level presssure to typically vary from 990 hPa to 1040 hPA or more.
   * It is best to set sea level pressure on each use to that of the nearest airport, for example: https://www.weather.gov/wrh/timeseries?site=KPDX
-  * By not setting nearest local known sea level pressure,  altitude measurements may be way off. Even at 360 feet (111m) altitudes can be off by 1500 feet (500m) depending on the weather.
+  * By not setting nearest local known sea level pressure, altitude measurements may be way off. Even at 360 feet (111m) altitudes can be off by 1500 feet (500m) depending on the weather.
 
 ## Sample Usage
-
 Required Imports:
 ```
 from machine import Pin, I2C
 from micropython_bmp58x import bmp58x
 ```
-
 Define your machine.I2C object in this case I2C 1 (not 0) and your sensor objects:
 ```
 i2c = I2C(1, sda=Pin(2), scl=Pin(3))
 bmp = bmp58x.BMP581(i2c)
 ```
-
 Access sensor's data:
 ```
 press = bmp.pressure
@@ -50,18 +47,11 @@ bmp.sea_level_pressure = 1010.80
 meters = bmp.altitude
 print(f"alt = {meters:.2f} meters")
 ```
-Increase bmp585 sensor to highest accuracy:
+Increase bmp585 sensor to highest accuracy (see below for bmp390):
 ```
 # Highest resolution for bmp585
 bmp.pressure_oversample_rate = bmp.OSR128
 bmp.temperature_oversample_rate = bmp.OSR8
-```
-Increase bmp390 sensor to highest accuracy:
-```
-# Highest resolution for bmp390
-bmp.pressure_oversample_rate = bmp.OSR32
-bmp.temperature_oversample_rate = bmp.OSR2
-bmp.iir_coefficient = bmp.COEF_3
 ```
 
 ## Recommended Oversampling Rates to Improve Sensor's Accuracy
