@@ -49,12 +49,18 @@ bmp.sea_level_pressure = 1010.80
 meters = bmp.altitude
 print(f"alt = {meters:.2f} meters")
 ```
-Increase sensor to highest accuracy:
+Increase bmp585 sensor to highest accuracy:
 ```
-# HI_RESOLUTION for bmp390
+# Highest resolution for bmp585
+bmp.pressure_oversample_rate = bmp.OSR128
+bmp.temperature_oversample_rate = bmp.OSR8
+```
+Increase bmp390 sensor to highest accuracy:
+```
+# Highest resolution for bmp390
 bmp.pressure_oversample_rate = bmp.OSR32
 bmp.temperature_oversample_rate = bmp.OSR2
-meters = bmp.altitude
+bmp.iir_coefficient = bmp.COEF_3
 ```
 
 ## Recommended Oversampling Rates to Improve Sensor's Accuracy
