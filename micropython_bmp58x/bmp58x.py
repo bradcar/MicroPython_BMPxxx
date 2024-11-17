@@ -17,10 +17,10 @@ Based on
 
 from micropython import const
 from micropython_bmp58x.i2c_helpers import CBits, RegisterStruct
-import array
 
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/bradcar/MicroPython_BMP58x.git"
+
 
 class BMP591:
     # Power Modes for BMP591
@@ -39,11 +39,11 @@ class BMP591:
     OSR32 = const(0x05)
     OSR64 = const(0x06)
     OSR128 = const(0x07)
-    
-    #oversampling rates
+
+    # oversampling rates
     pressure_oversample_rate_values = (OSR1, OSR2, OSR4, OSR8, OSR16, OSR32, OSR64, OSR128)
     temperature_oversample_rate_values = (OSR1, OSR2, OSR4, OSR8, OSR16, OSR32, OSR64, OSR128)
-    
+
     # IIR Filters Coefficients
     COEF_0 = const(0x00)
     COEF_1 = const(0x01)
@@ -54,7 +54,7 @@ class BMP591:
     COEF_63 = const(0x06)
     COEF_127 = const(0x07)
     iir_coefficient_values = (COEF_0, COEF_1, COEF_3, COEF_7, COEF_15, COEF_31, COEF_63, COEF_127)
-    
+
     @property
     def pressure_oversample_rate(self) -> str:
         """
@@ -77,13 +77,14 @@ class BMP591:
         +---------------------------+------------------+
         :return: sampling rate as string
         """
-        string_name = ("OSR1", "OSR2", "OSR4", "OSR8", "OSR16", "OSR32", "OSR64", "OSR128", )
+        string_name = ("OSR1", "OSR2", "OSR4", "OSR8", "OSR16", "OSR32", "OSR64", "OSR128",)
         return string_name[self._pressure_oversample_rate]
 
     @pressure_oversample_rate.setter
     def pressure_oversample_rate(self, value: int) -> None:
         if value not in self.pressure_oversample_rate_values:
-            raise ValueError("Value must be a valid pressure_oversample_rate: OSR1,OSR2,OSR4,OSR8,OSR16,OSR32,OSR64,OSR128")
+            raise ValueError(
+                "Value must be a valid pressure_oversample_rate: OSR1,OSR2,OSR4,OSR8,OSR16,OSR32,OSR64,OSR128")
         self._pressure_oversample_rate = value
 
     @property
@@ -105,7 +106,7 @@ class BMP591:
         +---------------------------+------------------+
         :return: sampling rate as string
         """
-        string_name = ("OSR1", "OSR2", "OSR4", "OSR8", "OSR16", "OSR32", "OSR64", "OSR128", )
+        string_name = ("OSR1", "OSR2", "OSR4", "OSR8", "OSR16", "OSR32", "OSR64", "OSR128",)
         return string_name[self._temperature_oversample_rate]
 
     @temperature_oversample_rate.setter
@@ -114,7 +115,7 @@ class BMP591:
             raise ValueError(
                 "Value must be a valid temperature_oversample_rate: OSR1,OSR2,OSR4,OSR8,OSR16,OSR32,OSR64,OSR128")
         self._temperature_oversample_rate = value
-    
+
     @property
     def altitude(self) -> float:
         """
@@ -122,7 +123,7 @@ class BMP591:
         the altitude in meters is calculated with the international barometric formula
         """
         altitude = 44330.0 * (
-            1.0 - ((self.pressure / self.sea_level_pressure) ** (1.0 / 5.255))
+                1.0 - ((self.pressure / self.sea_level_pressure) ** (1.0 / 5.255))
         )
         return round(altitude, 1)
 
@@ -147,7 +148,7 @@ class BMP591:
         if val & (1 << (bits - 1)) != 0:
             return val - (1 << bits)
         return value
-    
+
     @property
     def iir_coefficient(self) -> str:
         """
@@ -176,7 +177,7 @@ class BMP591:
             raise ValueError(
                 "Value must be a valid iir_coefficients: COEF_0,COEF_1,COEF_3,COEF_7,COEF_15,COEF_31,COEF_63,COEF_127")
         self._iir_coefficient = value
-        
+
     @property
     def output_data_rate(self) -> int:
         """
@@ -227,14 +228,14 @@ class BMP390(BMP591):
         press = bmp.pressure
         temp = bmp.temperature
         over_sample = bmp.temperature_oversample_rate
-        
+
         # meters based on sea level pressure of 1013.25 hPA
         meters = bmp.altitude
-        
+
         # altitude in meters based on initial sea level pressure of 1013.25 hPA
-        sea_level_pressure = bmp.sea_level_pressure 
+        sea_level_pressure = bmp.sea_level_pressure
         meters = bmp.altitude
-        
+
         # set sea level pressure for future altitude  in meters calculations based on measured
         # pressure value at known elevation
         bmp.altitude = 1524.9
@@ -243,17 +244,17 @@ class BMP390(BMP591):
         # set sea level pressure to a known sea level pressure in hPa at nearest airport
         bmp.sea_level_pressure = 1010.80
         meters = bmp.altitude
-        
-        
+
+
         ?????   TODO add resolultions
         LO_POW_RESOLUTION_0_PX0_TX0
         STD_RESOLUTION_2_PX4_TX1
         HI_RESOLUTION_3_PX8_TX1
         HI_RESOLUTION_5_PX32_Tx2
         HI_RESOLUTION_7_PX128_Tx8
-        
+
         In__init__
-        
+
         if self._device_id != 0x01:
             raise RuntimeError("Failed to find the BMP585 sensor")
         if self._device_id != 0x50:
@@ -263,7 +264,7 @@ class BMP390(BMP591):
     # Power Modes for BMP390
     power_mode_values = (STANDBY, FORCED, NORMAL)
 
-    #oversampling rates
+    # oversampling rates
     pressure_oversample_rate_values = (OSR1, OSR2, OSR4, OSR8, OSR16, OSR32)
     temperature_oversample_rate_values = (OSR1, OSR2, OSR4, OSR8, OSR16, OSR32)
 
@@ -273,7 +274,7 @@ class BMP390(BMP591):
     _ODR_CONFIG = const(0x1d)
     _OSR_CONF = const(0x1c)
     _PWR_CTRL = const(0x1b)
-    _TEMP_DATA =  const(0x07)
+    _TEMP_DATA = const(0x07)
     _PRESS_DATA = const(0x04)
 
     _device_id = RegisterStruct(_REG_WHOAMI, "B")
@@ -292,24 +293,24 @@ class BMP390(BMP591):
     _par_t1_lsb = CBits(8, 0x31, 0)  # Least significant byte of par_t1
     _par_t2_msb = CBits(8, 0x34, 0)  # Most significant byte of par_t2
     _par_t2_lsb = CBits(8, 0x33, 0)  # Least significant byte of par_t2
-    _par_t3 = CBits(8, 0x35, 0)      # Only byte for par_t3
-    
+    _par_t3 = CBits(8, 0x35, 0)  # Only byte for par_t3
+
     _par_p1_msb = CBits(8, 0x37, 0)  # Most significant byte of par_p1
-    _par_p1_lsb = CBits(8, 0x36, 0)  # Least significant byte of par_p1 
+    _par_p1_lsb = CBits(8, 0x36, 0)  # Least significant byte of par_p1
     _par_p2_msb = CBits(8, 0x39, 0)  # Most significant byte of par_p2
     _par_p2_lsb = CBits(8, 0x38, 0)  # Least significant byte of par_p2
-    _par_p3 = CBits(8, 0x3A, 0)      # Only byte for par_p3
-    _par_p4 = CBits(8, 0x3B, 0)      # Only byte for par_p4
+    _par_p3 = CBits(8, 0x3A, 0)  # Only byte for par_p3
+    _par_p4 = CBits(8, 0x3B, 0)  # Only byte for par_p4
     _par_p5_msb = CBits(8, 0x3D, 0)  # Most significant byte of par_p5
     _par_p5_lsb = CBits(8, 0x3C, 0)  # Least significant byte of par_p5
     _par_p6_msb = CBits(8, 0x3F, 0)  # Most significant byte of par_p6
     _par_p6_lsb = CBits(8, 0x3E, 0)  # Least significant byte of par_p6
-    _par_p7 = CBits(8, 0x40, 0)      # Only byte for par_p7
-    _par_p8 = CBits(8, 0x41, 0)      # Only byte for par_p8
+    _par_p7 = CBits(8, 0x40, 0)  # Only byte for par_p7
+    _par_p8 = CBits(8, 0x41, 0)  # Only byte for par_p8
     _par_p9_msb = CBits(8, 0x43, 0)  # Most significant byte of par_p9
     _par_p9_lsb = CBits(8, 0x42, 0)  # Least significant byte of par_p9
-    _par_p10 = CBits(8, 0x44, 0)     # Only byte for par_p10
-    _par_p11 = CBits(8, 0x45, 0)     # Only byte for par_p11
+    _par_p10 = CBits(8, 0x44, 0)  # Only byte for par_p10
+    _par_p11 = CBits(8, 0x45, 0)  # Only byte for par_p11
 
     def __init__(self, i2c, address: int = 0x7f) -> None:
         self._i2c = i2c
@@ -321,7 +322,7 @@ class BMP390(BMP591):
         self._power_mode = NORMAL
         self._pressure_enabled = True
         self.sea_level_pressure = 1013.25  # International standard, but can be +/- 20 hPa
-        
+
     @property
     def par_t1(self) -> int:
         """Combine _par_t1_msb and _par_t1_lsb into a single 16-bit integer."""
@@ -340,14 +341,14 @@ class BMP390(BMP591):
     def par_t3(self) -> int:
         """Read the single-byte _par_t3 value."""
         return self._par_t3 if self._par_t3 <= 127 else self._par_t3 - 256
-    
+
     @property
     def par_p1(self) -> int:
         """Combine _par_p1_msb and _par_p1_lsb into a single 16-bit integer."""
         msb_value = self._par_p1_msb  # Reads CBits value
         lsb_value = self._par_p1_lsb  # Reads CBits value
         combined_value = (msb_value << 8) | lsb_value
-    
+
         # Convert to signed 16-bit value (two's complement)
         if combined_value >= 0x8000:  # If the value is greater than or equal to 32768
             return combined_value - 0x10000  # Convert to signed by subtracting 65536
@@ -373,7 +374,7 @@ class BMP390(BMP591):
     def par_p4(self) -> int:
         """Read the single-byte _par_p4 value."""
         return self._par_p4 if self._par_p4 <= 127 else self._par_p4 - 256
-    
+
     @property
     def par_p5(self) -> int:
         """Combine _par_p5_msb and _par_p5_lsb into a single 16-bit integer."""
@@ -387,7 +388,7 @@ class BMP390(BMP591):
         msb_value = self._par_p6_msb  # Reads CBits value
         lsb_value = self._par_p6_lsb  # Reads CBits value
         return (msb_value << 8) | lsb_value
-    
+
     @property
     def par_p7(self) -> int:
         """Read the single-byte _par_p7 value."""
@@ -397,7 +398,7 @@ class BMP390(BMP591):
     def par_p8(self) -> int:
         """Read the single-byte _par_p8 value."""
         return self._par_p8 if self._par_p8 <= 127 else self._par_p8 - 256
-    
+
     @property
     def par_p9(self) -> int:
         """Combine _par_p9_msb and _par_p9_lsb into a single 16-bit integer."""
@@ -408,12 +409,12 @@ class BMP390(BMP591):
         if combined_value >= 0x8000:  # If the value is greater than or equal to 32768
             return combined_value - 0x10000  # Convert to signed by subtracting 65536
         return combined_value
-    
+
     @property
     def par_p10(self) -> int:
         """Read the single-byte _par_p10 value."""
         return self._par_p10 if self._par_p10 <= 127 else self._par_p10 - 256
-    
+
     @property
     def par_p11(self) -> int:
         """Read the single-byte _par_p11 value."""
@@ -434,7 +435,7 @@ class BMP390(BMP591):
         +-----------------------------+------------------+
         :return: sampling rate as string
         """
-        string_name = ("STANDBY", "FORCED", "NORMAL", )
+        string_name = ("STANDBY", "FORCED", "NORMAL",)
         return string_name[self._power_mode]
 
     @power_mode.setter
@@ -489,7 +490,7 @@ class BMP390(BMP591):
         +---------------------------+------------------+
         :return: sampling rate as string
         """
-        string_name = ("OSR1", "OSR2", "OSR4", "OSR8","OSR16", "OSR32",)
+        string_name = ("OSR1", "OSR2", "OSR4", "OSR8", "OSR16", "OSR32",)
         return string_name[self._temperature_oversample_rate]
 
     @temperature_oversample_rate.setter
@@ -518,7 +519,8 @@ class BMP390(BMP591):
         partial_data1 = ((self.par_p2 - 2.0 ** 14) / 2.0 ** 29) * tempc
         partial_data2 = (self.par_p3 / 2.0 ** 32) * (tempc ** 2)
         partial_data3 = (self.par_p4 / 2.0 ** 37) * (tempc ** 3)
-        partial_out2 = raw_pressure * (((self.par_p1 - 2.0 ** 14) / 2.0 ** 20) + partial_data1 + partial_data2 + partial_data3)
+        partial_out2 = raw_pressure * (
+                ((self.par_p1 - 2.0 ** 14) / 2.0 ** 20) + partial_data1 + partial_data2 + partial_data3)
 
         # Third part
         partial_data1 = raw_pressure ** 2

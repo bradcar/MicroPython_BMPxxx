@@ -21,7 +21,7 @@ bmp = bmp58x.BMP390(i2c=i2c, address=0x76)
 sea_level_pressure = bmp.sea_level_pressure
 print(f"initial sea_level_pressure = {sea_level_pressure:.2f} hPa\n")
 
-bmp.sea_level_pressure = 1012.70
+bmp.sea_level_pressure = 1010.80
 
 #HI_RESOLUTION_5_PX32_Tx2
 bmp.pressure_oversample_rate = bmp.OSR32
@@ -47,10 +47,7 @@ while True:
 
 # while True:
 #     for iir_coefficient in bmp.iir_coefficient_values:
-#         print(
-#             "Current IIR Coeficient setting: ",
-#             bmp.iir_coefficient,
-#         )
+#         print(f"Current IIR Coefficient setting: {bmp.iir_coefficient}")
 #         for _ in range(10):
 #             print(f"Pressure: {bmp.pressure:.2f} hPa")
 #             print()
