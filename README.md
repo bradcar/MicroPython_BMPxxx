@@ -10,7 +10,7 @@ MicroPython Driver for the Bosch BMP585, BMP581, and BMP390 pressure sensors
  
 ## Micropython bmp58x driver
 Code includes:
-* All pressures are in the hPA metric.
+* All pressures are in hPA.
 * All temperatures are in Celsius.
 * Code enables setting Pressure/Temperature OverSampling and IIR values.
 * It also can calculate altitude based on current pressure and sea level pressure.
