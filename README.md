@@ -10,11 +10,11 @@ MicroPython Driver for the Bosch BMP585, BMP581, and BMP390 pressure sensors
  
 ## Micropython bmp58x driver
 Code includes:
-* All pressures use the hPA metric.
-* Temperatures use Celsius.
+* All pressures are in the hPA metric.
+* All temperatures are in Celsius.
 * Code enables setting Pressure/Temperature OverSampling and IIR values.
 * It also can calculate altitude based on current pressure and sea level pressure.
-* On can adjusting sea level pressure setting.
+* One can adjusting sea level pressure setting.
   * For sea level pressure, the driver defaults to 1013.25 hpa the international accepted world-wide average hPA, but weather causes sea level presssure to vary by more than the range of 990 hPa to 1040 hPA.
   * It is best to set sea level pressure on each use to that of the nearest airport, for example: https://www.weather.gov/wrh/timeseries?site=KPDX
   * By not setting nearest local known sea level pressure,  altitude measurements may be way off. Even at 360 feet (111m) altitudes can be off by 1500 feet (500m) depending on the weather.
@@ -60,7 +60,7 @@ bmp.pressure_oversample_rate = bmp.OSR32
 bmp.temperature_oversample_rate = bmp.OSR2
 ```
 
-bmp.OSR1 corresponds to x1 for all sensors, bmp.OSR2 corresponds to x2 for all sensors, bmp.OSR4 corresponds to x4 for all sensors, etc. If you go over for a particular sensor and error message will show possible values.
+bmp.OSR1 corresponds to x1 for all sensors, bmp.OSR2 corresponds to x2 for all sensors, bmp.OSR4 corresponds to x4 for all sensors, etc. If you go over for a particular sensor, then an error message will show possible values.
 
 ## Todos
-* add bmp581 class and bmp585 subclass next
+* add full code for bmp581 class and bmp585 subclass next
