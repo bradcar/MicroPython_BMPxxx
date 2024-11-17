@@ -114,7 +114,7 @@ bmp.OSR1 corresponds to x1 for all sensors, bmp.OSR2 corresponds to x2 for all s
   * Measure change in height of 0.25 meters.
 
 ## Tested with BMP585 Shuttle Board
-Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I2C interface with Raspberry Pi.
+Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I2C interface with Raspberry Pi. Shuttleboard pin details: https://www.electroniclinic.com/bosch-bmp585-barometric-pressure-sensor-with-arduino/
 * 1.27mm pins not breadboard friendly (boardboards use 2.54mm)
 * 3.3v:
   * vdd to 3.3v (pin 1 of 7 pin connector)
