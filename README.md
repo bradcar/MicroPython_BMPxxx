@@ -60,7 +60,7 @@ bmp.pressure_oversample_rate = bmp.OSR32
 bmp.temperature_oversample_rate = bmp.OSR2
 ```
 
-bmp.OSR1 corresponds to x1 for all sensors, bmp.OSR2 corresponds to x2 for all sensors, bmp.OSR4 corresponds to x4 for all sensors, etc. If you go over for a particular sensor and error message should state available values.
+bmp.OSR1 corresponds to x1 for all sensors, bmp.OSR2 corresponds to x2 for all sensors, bmp.OSR4 corresponds to x4 for all sensors, etc. If you go over for a particular sensor and error message will show possible values.
 
 ## Todos
 * add bmp581 class and bmp585 subclass next
