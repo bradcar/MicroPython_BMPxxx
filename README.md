@@ -35,12 +35,12 @@ Table 1: BMP585/BMP581 Recommendations from Bosch
 | Highest resolution |  111     | x128     | x8     |
 
 ```
-#Highest recommended pressure and temp for bmp581 or bmp585 sensor
+#Highest recommended for combined pressure and temperature for bmp581 or bmp585 sensor
 bmp.pressure_oversample_rate = bmp.OSR128
-bmp.temperature_oversample_rate = bmp.OSR32
+bmp.temperature_oversample_rate = bmp.OSR8
 ```
 
-The bmp585 and bmp581 do not have recommended IIR filters to go with the table abovel
+The bmp585 and bmp581 do not have recommended IIR filters to go with the table above.
 
 The table below is Bosch's recommended oversampling pressure and temperature settings for bmp390. There are recommended IIR filter settings for the bmp390 in section 3.5. Filter section, page 17, in bmp390 datasheet
 
@@ -55,9 +55,11 @@ Table 2: BMP390 Recommendations from Bosch
 | Highest resolution|  101     | x32     | x2     |
 
 ```
-#Highest recommended pressure and temp for bmp390 sensor
+# Highest recommended for combined pressure and temperature for bmp390 sensor
+# Indoor Navigation page 17 of bmp390 datasheet
 bmp.pressure_oversample_rate = bmp.OSR32
 bmp.temperature_oversample_rate = bmp.OSR2
+bmp.iir_coefficient = bmp.COEF_3
 ```
 
 bmp.OSR1 corresponds to x1 for all sensors, bmp.OSR2 corresponds to x2 for all sensors, bmp.OSR4 corresponds to x4 for all sensors, etc. If you go over for a particular sensor, then an error message will show possible values.
