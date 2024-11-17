@@ -7,13 +7,11 @@
 
 MicroPython Driver for the Bosch BMP390 pressure sensor
 
-
 * Author: Brad Carlile
 
 Based on
 
 * micropython-bmp581/bmp581py. Author(s): Jose D. Montoya
-
 
 """
 
@@ -24,36 +22,180 @@ import array
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/bradcar/MicroPython_BMP58x.git"
 
-# Power Modes
-STANDBY = const(0x00)
-NORMAL = const(0x01)
-FORCED = const(0x02)
-NON_STOP = const(0x03)
-power_mode_values = (STANDBY, NORMAL, FORCED, NON_STOP)
+class BMP591:
+    # Power Modes for BMP591
+    STANDBY = const(0x00)
+    NORMAL = const(0x01)
+    FORCED = const(0x02)
+    NON_STOP = const(0x03)
+    power_mode_values = (STANDBY, NORMAL, FORCED, NON_STOP)
 
-# Oversample Rate
-OSR1 = const(0x00)
-OSR2 = const(0x01)
-OSR4 = const(0x02)
-OSR8 = const(0x03)
-OSR16 = const(0x04)
-OSR32 = const(0x05)
-pressure_oversample_rate_values = (OSR1, OSR2, OSR4, OSR8, OSR16, OSR32)
-temperature_oversample_rate_values = (OSR1, OSR2, OSR4, OSR8, OSR16, OSR32)
+    # Oversample Rate
+    OSR1 = const(0x00)
+    OSR2 = const(0x01)
+    OSR4 = const(0x02)
+    OSR8 = const(0x03)
+    OSR16 = const(0x04)
+    OSR32 = const(0x05)
+    OSR64 = const(0x06)
+    OSR128 = const(0x07)
+    
+    #oversampling rates
+    pressure_oversample_rate_values = (OSR1, OSR2, OSR4, OSR8, OSR16, OSR32, OSR64, OSR128)
+    temperature_oversample_rate_values = (OSR1, OSR2, OSR4, OSR8, OSR16, OSR32, OSR64, OSR128)
+    
+    # IIR Filters Coefficients
+    COEF_0 = const(0x00)
+    COEF_1 = const(0x01)
+    COEF_3 = const(0x02)
+    COEF_7 = const(0x03)
+    COEF_15 = const(0x04)
+    COEF_31 = const(0x05)
+    COEF_63 = const(0x06)
+    COEF_127 = const(0x07)
+    iir_coefficient_values = (COEF_0, COEF_1, COEF_3, COEF_7, COEF_15, COEF_31, COEF_63, COEF_127)
+    
+    @property
+    def pressure_oversample_rate(self) -> str:
+        """
+        Sensor pressure_oversample_rate
+        Oversampling extends the measurement time per measurement by the oversampling
+        factor. Higher oversampling factors offer decreased noise at the cost of
+        higher power consumption.
 
-# IIR Filters Coefficients
-COEF_0 = const(0x00)
-COEF_1 = const(0x01)
-COEF_3 = const(0x02)
-COEF_7 = const(0x03)
-COEF_15 = const(0x04)
-COEF_31 = const(0x05)
-COEF_63 = const(0x06)
-COEF_127 = const(0x07)
-iir_coefficient_values = (COEF_0, COEF_1, COEF_3, COEF_7, COEF_15, COEF_31, COEF_63, COEF_127)
+        +---------------------------+------------------+
+        | Mode                      | Value            |
+        +===========================+==================+
+        | :py:const:`bmp58x.OSR1`   | :py:const:`0x00` |
+        | :py:const:`bmp58x.OSR2`   | :py:const:`0x01` |
+        | :py:const:`bmp58x.OSR4`   | :py:const:`0x02` |
+        | :py:const:`bmp58x.OSR8`   | :py:const:`0x03` |
+        | :py:const:`bmp58x.OSR16`  | :py:const:`0x04` |
+        | :py:const:`bmp58x.OSR32`  | :py:const:`0x05` |
+        | :py:const:`bmp58x.OSR64`  | :py:const:`0x06` |
+        | :py:const:`bmp58x.OSR128` | :py:const:`0x07` |
+        +---------------------------+------------------+
+        :return: sampling rate as string
+        """
+        string_name = ("OSR1", "OSR2", "OSR4", "OSR8", "OSR16", "OSR32", "OSR64", "OSR128", )
+        return string_name[self._pressure_oversample_rate]
+
+    @pressure_oversample_rate.setter
+    def pressure_oversample_rate(self, value: int) -> None:
+        if value not in self.pressure_oversample_rate_values:
+            raise ValueError("Value must be a valid pressure_oversample_rate: OSR1,OSR2,OSR4,OSR8,OSR16,OSR32,OSR64,OSR128")
+        self._pressure_oversample_rate = value
+
+    @property
+    def temperature_oversample_rate(self) -> str:
+        """
+        Sensor temperature_oversample_rate
+
+        +---------------------------+------------------+
+        | Mode                      | Value            |
+        +===========================+==================+
+        | :py:const:`bmp58x.OSR1`   | :py:const:`0x00` |
+        | :py:const:`bmp58x.OSR2`   | :py:const:`0x01` |
+        | :py:const:`bmp58x.OSR4`   | :py:const:`0x02` |
+        | :py:const:`bmp58x.OSR8`   | :py:const:`0x03` |
+        | :py:const:`bmp58x.OSR16`  | :py:const:`0x04` |
+        | :py:const:`bmp58x.OSR32`  | :py:const:`0x05` |
+        | :py:const:`bmp58x.OSR64`  | :py:const:`0x06` |
+        | :py:const:`bmp58x.OSR128` | :py:const:`0x07` |
+        +---------------------------+------------------+
+        :return: sampling rate as string
+        """
+        string_name = ("OSR1", "OSR2", "OSR4", "OSR8", "OSR16", "OSR32", "OSR64", "OSR128", )
+        return string_name[self._temperature_oversample_rate]
+
+    @temperature_oversample_rate.setter
+    def temperature_oversample_rate(self, value: int) -> None:
+        if value not in self.temperature_oversample_rate_values:
+            raise ValueError(
+                "Value must be a valid temperature_oversample_rate: OSR1,OSR2,OSR4,OSR8,OSR16,OSR32,OSR64,OSR128")
+        self._temperature_oversample_rate = value
+    
+    @property
+    def altitude(self) -> float:
+        """
+        Using the sensor's measured pressure and the pressure at sea level (e.g., 1013.25 hPa),
+        the altitude in meters is calculated with the international barometric formula
+        """
+        altitude = 44330.0 * (
+            1.0 - ((self.pressure / self.sea_level_pressure) ** (1.0 / 5.255))
+        )
+        return round(altitude, 1)
+
+    @altitude.setter
+    def altitude(self, value: float) -> None:
+        self.sea_level_pressure = self.pressure / (1.0 - value / 44330.0) ** 5.255
+
+    @property
+    def sea_level_pressure(self) -> float:
+        """
+        Returns the current sea-level pressure set for the sensor in hPa.
+        :return: Sea-level pressure in hPa
+        """
+        return self._sea_level_pressure
+
+    @sea_level_pressure.setter
+    def sea_level_pressure(self, value: float) -> None:
+        self._sea_level_pressure = value
+
+    @staticmethod
+    def _twos_comp(val: int, bits: int) -> int:
+        if val & (1 << (bits - 1)) != 0:
+            return val - (1 << bits)
+        return value
+    
+    @property
+    def iir_coefficient(self) -> str:
+        """
+        Sensor iir_coefficient
+
+        +----------------------------+------------------+
+        | Mode                       | Value            |
+        +============================+==================+
+        | :py:const:`bmp58x.COEF_0`  | :py:const:`0x00` |
+        | :py:const:`bmp58x.COEF_1`  | :py:const:`0x01` |
+        | :py:const:`bmp58x.COEF_3`  | :py:const:`0x02` |
+        | :py:const:`bmp58x.COEF_7`  | :py:const:`0x03` |
+        | :py:const:`bmp58x.COEF_15` | :py:const:`0x04` |
+        | :py:const:`bmp58x.COEF_31` | :py:const:`0x05` |
+        | :py:const:`bmp58x.COEF_63` | :py:const:`0x06` |
+        | :py:const:`bmp58x.COEF_127`| :py:const:`0x07` |
+        +----------------------------+------------------+
+        :return: coefficients as string
+        """
+        string_name = ("COEF_0", "COEF_1", "COEF_3", "COEF_7", "COEF_15", "COEF_31", "COEF_63", "COEF_127",)
+        return string_name[self._iir_coefficient]
+
+    @iir_coefficient.setter
+    def iir_coefficient(self, value: int) -> None:
+        if value not in iir_coefficient_values:
+            raise ValueError(
+                "Value must be a valid iir_coefficients: COEF_0,COEF_1,COEF_3,COEF_7,COEF_15,COEF_31,COEF_63,COEF_127")
+        self._iir_coefficient = value
+        
+    @property
+    def output_data_rate(self) -> int:
+        """
+        Sensor output_data_rate. for a complete list of values please see the datasheet
+        """
+        return self._output_data_rate
+
+    @output_data_rate.setter
+    def output_data_rate(self, value: int) -> None:
+        if value not in range(0, 32, 1):
+            raise ValueError("Value must be a valid output_data_rate setting: 0 to 32")
+        self._output_data_rate = value
 
 
-class BMP390:
+class BMP595(BMP591):
+    None
+
+
+class BMP390(BMP591):
     """Driver for the BMP390 Sensor connected over I2C.
 
     :param ~machine.I2C i2c: The I2C bus the BMP390 is connected to.
@@ -118,6 +260,13 @@ class BMP390:
             raise RuntimeError("Failed to find the BMP581 sensor")
 
     """
+    # Power Modes for BMP390
+    power_mode_values = (STANDBY, FORCED, NORMAL)
+
+    #oversampling rates
+    pressure_oversample_rate_values = (OSR1, OSR2, OSR4, OSR8, OSR16, OSR32)
+    temperature_oversample_rate_values = (OSR1, OSR2, OSR4, OSR8, OSR16, OSR32)
+
     ###  BMP390 Constants - notice very different than bmp591
     _REG_WHOAMI = const(0x00)
     _CONFIG = const(0x1f)
@@ -279,19 +428,19 @@ class BMP390:
         | Mode                        | Value            |
         +=============================+==================+
         | :py:const:`bmp58x.STANDBY`  | :py:const:`0x00` |
-        | :py:const:`bmp58x.NORMAL`   | :py:const:`0x01` |
+        | :py:const:`bmp58x.FORCED`   | :py:const:`0x01` |
         | :py:const:`bmp58x.FORCED`   | :py:const:`0x02` |
-        | :py:const:`bmp58x.NON_STOP` | :py:const:`0X03` |
+        | :py:const:`bmp58x.NORMAL`   | :py:const:`0X03` |
         +-----------------------------+------------------+
         :return: sampling rate as string
         """
-        string_name = ("STANDBY", "NORMAL","FORCED", "NON_STOP", )
+        string_name = ("STANDBY", "FORCED", "NORMAL", )
         return string_name[self._power_mode]
 
     @power_mode.setter
     def power_mode(self, value: int) -> None:
         if value not in power_mode_values:
-            raise ValueError("Value must be a valid power_mode setting: 0x00 to 0x03")
+            raise ValueError("Value must be a valid power_mode setting: STANDBY,FORCED,NORMAL")
         self._power_mode = value
 
     @property
@@ -314,13 +463,13 @@ class BMP390:
         +---------------------------+------------------+
         :return: sampling rate as string
         """
-        string_name = ("OSR1","OSR2","OSR4","OSR8","OSR16", "OSR32",)
+        string_name = ("OSR1", "OSR2", "OSR4", "OSR8", "OSR16", "OSR32",)
         return string_name[self._pressure_oversample_rate]
 
     @pressure_oversample_rate.setter
     def pressure_oversample_rate(self, value: int) -> None:
-        if value not in pressure_oversample_rate_values:
-            raise ValueError("Value must be a valid pressure_oversample_rate setting")
+        if value not in self.pressure_oversample_rate_values:
+            raise ValueError("Value must be a valid pressure_oversample_rate: OSR1,OSR2,OSR4,OSR8,OSR16,OSR32")
         self._pressure_oversample_rate = value
 
     @property
@@ -340,60 +489,45 @@ class BMP390:
         +---------------------------+------------------+
         :return: sampling rate as string
         """
-        string_name = ("OSR1","OSR2","OSR4","OSR8","OSR16","OSR32",)
+        string_name = ("OSR1", "OSR2", "OSR4", "OSR8","OSR16", "OSR32",)
         return string_name[self._temperature_oversample_rate]
 
     @temperature_oversample_rate.setter
     def temperature_oversample_rate(self, value: int) -> None:
-        if value not in temperature_oversample_rate_values:
+        if value not in self.temperature_oversample_rate_values:
             raise ValueError(
-                "Value must be a valid temperature_oversample_rate setting"
-            )
+                "Value must be a valid temperature_oversample_rate: OSR1,OSR2,OSR4,OSR8,OSR16,OSR32")
         self._temperature_oversample_rate = value
-        
-    @property
-    def iir_coefficient(self) -> str:
-        """
-        Sensor iir_coefficient
 
-        +----------------------------+------------------+
-        | Mode                       | Value            |
-        +============================+==================+
-        | :py:const:`bmp58x.COEF_0`  | :py:const:`0x00` |
-        | :py:const:`bmp58x.COEF_1`  | :py:const:`0x01` |
-        | :py:const:`bmp58x.COEF_3`  | :py:const:`0x02` |
-        | :py:const:`bmp58x.COEF_7`  | :py:const:`0x03` |
-        | :py:const:`bmp58x.COEF_15` | :py:const:`0x04` |
-        | :py:const:`bmp58x.COEF_31` | :py:const:`0x05` |
-        | :py:const:`bmp58x.COEF_63` | :py:const:`0x06` |
-        | :py:const:`bmp58x.COEF_127`| :py:const:`0x07` |
-        +----------------------------+------------------+
-        :return: coefficients as string
-        """
-        string_name = ("COEF_0", "COEF_1", "COEF_3", "COEF_7", "COEF_15", "COEF_31", "COEF_63", "COEF_127",)
+    # Helper method for temperature compensation
+    def _calculate_temperature_compensation(self, raw_temp: float) -> float:
+        partial_data1 = float(raw_temp - (self.par_t1 / 2.0 ** -8))
+        partial_data2 = partial_data1 * (self.par_t2 / 2.0 ** 30)
+        tempc = partial_data2 + (partial_data1 ** 2) * (self.par_t3 / 2.0 ** 48)
+        return tempc
 
-        return string_name[self._iir_coefficient]
+    # Helper method for pressure compensation
+    def _calculate_pressure_compensation(self, raw_pressure: float, tempc: float) -> float:
+        # First part
+        partial_data1 = (self.par_p6 / 2.0 ** 6) * tempc
+        partial_data2 = (self.par_p7 / 2.0 ** 8) * (tempc ** 2)
+        partial_data3 = (self.par_p8 / 2.0 ** 15) * (tempc ** 3)
+        partial_out1 = (self.par_p5 / 2.0 ** -3) + partial_data1 + partial_data2 + partial_data3
 
-    @iir_coefficient.setter
-    def iir_coefficient(self, value: int) -> None:
-        if value not in iir_coefficient_values:
-            raise ValueError(
-                "Value must be a valid iir_coefficients setting"
-            )
-        self._iir_coefficient = value
+        # Second part
+        partial_data1 = ((self.par_p2 - 2.0 ** 14) / 2.0 ** 29) * tempc
+        partial_data2 = (self.par_p3 / 2.0 ** 32) * (tempc ** 2)
+        partial_data3 = (self.par_p4 / 2.0 ** 37) * (tempc ** 3)
+        partial_out2 = raw_pressure * (((self.par_p1 - 2.0 ** 14) / 2.0 ** 20) + partial_data1 + partial_data2 + partial_data3)
 
-    @property
-    def output_data_rate(self) -> int:
-        """
-        Sensor output_data_rate. for a complete list of values please see the datasheet
-        """
-        return self._output_data_rate
+        # Third part
+        partial_data1 = raw_pressure ** 2
+        partial_data2 = (self.par_p9 / 2.0 ** 48) + (self.par_p10 / 2.0 ** 48) * tempc
+        partial_data3 = partial_data1 * partial_data2
+        partial_data4 = partial_data3 + (raw_pressure ** 3) * (self.par_p11 / 2.0 ** 65)
 
-    @output_data_rate.setter
-    def output_data_rate(self, value: int) -> None:
-        if value not in range(0, 32, 1):
-            raise ValueError("Value must be a valid output_data_rate setting")
-        self._output_data_rate = value
+        # Final compensated pressure
+        return partial_out1 + partial_out2 + partial_data4
 
     @property
     def temperature(self) -> float:
@@ -402,82 +536,17 @@ class BMP390:
         :return: Temperature in Celsius
         """
         raw_temp = self._temperature
-        
-        # Step-by-step compensation calculation, p55 in data sheet
-        partial_data1 = float(raw_temp - (self.par_t1 / 2.0 ** -8))
-        partial_data2 = partial_data1 * (self.par_t2 / 2.0 ** 30)
-
-        # Update the compensated temperature in calib_data (needed for pressure calculation)
-        tempc = partial_data2 + (partial_data1 ** 2) * (self.par_t3 / 2.0 ** 48)
-
-        # Return the compensated temperature
-        return tempc
+        return self._calculate_temperature_compensation(raw_temp)
 
     @property
     def pressure(self) -> float:
         """
-        The sensor pressure in hPa, p55 & p56 in data sheet
+        The sensor pressure in hPa
         :return: Pressure in hPa
         """
         raw_pressure = float(self._pressure)
         raw_temp = float(self._temperature)
-        
-        # Step-by-step compensation calculation
-        partial_data1 = float(raw_temp - (self.par_t1 / 2.0 ** -8))
-        partial_data2 = partial_data1 * (self.par_t2 / 2.0 ** 30)
 
-        # Update the compensated temperature in calib_data (needed for pressure calculation)
-        tempc = partial_data2 + (partial_data1 ** 2) * (self.par_t3 / 2.0 ** 48)
-        
-        # calculate calibrated pressure 
-        partial_data1 = (self.par_p6 / 2.0 ** 6) * tempc
-        partial_data2 = (self.par_p7 / 2.0 ** 8) * (tempc ** 2)
-        partial_data3 = (self.par_p8 / 2.0 ** 15) * (tempc ** 3)
-        partial_out1 = (self.par_p5 / 2.0 ** -3) + partial_data1 + partial_data2 + partial_data3
-    
-        partial_data1 = ((self.par_p2 - 2.0 ** 14) / 2.0 ** 29) * tempc
-        partial_data2 = (self.par_p3 / 2.0 ** 32) * (tempc ** 2)
-        partial_data3 = (self.par_p4 / 2.0 ** 37) * (tempc ** 3)
-        partial_out2 = raw_pressure * (((self.par_p1 - 2.0 ** 14)/ 2.0 ** 20) + partial_data1 + partial_data2 + partial_data3)
-    
-        partial_data1 = raw_pressure ** 2
-        partial_data2 = (self.par_p9 / 2.0 ** 48) + (self.par_p10/ 2.0 ** 48) * tempc
-        partial_data3 = partial_data1 * partial_data2
-        partial_data4 = partial_data3 + (raw_pressure ** 3) * (self.par_p11 / 2.0 ** 65)
-    
-        # Compensated pressure, in Pa, return in hPa
-        comp_press = partial_out1 + partial_out2 + partial_data4
-        return comp_press / 100.0
-
-    @property
-    def altitude(self) -> float:
-        """
-        Using the sensor's measured pressure and the pressure at sea level (e.g., 1013.25 hPa),
-        the altitude in meters is calculated with the international barometric formula
-        """
-        altitude = 44330.0 * (
-            1.0 - ((self.pressure / self.sea_level_pressure) ** (1.0 / 5.255))
-        )
-        return round(altitude, 1)
-
-    @altitude.setter
-    def altitude(self, value: float) -> None:
-        self.sea_level_pressure = self.pressure / (1.0 - value / 44330.0) ** 5.255
-
-    @property
-    def sea_level_pressure(self) -> float:
-        """
-        Returns the current sea-level pressure set for the sensor in hPa.
-        :return: Sea-level pressure in hPa
-        """
-        return self._sea_level_pressure
-
-    @sea_level_pressure.setter
-    def sea_level_pressure(self, value: float) -> None:
-        self._sea_level_pressure = value
-
-    @staticmethod
-    def _twos_comp(val: int, bits: int) -> int:
-        if val & (1 << (bits - 1)) != 0:
-            return val - (1 << bits)
-        return val
+        tempc = self._calculate_temperature_compensation(raw_temp)
+        comp_press = self._calculate_pressure_compensation(raw_pressure, tempc)
+        return comp_press / 100.0  # Convert to hPa
