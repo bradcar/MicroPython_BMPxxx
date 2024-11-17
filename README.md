@@ -60,41 +60,7 @@ bmp.pressure_oversample_rate = bmp.OSR32
 bmp.temperature_oversample_rate = bmp.OSR2
 ```
 
-bmp58x.OSR1 corresponds to x1 for all sensors, bmp58x.OSR2 corresponds to x2 for all sensors, bmp58x.OSR4 corresponds to x4 for all sensors, etc.
+bmp.OSR1 corresponds to x1 for all sensors, bmp.OSR2 corresponds to x2 for all sensors, bmp.OSR4 corresponds to x4 for all sensors, etc. If you go over for a particular sensor and error message should state available values.
 
 ## Todos
-* add bmp581/bmp585 next
-  * Create a subclass BMP585 that inherits from BMP581.
-  * Override Device-Specific Attributes or Methods: If the BMP581 differs in specific register addresses, initialization parameters, or data handling, override these in the BMP581 class.
-  * ```
-    class BMP585(BMP581):
-    """Driver for the BMP585 Sensor connected over I2C.
-
-    :param ~machine.I2C i2c: The I2C bus the BMP581 is connected to.
-    :param int address: The I2C device address. Defaults to :const:`0x47`
-
-    **Example Usage**
-
-    .. code-block:: python
-
-        from machine import Pin, I2C
-        from micropython_bmp58z import bmp585
-
-        i2c = I2C(1, sda=Pin(2), scl=Pin(3))
-        bmp = bmp585.BMP585(i2c)
-
-    """
-
-    def __init__(self, i2c, address: int = 0x47) -> None:
-        super().__init__(i2c, address)
-
-        # Check if the device is actually a BMP585
-        if self._device_id != 0x51:  
-            raise RuntimeError("Failed to find the BMP585 sensor")
-        
-        # Initialize any BMP581-specific attributes or configurations
-        # For example, register differences on constant differences
-
-    # Override or add any BMP581-specific methods or properties as needed.
-    ```
-* then add the bmp390 as a sub-class, be very careful because of the many specific changes
+* add bmp581 class and bmp585 subclass next
