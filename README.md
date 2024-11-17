@@ -79,21 +79,20 @@ bmp.iir_coefficient = bmp.COEF_3
 ```
 
 bmp.OSR1 corresponds to x1 for all sensors, bmp.OSR2 corresponds to x2 for all sensors, bmp.OSR4 corresponds to x4 for all sensors, etc. If you go over for a particular sensor, then an error message will show possible values.
-
-## Todos
-* debug bmp581 class and bmp585 subclass next
-
 ## Tested with BMP585 shuttle board
 Bosch makes BMP585 shuttle board
-* 1.27mm pins not bread-board friendly (board-board use 2.54mm)
+* 1.27mm pins not bread-board friendly (board-boards use 2.54mm)
 * 3.3v:
   * vdd to 3.3v (pin 1 of 7 pin connector)
   * vddio to 3.3v (pin 2 of 7 pin connector)
 * gnd:
   * wire gnd to ground (pins 3 of 7 pin connector)
-* CS:
+* CS for I2C mode:
   * wire to 3.3v (pin 1 of 9 pin connector)
 * SCK/SCL: I2C SCL (pin 2 of 9 pin connector)
-* SDO:
+* SDO for I2C mode:
   * wire to 3.3v  (pin 3 of 9 pin connector)
 * SDI/SDA: I2C SDA (pin 4 of 9 pin connector)
+
+## Todos
+* debug bmp581 class and bmp585 subclass next
