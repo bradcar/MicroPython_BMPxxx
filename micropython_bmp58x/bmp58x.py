@@ -55,23 +55,22 @@ class BMP581:
 
         press = bmp.pressure
         temp = bmp.temperature
-        over_sample = bmp.temperature_oversample_rate
 
-        # meters based on sea level pressure of 1013.25 hPA
+        # altitude in meters based on sea level pressure of 1013.25 hPA
         meters = bmp.altitude
-
-        # altitude in meters based on initial sea level pressure of 1013.25 hPA
-        sea_level_pressure = bmp.sea_level_pressure
-        meters = bmp.altitude
-
-        # set sea level pressure for future altitude  in meters calculations based on measured
-        # pressure value at known elevation
-        bmp.altitude = 1524.9
-        meters = bmp.altitude
+        print(f"alt = {meters:.2f} meters")
 
         # set sea level pressure to a known sea level pressure in hPa at nearest airport
+        # https://www.weather.gov/wrh/timeseries?site=KPDX
         bmp.sea_level_pressure = 1010.80
         meters = bmp.altitude
+        print(f"alt = {meters:.2f} meters")
+
+        # Highest resolution for bmp581
+        bmp.pressure_oversample_rate = bmp.OSR128
+        bmp.temperature_oversample_rate = bmp.OSR8
+        meters = bmp.altitude
+
     """
 
     # Power Modes for BMP581
@@ -137,7 +136,6 @@ class BMP581:
     def power_mode(self) -> str:
         """
         Sensor power_mode
-
         +-----------------------------+------------------+
         | Mode                        | Value            |
         +=============================+==================+
@@ -156,7 +154,6 @@ class BMP581:
             raise ValueError("Value must be a valid power_mode setting")
         ("Value must be a valid power_mode setting: STANDBY,NORMAL,FORCED,NON_STOP")
         self._power_mode = value
-        
 
     @property
     def pressure_oversample_rate(self) -> str:
@@ -165,7 +162,6 @@ class BMP581:
         Oversampling extends the measurement time per measurement by the oversampling
         factor. Higher oversampling factors offer decreased noise at the cost of
         higher power consumption.
-
         +---------------------------+------------------+
         | Mode                      | Value            |
         +===========================+==================+
@@ -194,7 +190,6 @@ class BMP581:
     def temperature_oversample_rate(self) -> str:
         """
         Sensor temperature_oversample_rate
-
         +---------------------------+------------------+
         | Mode                      | Value            |
         +===========================+==================+
@@ -274,7 +269,6 @@ class BMP581:
     def iir_coefficient(self) -> str:
         """
         Sensor iir_coefficient
-
         +----------------------------+------------------+
         | Mode                       | Value            |
         +============================+==================+
@@ -344,33 +338,35 @@ class BMP585(BMP581):
 
         press = bmp.pressure
         temp = bmp.temperature
-        over_sample = bmp.temperature_oversample_rate
 
-        # meters based on sea level pressure of 1013.25 hPA
+        # altitude in meters based on sea level pressure of 1013.25 hPA
         meters = bmp.altitude
-
-        # altitude in meters based on initial sea level pressure of 1013.25 hPA
-        sea_level_pressure = bmp.sea_level_pressure
-        meters = bmp.altitude
-
-        # set sea level pressure for future altitude  in meters calculations based on measured
-        # pressure value at known elevation
-        bmp.altitude = 1524.9
-        meters = bmp.altitude
+        print(f"alt = {meters:.2f} meters")
 
         # set sea level pressure to a known sea level pressure in hPa at nearest airport
+        # https://www.weather.gov/wrh/timeseries?site=KPDX
         bmp.sea_level_pressure = 1010.80
+        meters = bmp.altitude
+        print(f"alt = {meters:.2f} meters")
+
+        # Highest resolution for bmp585
+        bmp.pressure_oversample_rate = bmp.OSR128
+        bmp.temperature_oversample_rate = bmp.OSR8
         meters = bmp.altitude
     """
 
     def __init__(self, i2c, address: int = 0x47) -> None:
+        
+        print("*** BMP585 driver untested ***")
+        
         self._i2c = i2c
         self._address = address
-        if self._read_device_id() != 0x51:  # #check _device_id after i2c established
+        if self._read_device_id() != 0x51:  # check _device_id after i2c established
             raise RuntimeError("Failed to find the BMP585 sensor")
         self._power_mode = NORMAL
         self._pressure_enabled = True
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
+        print("*** BMP585 driver untested ***")
 
     def _read_device_id(self) -> int:
         return self._device_id
@@ -407,22 +403,21 @@ class BMP390(BMP581):
 
         press = bmp.pressure
         temp = bmp.temperature
-        over_sample = bmp.temperature_oversample_rate
 
-        # meters based on sea level pressure of 1013.25 hPA
+        # altitude in meters based on sea level pressure of 1013.25 hPA
         meters = bmp.altitude
-
-        # altitude in meters based on initial sea level pressure of 1013.25 hPA
-        sea_level_pressure = bmp.sea_level_pressure
-        meters = bmp.altitude
-
-        # set sea level pressure for future altitude  in meters calculations based on measured
-        # pressure value at known elevation
-        bmp.altitude = 1524.9
-        meters = bmp.altitude
+        print(f"alt = {meters:.2f} meters")
 
         # set sea level pressure to a known sea level pressure in hPa at nearest airport
+        # https://www.weather.gov/wrh/timeseries?site=KPDX
         bmp.sea_level_pressure = 1010.80
+        meters = bmp.altitude
+        print(f"alt = {meters:.2f} meters")
+
+        # Highest resolution for bmp390
+        bmp.pressure_oversample_rate = bmp.OSR32
+        bmp.temperature_oversample_rate = bmp.OSR2
+        bmp.iir_coefficient = bmp.COEF_3
         meters = bmp.altitude
 
     """
@@ -480,7 +475,7 @@ class BMP390(BMP581):
     def __init__(self, i2c, address: int = 0x7f) -> None:
         self._i2c = i2c
         self._address = address
-        if self._read_device_id() != 0x60:  # #check _device_id after i2c established
+        if self._read_device_id() != 0x60:  # check _device_id after i2c established
             raise RuntimeError("Failed to find the BMP390 sensor")
         self._power_mode = NORMAL
         self._pressure_enabled = True
@@ -592,7 +587,6 @@ class BMP390(BMP581):
     def power_mode(self) -> str:
         """
         Sensor power_mode
-
         +-----------------------------+------------------+
         | Mode                        | Value            |
         +=============================+==================+
@@ -619,7 +613,6 @@ class BMP390(BMP581):
         Oversampling extends the measurement time per measurement by the oversampling
         factor. Higher oversampling factors offer decreased noise at the cost of
         higher power consumption.
-
         +---------------------------+------------------+
         | Mode                      | Value            |
         +===========================+==================+
@@ -645,7 +638,6 @@ class BMP390(BMP581):
     def temperature_oversample_rate(self) -> str:
         """
         Sensor temperature_oversample_rate
-
         +---------------------------+------------------+
         | Mode                      | Value            |
         +===========================+==================+
