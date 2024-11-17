@@ -1,5 +1,5 @@
 # Micropython bmp58x driver
-MicroPython Driver for the Bosch BMP585, BMP581, and BMP390 pressure sensors using I2C
+MicroPython Driver for the Bosch ~~BMP585~~ (to test Nov 2024), BMP581, and BMP390 pressure sensors using I2C
 
 * Code based on
   * micropython_bmp581 Author(s): Jose D. Montoya, jposada202020
@@ -10,7 +10,7 @@ MicroPython Driver for the Bosch BMP585, BMP581, and BMP390 pressure sensors usi
  
 ## Micropython bmp58x driver
 Code includes:
-* BMP585, BMP581, BMP390 support
+* ~~BMP585~~ (to test Nov 2024), BMP581, BMP390 support
 * I2C only (driver needs modifications for SDI)
 * All pressures are in hPA.
 * All temperatures are in Celsius.
@@ -113,7 +113,7 @@ bmp.OSR1 corresponds to x1 for all sensors, bmp.OSR2 corresponds to x2 for all s
   * Relative accuracy of +/-0.03 hPa and typical absolute accuracy of +/-0.5 hPa.
   * Measure change in height of 0.25 meters.
 
-## Tested with BMP585 Shuttle Board
+## To Test in Nov 2024 with BMP585 Shuttle Board
 Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I2C interface with Raspberry Pi. Shuttleboard pin details: https://www.electroniclinic.com/bosch-bmp585-barometric-pressure-sensor-with-arduino/
 * 1.27mm pins not breadboard friendly (boardboards use 2.54mm)
 * 3.3v:
