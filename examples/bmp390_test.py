@@ -12,7 +12,7 @@ i2c = I2C(id=1, scl=Pin(27), sda=Pin(26), freq=400_000)
 
 i2c1_devices = i2c.scan()
 if i2c1_devices:
-    for d in i2c1_devices: print(f"i2c1 device at addr: {hex(d)}")
+    for d in i2c1_devices: print(f"i2c1 device at address: {hex(d)}")
 else:
     print("ERROR: No i2c1 devices")
     
@@ -21,13 +21,13 @@ bmp = bmp58x.BMP390(i2c=i2c, address=0x76)
 sea_level_pressure = bmp.sea_level_pressure
 print(f"initial sea_level_pressure = {sea_level_pressure:.2f} hPa\n")
 
-bmp.sea_level_pressure = 1010.80
+bmp.sea_level_pressure = 1006.20
 
-#HI_RESOLUTION_5_PX32_Tx2
+# HI_RESOLUTION for bmp390
 bmp.pressure_oversample_rate = bmp.OSR32
 bmp.temperature_oversample_rate = bmp.OSR2
 
-print(f"Oversample rate setting: \n  {bmp.pressure_oversample_rate=}, \n  {bmp.temperature_oversample_rate=}\n")
+print(f"Oversample rate setting: \n{bmp.pressure_oversample_rate=}\n{bmp.temperature_oversample_rate=}\n")
 
 while True:
     print(f"Pressure = {bmp.pressure:.2f} hPa")

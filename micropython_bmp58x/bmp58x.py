@@ -22,8 +22,60 @@ __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/bradcar/MicroPython_BMP58x.git"
 
 
-class BMP591:
-    # Power Modes for BMP591
+WORLD_AVERAGE_SEA_LEVEL_PRESSURE = 1013.25  # International average standard
+
+class BMP581:
+    """Driver for the BMP585 Sensor connected over I2C.
+
+    :param ~machine.I2C i2c: The I2C bus the BMP581 is connected to.
+    :param int address: The I2C device address. Defaults to :const:`0x47`
+
+    :raises RuntimeError: if the sensor is not found
+
+    **Quickstart: Importing and using the device**
+
+    Here is an example of using the :class:`bmp58x` class.
+    First you will need to import the libraries to use the sensor
+
+    .. code-block:: python
+
+        from machine import Pin, I2C
+        from micropython_bmp58x import bmp58x
+
+    Once this is done you can define your `machine.I2C` object and define your sensor object
+
+    .. code-block:: python
+
+        i2c = I2C(1, sda=Pin(2), scl=Pin(3))
+        bmp = bmp58x.BMP581(i2c)
+
+    Now you have access to the attributes
+
+    .. code-block:: python
+
+        press = bmp.pressure
+        temp = bmp.temperature
+        over_sample = bmp.temperature_oversample_rate
+
+        # meters based on sea level pressure of 1013.25 hPA
+        meters = bmp.altitude
+
+        # altitude in meters based on initial sea level pressure of 1013.25 hPA
+        sea_level_pressure = bmp.sea_level_pressure
+        meters = bmp.altitude
+
+        # set sea level pressure for future altitude  in meters calculations based on measured
+        # pressure value at known elevation
+        bmp.altitude = 1524.9
+        meters = bmp.altitude
+
+        # set sea level pressure to a known sea level pressure in hPa at nearest airport
+        bmp.sea_level_pressure = 1010.80
+        meters = bmp.altitude
+    """
+
+    # Power Modes for BMP581
+    # in the BMP390 there is only SLEEP(aka STANDBY), FORCED, NORMAL
     STANDBY = const(0x00)
     NORMAL = const(0x01)
     FORCED = const(0x02)
@@ -54,6 +106,57 @@ class BMP591:
     COEF_63 = const(0x06)
     COEF_127 = const(0x07)
     iir_coefficient_values = (COEF_0, COEF_1, COEF_3, COEF_7, COEF_15, COEF_31, COEF_63, COEF_127)
+
+    _REG_WHOAMI = const(0x01)
+    _OSR_CONF = const(0x36)
+    _ODR_CONFIG = const(0x37)
+
+    _device_id = RegisterStruct(_REG_WHOAMI, "B")
+    _power_mode = CBits(2, _ODR_CONFIG, 0)
+    _temperature_oversample_rate = CBits(3, _OSR_CONF, 0)
+    _pressure_oversample_rate = CBits(3, _OSR_CONF, 3)
+    _output_data_rate = CBits(5, _ODR_CONFIG, 2)
+    _pressure_enabled = CBits(1, _OSR_CONF, 6)
+
+    _temperature = CBits(24, 0x1D, 0, 3)
+    _pressure = CBits(24, 0x20, 0, 3)
+
+    def __init__(self, i2c, address: int = 0x47) -> None:
+        self._i2c = i2c
+        self._address = address
+        if self._read_device_id() != 0x50:  #check _device_id after i2c established
+            raise RuntimeError("Failed to find the BMP581 sensor")
+        self._power_mode = NORMAL
+        self._pressure_enabled = True
+        self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
+    
+    def _read_device_id(self) -> int:
+        return self._device_id
+        
+    @property
+    def power_mode(self) -> str:
+        """
+        Sensor power_mode
+
+        +-----------------------------+------------------+
+        | Mode                        | Value            |
+        +=============================+==================+
+        | :py:const:`bmp581.STANDBY`  | :py:const:`0x00` |
+        | :py:const:`bmp581.NORMAL`   | :py:const:`0x01` |
+        | :py:const:`bmp581.FORCED`   | :py:const:`0x02` |
+        | :py:const:`bmp581.NON_STOP` | :py:const:`0X03` |
+        +-----------------------------+------------------+
+        """
+        values = ("STANDBY","NORMAL","FORCED","NON_STOP",)
+        return values[self._power_mode]
+
+    @power_mode.setter
+    def power_mode(self, value: int) -> None:
+        if value not in power_mode_values:
+            raise ValueError("Value must be a valid power_mode setting")
+        ("Value must be a valid power_mode setting: STANDBY,NORMAL,FORCED,NON_STOP")
+        self._power_mode = value
+        
 
     @property
     def pressure_oversample_rate(self) -> str:
@@ -115,6 +218,24 @@ class BMP591:
             raise ValueError(
                 "Value must be a valid temperature_oversample_rate: OSR1,OSR2,OSR4,OSR8,OSR16,OSR32,OSR64,OSR128")
         self._temperature_oversample_rate = value
+        
+    @property
+    def temperature(self) -> float:
+        """
+        The temperature sensor in Celsius
+        :return: Temperature in Celsius
+        """
+        raw_temp = self._temperature
+        return self._twos_comp(raw_temp, 24) / 256.0
+
+    @property
+    def pressure(self) -> float:
+        """
+        The sensor pressure in kPa
+        :return: Pressure in kPa
+        """
+        raw_pressure = self._pressure
+        return self._twos_comp(raw_pressure, 24) / 16.0 / 1000.0
 
     @property
     def altitude(self) -> float:
@@ -147,7 +268,7 @@ class BMP591:
     def _twos_comp(val: int, bits: int) -> int:
         if val & (1 << (bits - 1)) != 0:
             return val - (1 << bits)
-        return value
+        return val
 
     @property
     def iir_coefficient(self) -> str:
@@ -192,21 +313,80 @@ class BMP591:
         self._output_data_rate = value
 
 
-class BMP595(BMP591):
-    None
+class BMP585(BMP581):
+    """Driver for the BMP585 Sensor connected over I2C.
 
-
-class BMP390(BMP591):
-    """Driver for the BMP390 Sensor connected over I2C.
-
-    :param ~machine.I2C i2c: The I2C bus the BMP390 is connected to.
+    :param ~machine.I2C i2c: The I2C bus the BMP585 is connected to.
     :param int address: The I2C device address. Defaults to :const:`0x47`
 
     :raises RuntimeError: if the sensor is not found
 
     **Quickstart: Importing and using the device**
 
-    Here is an example of using the :class:`bmp58x` class.
+    Here is an example of using the :class:`BMP585` class.
+    First you will need to import the libraries to use the sensor
+
+    .. code-block:: python
+
+        from machine import Pin, I2C
+        from micropython_bmp58x import bmp58x
+
+    Once this is done you can define your `machine.I2C` object and define your sensor object
+
+    .. code-block:: python
+
+        i2c = I2C(1, sda=Pin(2), scl=Pin(3))
+        bmp = bmp58x.BMP585(i2c)
+
+    Now you have access to the attributes
+
+    .. code-block:: python
+
+        press = bmp.pressure
+        temp = bmp.temperature
+        over_sample = bmp.temperature_oversample_rate
+
+        # meters based on sea level pressure of 1013.25 hPA
+        meters = bmp.altitude
+
+        # altitude in meters based on initial sea level pressure of 1013.25 hPA
+        sea_level_pressure = bmp.sea_level_pressure
+        meters = bmp.altitude
+
+        # set sea level pressure for future altitude  in meters calculations based on measured
+        # pressure value at known elevation
+        bmp.altitude = 1524.9
+        meters = bmp.altitude
+
+        # set sea level pressure to a known sea level pressure in hPa at nearest airport
+        bmp.sea_level_pressure = 1010.80
+        meters = bmp.altitude
+    """
+
+    def __init__(self, i2c, address: int = 0x47) -> None:
+        self._i2c = i2c
+        self._address = address
+        if self._read_device_id() != 0x51:  # #check _device_id after i2c established
+            raise RuntimeError("Failed to find the BMP585 sensor")
+        self._power_mode = NORMAL
+        self._pressure_enabled = True
+        self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
+
+    def _read_device_id(self) -> int:
+        return self._device_id
+
+
+class BMP390(BMP581):
+    """Driver for the BMP390 Sensor connected over I2C.
+
+    :param ~machine.I2C i2c: The I2C bus the BMP390 is connected to.
+    :param int address: The I2C device address. Defaults to :const:`0x7F`
+
+    :raises RuntimeError: if the sensor is not found
+
+    **Quickstart: Importing and using the device**
+
+    Here is an example of using the :class:`BMP390` class.
     First you will need to import the libraries to use the sensor
 
     .. code-block:: python
@@ -245,21 +425,6 @@ class BMP390(BMP591):
         bmp.sea_level_pressure = 1010.80
         meters = bmp.altitude
 
-
-        ?????   TODO add resolultions
-        LO_POW_RESOLUTION_0_PX0_TX0
-        STD_RESOLUTION_2_PX4_TX1
-        HI_RESOLUTION_3_PX8_TX1
-        HI_RESOLUTION_5_PX32_Tx2
-        HI_RESOLUTION_7_PX128_Tx8
-
-        In__init__
-
-        if self._device_id != 0x01:
-            raise RuntimeError("Failed to find the BMP585 sensor")
-        if self._device_id != 0x50:
-            raise RuntimeError("Failed to find the BMP581 sensor")
-
     """
     # Power Modes for BMP390
     power_mode_values = (STANDBY, FORCED, NORMAL)
@@ -268,26 +433,26 @@ class BMP390(BMP591):
     pressure_oversample_rate_values = (OSR1, OSR2, OSR4, OSR8, OSR16, OSR32)
     temperature_oversample_rate_values = (OSR1, OSR2, OSR4, OSR8, OSR16, OSR32)
 
-    ###  BMP390 Constants - notice very different than bmp591
-    _REG_WHOAMI = const(0x00)
-    _CONFIG = const(0x1f)
-    _ODR_CONFIG = const(0x1d)
-    _OSR_CONF = const(0x1c)
-    _PWR_CTRL = const(0x1b)
-    _TEMP_DATA = const(0x07)
-    _PRESS_DATA = const(0x04)
+    ###  BMP390 Constants - notice very different than bmp581
+    _REG_WHOAMI_BMP390 = const(0x00)
+    _CONFIG_BMP390 = const(0x1f)
+    _ODR_CONFIG_BMP390 = const(0x1d)
+    _OSR_CONF_BMP390 = const(0x1c)
+    _PWR_CTRL_BMP390 = const(0x1b)
+    _TEMP_DATA_BMP390 = const(0x07)
+    _PRESS_DATA_BMP390 = const(0x04)
 
-    _device_id = RegisterStruct(_REG_WHOAMI, "B")
+    _device_id = RegisterStruct(_REG_WHOAMI_BMP390, "B")
 
-    _power_mode = CBits(2, _PWR_CTRL, 4)
-    _temperature_oversample_rate = CBits(3, _OSR_CONF, 3)
-    _pressure_oversample_rate = CBits(3, _OSR_CONF, 0)
-    _iir_coefficient = CBits(3, _CONFIG, 1)
-    _output_data_rate = CBits(5, _ODR_CONFIG, 0)
-    _pressure_enabled = CBits(1, _PWR_CTRL, 0)
+    _power_mode = CBits(2, _PWR_CTRL_BMP390, 4)
+    _temperature_oversample_rate = CBits(3, _OSR_CONF_BMP390, 3)
+    _pressure_oversample_rate = CBits(3, _OSR_CONF_BMP390, 0)
+    _iir_coefficient = CBits(3, _CONFIG_BMP390, 1)
+    _output_data_rate = CBits(5, _ODR_CONFIG_BMP390, 0)
+    _pressure_enabled = CBits(1, _PWR_CTRL_BMP390, 0)
 
-    _temperature = CBits(24, _TEMP_DATA, 0, 3)
-    _pressure = CBits(24, _PRESS_DATA, 0, 3)
+    _temperature = CBits(24, _TEMP_DATA_BMP390, 0, 3)
+    _pressure = CBits(24, _PRESS_DATA_BMP390, 0, 3)
 
     _par_t1_msb = CBits(8, 0x32, 0)  # Most significant byte of par_t1
     _par_t1_lsb = CBits(8, 0x31, 0)  # Least significant byte of par_t1
@@ -315,36 +480,39 @@ class BMP390(BMP591):
     def __init__(self, i2c, address: int = 0x7f) -> None:
         self._i2c = i2c
         self._address = address
-
-        if self._device_id != 0x60:
+        if self._read_device_id() != 0x60:  # #check _device_id after i2c established
             raise RuntimeError("Failed to find the BMP390 sensor")
-
         self._power_mode = NORMAL
         self._pressure_enabled = True
-        self.sea_level_pressure = 1013.25  # International standard, but can be +/- 20 hPa
+        self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
+        ### TODO IS THIS RIGHT ?
+        # self._sea_level_pressure = 0 
 
+    def _read_device_id(self) -> int:
+        return self._device_id
+        
     @property
     def par_t1(self) -> int:
-        """Combine _par_t1_msb and _par_t1_lsb into a single 16-bit integer."""
+        """Combine _par_t1_msb and _par_t1_lsb into a unsigned 16-bit integer."""
         msb_value = self._par_t1_msb  # Reads CBits value
         lsb_value = self._par_t1_lsb  # Reads CBits value
         return ((msb_value << 8) | lsb_value) & 0xFFFF
 
     @property
     def par_t2(self) -> int:
-        """Combine _par_t2_msb and _par_t2_lsb into a single 16-bit integer."""
+        """Combine _par_t2_msb and _par_t2_lsb into a unsigned 16-bit integer."""
         msb_value = self._par_t2_msb  # Reads CBits value
         lsb_value = self._par_t2_lsb  # Reads CBits value
         return ((msb_value << 8) | lsb_value) & 0xFFFF
 
     @property
     def par_t3(self) -> int:
-        """Read the single-byte _par_t3 value."""
+        """Read the single-byte _par_t3 signed 8-bit value."""
         return self._par_t3 if self._par_t3 <= 127 else self._par_t3 - 256
 
     @property
     def par_p1(self) -> int:
-        """Combine _par_p1_msb and _par_p1_lsb into a single 16-bit integer."""
+        """Combine _par_p1_msb and _par_p1_lsb into a signed 16-bit integer."""
         msb_value = self._par_p1_msb  # Reads CBits value
         lsb_value = self._par_p1_lsb  # Reads CBits value
         combined_value = (msb_value << 8) | lsb_value
@@ -356,7 +524,7 @@ class BMP390(BMP591):
 
     @property
     def par_p2(self) -> int:
-        """Combine _par_p2_msb and _p_par_tp_lsb into a single 16-bit integer."""
+        """Combine _par_p2_msb and _p_par_tp_lsb into a signed 16-bit integer."""
         msb_value = self._par_p2_msb  # Reads CBits value
         lsb_value = self._par_p2_lsb  # Reads CBits value
         combined_value = (msb_value << 8) | lsb_value
@@ -367,41 +535,41 @@ class BMP390(BMP591):
 
     @property
     def par_p3(self) -> int:
-        """Read the single-byte _par_p3 value."""
+        """Read the single-byte _par_p3 signed 8-bit value."""
         return self._par_p3 if self._par_p3 <= 127 else self._par_p3 - 256
 
     @property
     def par_p4(self) -> int:
-        """Read the single-byte _par_p4 value."""
+        """Read the single-byte _par_p4 signed 8-bit value."""
         return self._par_p4 if self._par_p4 <= 127 else self._par_p4 - 256
 
     @property
     def par_p5(self) -> int:
-        """Combine _par_p5_msb and _par_p5_lsb into a single 16-bit integer."""
+        """Combine _par_p5_msb and _par_p5_lsb into a unsigned 16-bit integer."""
         msb_value = self._par_p5_msb  # Reads CBits value
         lsb_value = self._par_p5_lsb  # Reads CBits value
         return (msb_value << 8) | lsb_value
 
     @property
     def par_p6(self) -> int:
-        """Combine _par_p6_msb and _par_p6_lsb into a single 16-bit integer."""
+        """Combine _par_p6_msb and _par_p6_lsb into a unsigned 16-bit integer."""
         msb_value = self._par_p6_msb  # Reads CBits value
         lsb_value = self._par_p6_lsb  # Reads CBits value
         return (msb_value << 8) | lsb_value
 
     @property
     def par_p7(self) -> int:
-        """Read the single-byte _par_p7 value."""
+        """Read the single-byte _par_p7 signed 8-bit value."""
         return self._par_p7 if self._par_p7 <= 127 else self._par_p7 - 256
 
     @property
     def par_p8(self) -> int:
-        """Read the single-byte _par_p8 value."""
+        """Read the single-byte _par_p8 signed 8-bit value."""
         return self._par_p8 if self._par_p8 <= 127 else self._par_p8 - 256
 
     @property
     def par_p9(self) -> int:
-        """Combine _par_p9_msb and _par_p9_lsb into a single 16-bit integer."""
+        """Combine _par_p9_msb and _par_p9_lsb into a signed 16-bit integer."""
         msb_value = self._par_p9_msb  # Reads CBits value
         lsb_value = self._par_p9_lsb  # Reads CBits value
         combined_value = (msb_value << 8) | lsb_value
@@ -412,12 +580,12 @@ class BMP390(BMP591):
 
     @property
     def par_p10(self) -> int:
-        """Read the single-byte _par_p10 value."""
+        """Read the single-byte _par_p10 signed 8-bit value."""
         return self._par_p10 if self._par_p10 <= 127 else self._par_p10 - 256
 
     @property
     def par_p11(self) -> int:
-        """Read the single-byte _par_p11 value."""
+        """Read the single-byte _par_p11 signed 8-bit value."""
         return self._par_p11 if self._par_p11 <= 127 else self._par_p11 - 256
 
     @property
