@@ -1,5 +1,20 @@
 # Micropython bmp58x driver
-MicroPython Driver for the Bosch BMP585, BMP581, and BMP390 pressure sensors
+MicroPython Driver for the Bosch BMP585, BMP581, and BMP390 pressure sensors using I2C
+
+* Bosch BMP585, Released 2023, MEMS-based barometric pressure sensor, perf similar to BMP581
+  * Liquid resistant due to gel sensor
+  * The BMP585 accuracy similar to Bosch’s existing BMP581.
+    * Measure change in height of just a few centimeters. 
+    * Relative accuracy of +/-0.06 hPa and typical absolute accuracy of +/-0.5 hPa.
+* The BMP581, Released 2022, capacitive-based barometric pressure sensor
+  * The BMP581 accuracy similar to Bosch’s existing BMP585.
+    * Measure change in height of just a few centimeters. 
+    * Relative accuracy of +/-0.06 hPa and typical absolute accuracy of +/-0.3 hPa.
+  * the BMP581 vs. BMP390: draws 85% less current, noise is 80% lower, and temperature coefficient offset is reduced by 33%.
+* Bosch BMP390, previous generation, Released 2021
+  * Relative accuracy of +/-0.03 hPa and typical absolute accuracy of +/-0.5 hPa.
+  * Measure change in height of 0.25 meters. 
+
 * Code based on
   * micropython_bmp581 Author(s): Jose D. Montoya, jposada202020
   * github:jposada202020/MicroPython_BMP581
@@ -10,6 +25,7 @@ MicroPython Driver for the Bosch BMP585, BMP581, and BMP390 pressure sensors
  
 ## Micropython bmp58x driver
 Code includes:
+* BMP585, BMP581, BMP390 support 
 * All pressures are in hPA.
 * All temperatures are in Celsius.
 * Code enables setting Pressure/Temperature OverSampling and IIR values.
@@ -65,4 +81,19 @@ bmp.iir_coefficient = bmp.COEF_3
 bmp.OSR1 corresponds to x1 for all sensors, bmp.OSR2 corresponds to x2 for all sensors, bmp.OSR4 corresponds to x4 for all sensors, etc. If you go over for a particular sensor, then an error message will show possible values.
 
 ## Todos
-* add full code for bmp581 class and bmp585 subclass next
+* debug bmp581 class and bmp585 subclass next
+
+## Tested with BMP585 shuttle board
+Bosch makes BMP585 shuttle board
+* 1.27mm pins not bread-board friendly (board-board use 2.54mm)
+* 3.3v:
+  * vdd to 3.3v (pin 1 of 7 pin connector)
+  * vddio to 3.3v (pin 2 of 7 pin connector)
+* gnd:
+  * wire gnd to ground (pins 3 of 7 pin connector)
+* CS:
+  * wire to 3.3v (pin 1 of 9 pin connector)
+* SCK/SCL: I2C SCL (pin 2 of 9 pin connector)
+* SDO:
+  * wire to 3.3v  (pin 3 of 9 pin connector)
+* SDI/SDA: I2C SDA (pin 4 of 9 pin connector)
