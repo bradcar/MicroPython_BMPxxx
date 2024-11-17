@@ -57,8 +57,8 @@ bmp.temperature_oversample_rate = bmp.OSR2
 meters = bmp.altitude
 ```
 
-## Recommended Oversampling rates fron Bosch datasheets
-The table below is Bosch's recommended oversampling pressure and temperature settings for bmp585 and bmp581. Higher sampling rates effect the refresh rate and the power consumption. Please checked the Bosch datasheets for that information https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/
+## Recommended Oversampling Rates to Improve Sensor's Accuracy
+The table below is Bosch's recommended oversampling pressure and temperature settings for bmp585 and bmp581. Higher sampling rates effect the refresh rate and the power consumption. Please checked the Bosch datasheets for more information https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/
 
 Table 1: BMP585/BMP581 Recommendations from Bosch
 | Oversampling setting | OSR Pressure | Pressure<br /> Oversampling | Temperature<br /> Oversampling |
@@ -117,8 +117,8 @@ bmp.OSR1 corresponds to x1 for all sensors, bmp.OSR2 corresponds to x2 for all s
   * Measure change in height of 0.25 meters.
 
 ## Tested with BMP585 shuttle board
-Bosch makes BMP585 shuttle board
-* 1.27mm pins not bread-board friendly (board-boards use 2.54mm)
+Bosch makes the BMP585 shuttle board, but it must be wired as below to interface with Raspberry Pi.
+* 1.27mm pins not breadboard friendly (boardboards use 2.54mm)
 * 3.3v:
   * vdd to 3.3v (pin 1 of 7 pin connector)
   * vddio to 3.3v (pin 2 of 7 pin connector)
