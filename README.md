@@ -35,7 +35,7 @@ Table 1: BMP585/BMP581 Recommendations from Bosch
 | Highest resolution |  111     | x128     | x8     |
 
 ```
-#Highest recommended pressure and temp for bmp390 sensor
+#Highest recommended pressure and temp for bmp581 or bmp585 sensor
 bmp.pressure_oversample_rate = bmp.OSR128
 bmp.temperature_oversample_rate = bmp.OSR32
 ```
