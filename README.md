@@ -54,7 +54,7 @@ bmp.pressure_oversample_rate = bmp.OSR128
 bmp.temperature_oversample_rate = bmp.OSR8
 ```
 
-## Recommended Oversampling Rates to Improve Sensor's Accuracy
+## Recommended Oversampling Rates to Improve Sensors' Accuracy
 The table below is Bosch's recommended oversampling pressure and temperature settings for bmp585 and bmp581. Higher sampling rates effect the refresh rate and the power consumption. Please checked the Bosch datasheets for more information https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/
 
 Table 1: BMP585/BMP581 Recommendations from Bosch
@@ -113,7 +113,7 @@ bmp.OSR1 corresponds to x1 for all sensors, bmp.OSR2 corresponds to x2 for all s
   * Relative accuracy of +/-0.03 hPa and typical absolute accuracy of +/-0.5 hPa.
   * Measure change in height of 0.25 meters.
 
-## Tested with BMP585 shuttle board
+## Tested with BMP585 Shuttle Board
 Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I2C interface with Raspberry Pi.
 * 1.27mm pins not breadboard friendly (boardboards use 2.54mm)
 * 3.3v:
