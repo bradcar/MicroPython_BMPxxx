@@ -75,14 +75,14 @@ The bmp585 and bmp581 do not have recommended IIR filters to go with the table a
 The table below is Bosch's recommended oversampling pressure and temperature settings for bmp390. There are recommended IIR filter settings for the bmp390 in section 3.5. Filter section, page 17, in bmp390 datasheet
 
 Table 2: BMP390 Recommendations from Bosch
-| Oversampling setting | OSR Pressure | Pressure<br /> Oversampling | Temperature<br /> Oversampling |
-| :--- | :---: | :---: | :---: |
-| Ultra low power |  000     | x1     | x1     |
-| Low power |  001     | x2     | x1     |
-| Standard resolution |  010     | x4     | x1     |
-| High resolution |  011     | x8     | x1     |
-| Ultra high resolution |  100     | x16     | x2     |
-| Highest resolution|  101     | x32     | x2     |
+| Oversampling setting | OSR Pressure | Pressure<br /> Oversampling | Temperature<br /> Oversampling | Sample Use |
+| :--- | :---: | :---: | :---: | :--- |
+| Ultra low power |  000     | x1     | x1     | Weather monitoring<br />lowest power, iif off|
+| Low power |  001     | x2     | x1     | Drop detecton, iir off |
+| Standard resolution |  010     | x4     | x1     | Handheld dynamic|
+| High resolution |  011     | x8     | x1     | Drone,<br />low power|
+| Ultra high resolution |  100     | x16     | x2     | Indoor navigation|
+| Highest resolution|  101     | x32     | x2     | Highest, Drone accurate |
 
 ```
 # Highest recommended for combined pressure and temperature for bmp390 sensor
