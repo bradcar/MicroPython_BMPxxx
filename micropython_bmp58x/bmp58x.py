@@ -1,11 +1,33 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024 Brad Carlile
+# SPDX-FileCopyrightText: Copyright (c) 2024 Bradley Robert Carlile
 #
 # SPDX-License-Identifier: MIT
+# MIT License
+# 
+# Copyright (c) 2024 Bradley Robert Carlile
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE
+
 """
 `bmp58x`
 ================================================================================
 
-MicroPython Driver for the Bosch BMP390 pressure sensor
+MicroPython Driver for the Bosch BMP585, BMP581, BMP390 pressure sensors
 
 * Author: Brad Carlile
 
@@ -28,13 +50,13 @@ class BMP581:
     """Driver for the BMP585 Sensor connected over I2C.
 
     :param ~machine.I2C i2c: The I2C bus the BMP581 is connected to.
-    :param int address: The I2C device address. Defaults to :const:`0x47`
+    :param int address: The I2C device address. Default :const:`0x47`, Secondary :const:`0x46`
 
     :raises RuntimeError: if the sensor is not found
 
     **Quickstart: Importing and using the device**
 
-    Here is an example of using the :class:`bmp58x` class.
+    Here is an example of using the :class:`BMP581` class.
     First you will need to import the libraries to use the sensor
 
     .. code-block:: python
@@ -105,6 +127,9 @@ class BMP581:
     COEF_63 = const(0x06)
     COEF_127 = const(0x07)
     iir_coefficient_values = (COEF_0, COEF_1, COEF_3, COEF_7, COEF_15, COEF_31, COEF_63, COEF_127)
+    
+    BMP581_I2C_ADDRESS_DEFAULT = 0x47
+    BMP581_I2C_ADDRESS_SECONDARY = 0x46
 
     _REG_WHOAMI = const(0x01)
     _OSR_CONF = const(0x36)
@@ -120,7 +145,15 @@ class BMP581:
     _temperature = CBits(24, 0x1D, 0, 3)
     _pressure = CBits(24, 0x20, 0, 3)
 
-    def __init__(self, i2c, address: int = 0x47) -> None:
+    def __init__(self, i2c, address: int = None) -> None:
+        # If no address is provided, try the default, then secondary
+        if address is None:
+            if self._check_address(i2c, self.BMP581_I2C_ADDRESS_DEFAULT):
+                address = self.BMP581_I2C_ADDRESS_DEFAULT
+            elif self._check_address(i2c, self.BMP581_I2C_ADDRESS_SECONDARY):
+                address = self.BMP581_I2C_ADDRESS_SECONDARY
+            else:
+                raise RuntimeError("BMP581 sensor not found at known I2C address (0x47,0x46).")
         self._i2c = i2c
         self._address = address
         if self._read_device_id() != 0x50:  #check _device_id after i2c established
@@ -221,16 +254,16 @@ class BMP581:
         :return: Temperature in Celsius
         """
         raw_temp = self._temperature
-        return self._twos_comp(raw_temp, 24) / 256.0
+        return self._twos_comp(raw_temp, 24) / 2.0**16
 
     @property
     def pressure(self) -> float:
         """
-        The sensor pressure in kPa
-        :return: Pressure in kPa
+        The sensor pressure in hPa
+        :return: Pressure in hPa
         """
         raw_pressure = self._pressure
-        return self._twos_comp(raw_pressure, 24) / 16.0 / 1000.0
+        return self._twos_comp(raw_pressure, 24) / 2.0**6 / 100.0
 
     @property
     def altitude(self) -> float:
@@ -354,9 +387,19 @@ class BMP585(BMP581):
         bmp.temperature_oversample_rate = bmp.OSR8
         meters = bmp.altitude
     """
+    
+    BMP585_I2C_ADDRESS_DEFAULT = 0x47
+    BMP585_I2C_ADDRESS_SECONDARY = 0x46
 
-    def __init__(self, i2c, address: int = 0x47) -> None:
-        
+    def __init__(self, i2c, address: int = None) -> None:
+        # If no address is provided, try the default, then secondary
+        if address is None:
+            if self._check_address(i2c, self.BMP585_I2C_ADDRESS_DEFAULT):
+                address = self.BMP585_I2C_ADDRESS_DEFAULT
+            elif self._check_address(i2c, self.BMP585_I2C_ADDRESS_SECONDARY):
+                address = self.BMP585_I2C_ADDRESS_SECONDARY
+            else:
+                raise RuntimeError("BMP585 sensor not found at known I2C address (0x47,0x46).")
         print("*** BMP585 driver untested ***")
         
         self._i2c = i2c
@@ -427,6 +470,9 @@ class BMP390(BMP581):
     # oversampling rates
     pressure_oversample_rate_values = (OSR1, OSR2, OSR4, OSR8, OSR16, OSR32)
     temperature_oversample_rate_values = (OSR1, OSR2, OSR4, OSR8, OSR16, OSR32)
+    
+    BMP585_I2C_ADDRESS_DEFAULT = 0x7f
+    BMP585_I2C_ADDRESS_SECONDARY = 0x7e
 
     ###  BMP390 Constants - notice very different than bmp581
     _REG_WHOAMI_BMP390 = const(0x00)
@@ -472,7 +518,15 @@ class BMP390(BMP581):
     _par_p10 = CBits(8, 0x44, 0)  # Only byte for par_p10
     _par_p11 = CBits(8, 0x45, 0)  # Only byte for par_p11
 
-    def __init__(self, i2c, address: int = 0x7f) -> None:
+    def __init__(self, i2c, address: int = None) -> None:
+        # If no address is provided, try the default, then secondary
+        if address is None:
+            if self._check_address(i2c, self.BMP390_I2C_ADDRESS_DEFAULT):
+                address = self.BMP581_I2C_ADDRESS_DEFAULT
+            elif self._check_address(i2c, self.BMP390_I2C_ADDRESS_SECONDARY):
+                address = self.BMP581_I2C_ADDRESS_SECONDARY
+            else:
+                raise RuntimeError("BMP390 sensor not found at known I2C address (0x7f,0x7e).")
         self._i2c = i2c
         self._address = address
         if self._read_device_id() != 0x60:  # check _device_id after i2c established
@@ -480,8 +534,14 @@ class BMP390(BMP581):
         self._power_mode = NORMAL
         self._pressure_enabled = True
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
-        ### TODO IS THIS RIGHT ?
-        # self._sea_level_pressure = 0 
+    
+    def _check_address(self, i2c, address: int) -> bool:
+        """Helper function to check if a device responds at the given I2C address."""
+        try:
+            i2c.writeto(address, b"")  # Attempt a write operation
+            return True
+        except OSError:
+            return False
 
     def _read_device_id(self) -> int:
         return self._device_id
