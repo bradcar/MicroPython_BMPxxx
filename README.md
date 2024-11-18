@@ -110,14 +110,6 @@ Make sure the a directory called micropython_bmp58x is on your Raspberry Pi unde
 * Bosch BMP390, previous generation, Released 2021
   * Relative accuracy of +/-0.03 hPa and typical absolute accuracy of +/-0.5 hPa.
   * Measure change in height of 0.25 meters.
- 
-## Credits
-Code based on:
-  * micropython_bmp581 Author(s): Jose D. Montoya, jposada202020
-  * github:jposada202020/MicroPython_BMP581
-  * Corrected error in altitude calculation
-* Also based on
-  * adafruit_register.i2c_struct, adafruit_register.i2c_bits.  Author(s): Scott Shawcroft
 
 ## To Test in Nov 2024 with BMP585 Shuttle Board
 Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I2C interface with Raspberry Pi. Shuttleboard pin details: https://www.electroniclinic.com/bosch-bmp585-barometric-pressure-sensor-with-arduino/
@@ -137,6 +129,14 @@ Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I
 ## License Information
 This product is open source. Please review the LICENSE.md file for license information.
 * distributed as-is; no warranty is given.
+ 
+## Credits
+Code based on great work by Jose & Scott!
+  * micropython_bmp581 Author(s): Jose D. Montoya, jposada202020
+  * github:jposada202020/MicroPython_BMP581
+  * Corrected error in altitude calculation
+* Also based on
+  * adafruit_register.i2c_struct, adafruit_register.i2c_bits.  Author(s): Scott Shawcroft
 
 ## Todos
 * test/debug bmp585 subclass after delivery of bmp585 on 19-Nov-2024.
