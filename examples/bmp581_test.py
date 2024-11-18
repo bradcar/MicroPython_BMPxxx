@@ -14,19 +14,24 @@ print("")
     
 bmp = bmp58x.BMP581(i2c=i2c, address=0x47)
 
-sea_level_pressure = bmp.sea_level_pressure
-print(f"initial sea_level_pressure = {sea_level_pressure:.2f} hPa")
-
-# reset driver to contain the accurate sea level pressure from my nearest airport this hour
-bmp.sea_level_pressure = 1007.10
-print(f"new sea level pressure = {bmp.sea_level_pressure:.2f} hPa\n")
-
-# Highest resolution for bmp585 & bmp581
+# Set for the Highest resolution for bmp585 & bmp581
 bmp.pressure_oversample_rate = bmp.OSR128
 bmp.temperature_oversample_rate = bmp.OSR8
 print(f"Oversample rate setting:")
 print(f"{bmp.pressure_oversample_rate=}")
 print(f"{bmp.temperature_oversample_rate=}\n")
+
+sea_level_pressure = bmp.sea_level_pressure
+print(f"initial sea_level_pressure = {sea_level_pressure:.2f} hPa")
+
+# reset driver to contain the accurate sea level pressure (SLP) from my nearest airport this hour
+bmp.sea_level_pressure = 1007.50
+print(f"adjust sea level pressure = {bmp.sea_level_pressure:.2f} hPa\n")
+
+# Alternatively set known altitude in meters and the sea level pressure will be calculated
+bmp.altitude = 111.0
+print(f"Altitude 111m = {bmp.altitude:.2f} meters")
+print(f"adjust SLP based on known altitude = {bmp.sea_level_pressure:.2f} hPa\n")
 
 while True:
     print(f"Pressure = {bmp.pressure:.2f} hPa")
