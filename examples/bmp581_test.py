@@ -22,19 +22,24 @@ print(f"{bmp.pressure_oversample_rate=}")
 print(f"{bmp.temperature_oversample_rate=}\n")
 
 sea_level_pressure = bmp.sea_level_pressure
-print(f"initial sea_level_pressure = {sea_level_pressure:.2f} hPa")
+print(f"Initial sea_level_pressure = {sea_level_pressure:.2f} hPa")
 
 # reset driver to contain the accurate sea level pressure (SLP) from my nearest airport this hour
 bmp.sea_level_pressure = 1007.50
-print(f"adjust sea level pressure = {bmp.sea_level_pressure:.2f} hPa\n")
+print(f"Adjusted sea level pressure = {bmp.sea_level_pressure:.2f} hPa\n")
 
 # Alternatively set known altitude in meters and the sea level pressure will be calculated
 bmp.altitude = 111.0
 print(f"Altitude 111m = {bmp.altitude:.2f} meters")
-print(f"adjust SLP based on known altitude = {bmp.sea_level_pressure:.2f} hPa\n")
+print(f"Adjusted SLP based on known altitude = {bmp.sea_level_pressure:.2f} hPa\n")
 
 while True:
-    print(f"Pressure = {bmp.pressure:.2f} hPa")
+    # altitude in meters based on sea level pressure stored in driver
+    sea_level_pressure = bmp.sea_level_pressure
+    print(f"Sea level pressure = {sea_level_pressure:.2f} hPa")
+    
+    # Pressure in hPA measured at sensor
+    print(f"Sensor pressure = {bmp.pressure:.2f} hPa")
     temp = bmp.temperature
     print(f"temp = {temp:.2f} C")
   
@@ -43,11 +48,9 @@ while True:
     feet = meters * 3.28084
     feet_only = int(feet)
     inches = (feet - feet_only) * 12
-    print(f"Altitude = {feet_only} feet {inches:.1f} inches")
+    print(f"Altitude = {feet_only} feet {inches:.1f} inches\n")
 
-    # altitude in meters based on sea level pressure stored in driver
-    sea_level_pressure = bmp.sea_level_pressure
-    print(f"sea level pressure = {sea_level_pressure:.2f} hPa\n")
+
 
     time.sleep(2.5)
 
