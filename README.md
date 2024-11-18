@@ -151,7 +151,7 @@ This product is open source. Please review the LICENSE.md file for license infor
  
 ## Credits
 Code based on great work by Jose & Scott!
-  * micropython_bmp581 Author(s): Jose D. Montoya, jposada202020
+* micropython_bmp581 Author(s): Jose D. Montoya, jposada202020
   * github:jposada202020/MicroPython_BMP581
   * Corrected error in altitude calculation
 * Also based on
@@ -159,5 +159,5 @@ Code based on great work by Jose & Scott!
 
 ## Todos
 * test/debug bmp585 subclass after delivery of bmp585 on 19-Nov-2024.
-* fix IIR filters for bmp585 & bmp581 - current tries to set IIR when running but this is ignored, need to update only in STANDBY power mode.
+* fix IIR filters for bmp585 & bmp581 - currently tries to set IIR when running (but this is ignored), need to change code to go into STANDBY power modem and then update, then return to previous power mode.
 * double check IIR filters to make sure limited to correct values for bmp390, note can update IIR on bmp390 on the fly.
