@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024 Bradley Robert Carlile
-#
-# SPDX-License-Identifier: MIT
-
 import time
 from machine import Pin, I2C
 from micropython_bmp58x import bmp58x
@@ -14,35 +10,37 @@ if i2c1_devices:
     for d in i2c1_devices: print(f"i2c1 device at address: {hex(d)}")
 else:
     print("ERROR: No i2c1 devices")
+print("")
     
 bmp = bmp58x.BMP581(i2c=i2c, address=0x47)
 
 sea_level_pressure = bmp.sea_level_pressure
-print(f"initial sea_level_pressure = {sea_level_pressure:.2f} hPa\n")
+print(f"initial sea_level_pressure = {sea_level_pressure:.2f} hPa")
 
+# reset driver to contain the accurate sea level pressure from my nearest airport this hour
 bmp.sea_level_pressure = 1007.10
+print(f"new sea level pressure = {bmp.sea_level_pressure:.2f} hPa\n")
 
 # Highest resolution for bmp585 & bmp581
 bmp.pressure_oversample_rate = bmp.OSR128
 bmp.temperature_oversample_rate = bmp.OSR8
-
-print(f"Oversample rate setting: \n{bmp.pressure_oversample_rate=}\n{bmp.temperature_oversample_rate=}\n")
+print(f"Oversample rate setting:")
+print(f"{bmp.pressure_oversample_rate=}")
+print(f"{bmp.temperature_oversample_rate=}\n")
 
 while True:
     print(f"Pressure = {bmp.pressure:.2f} hPa")
     temp = bmp.temperature
     print(f"temp = {temp:.2f} C")
   
-    # meters based on sea level pressure of 1013.25 hPA
     meters = bmp.altitude
-    print(f"alt = {meters:.2f} meters")
+    print(f"Altitude = {meters:.2f} meters")
     feet = meters * 3.28084
     feet_only = int(feet)
     inches = (feet - feet_only) * 12
-    print(f"alt = {feet_only} feet {inches:.1f} inches")
+    print(f"Altitude = {feet_only} feet {inches:.1f} inches")
 
-        
-    # altitude in meters based on initial sea level pressure of 1013.25 hPA
+    # altitude in meters based on sea level pressure stored in driver
     sea_level_pressure = bmp.sea_level_pressure
     print(f"sea level pressure = {sea_level_pressure:.2f} hPa\n")
 
