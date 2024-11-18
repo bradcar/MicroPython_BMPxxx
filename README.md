@@ -10,9 +10,9 @@ MicroPython Driver for the Bosch ~~BMP585~~ (to test Nov 2024), BMP581, and BMP3
  
 ## Micropython bmp58x driver
 Code includes:
-* ~~BMP585~~ (to test Nov 2024), BMP581, BMP390 support
+* ~~BMP585~~ (to test Nov 18-20, 2024), BMP581, BMP390 supported
 * I2C only (driver needs modifications for SDI)
-  * checks i2c primary 0x47 ddress and secondary 0x46
+  * checks i2c primary address of 0x47, and then checks secondary 0x46
 * All pressures are in hPA.
 * All temperatures are in Celsius.
 * Code enables setting Pressure/Temperature OverSampling and IIR values.
@@ -130,9 +130,8 @@ Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I
 * SDI/SDA: I2C SDA (pin 4 of 9 pin connector)
 
 ## License Information
-
 This product is open source. Please review the LICENSE.md file for license information.
-* istributed as-is; no warranty is given.
+* distributed as-is; no warranty is given.
 
 ## Todos
-* debug bmp581 class and bmp585 subclass next
+* test/debug bmp585 subclass after delivery of bmp585 on 19-Nov-2024.
