@@ -49,6 +49,24 @@ bmp.pressure_oversample_rate = bmp.OSR128
 bmp.temperature_oversample_rate = bmp.OSR8
 ```
 
+Other data from sensors, see data sheet for more info:
+```
+print("Current IIR setting: ", bmp.iir_coefficient)
+for irr_coef in bmp.iir_coefficient_values:
+    bmp.power_mode = irr_coef
+    print("New IRR setting: {bmp.iir_coefficient}")
+
+print("Current power mode setting: ", bmp.power_mode)
+for power_mode in bmp.power_mode_values:
+    bmp.power_mode = power_mode
+    print("New Power mode setting: {bmp.power_mode}")
+
+print(f"Current Output data rate setting: ", bmp.output_data_rate)
+for output_data_rate in range(0, 32, 1):
+    bmp.output_data_rate = data_rate
+    print("New data rate setting: {bmp.output_data_rate}")
+```
+
 ## Recommended Oversampling Rates to Improve Sensors' Accuracy
 The table below is Bosch's recommended oversampling pressure and temperature settings for bmp585 and bmp581. Higher sampling rates effect the refresh rate and the power consumption. Please checked the Bosch datasheets for more information https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/
 
