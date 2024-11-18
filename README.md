@@ -76,7 +76,7 @@ Table 1: I2C Sensor Address
 | bmp581 |  0x47     | 0x46     | 
 | bmp390  |  0x7f    | 0x7e     | 
 
-The following code is useful when scanning for device addresses on I2C.
+The following code is useful when scanning for device addresses on I2C. I always put this in my code when bringing up new sensor. Also if device not found triple-check all wiring.
 ```
 # Notice this is using i2c1 not i2c0(typically used for REPL)
 i2c = I2C(id=1, scl=Pin(27), sda=Pin(26))
