@@ -134,6 +134,8 @@ class BMP581:
     _REG_WHOAMI = const(0x01)
     _OSR_CONF = const(0x36)
     _ODR_CONFIG = const(0x37)
+    _DSP_IIR = const(0x31)
+    _DSP_CONFIG = const(0x30)
 
     _device_id = RegisterStruct(_REG_WHOAMI, "B")
     _power_mode = CBits(2, _ODR_CONFIG, 0)
@@ -141,7 +143,8 @@ class BMP581:
     _pressure_oversample_rate = CBits(3, _OSR_CONF, 3)
     _output_data_rate = CBits(5, _ODR_CONFIG, 2)
     _pressure_enabled = CBits(1, _OSR_CONF, 6)
-
+    _iir_coefficient = CBits(3, _DSP_IIR, 0)
+    _iir_control = CBits(8, _DSP_CONFIG, 0)
     _temperature = CBits(24, 0x1D, 0, 3)
     _pressure = CBits(24, 0x20, 0, 3)
 
@@ -183,7 +186,7 @@ class BMP581:
 
     @power_mode.setter
     def power_mode(self, value: int) -> None:
-        if value not in power_mode_values:
+        if value not in self.power_mode_values:
             raise ValueError("Value must be a valid power_mode setting")
         ("Value must be a valid power_mode setting: STANDBY,NORMAL,FORCED,NON_STOP")
         self._power_mode = value
@@ -316,14 +319,17 @@ class BMP581:
         +----------------------------+------------------+
         :return: coefficients as string
         """
-        string_name = ("COEF_0", "COEF_1", "COEF_3", "COEF_7", "COEF_15", "COEF_31", "COEF_63", "COEF_127",)
-        return string_name[self._iir_coefficient]
+        values = ("COEF_0", "COEF_1", "COEF_3", "COEF_7", "COEF_15", "COEF_31", "COEF_63", "COEF_127",)
+        return values[self._iir_coefficient]
 
     @iir_coefficient.setter
     def iir_coefficient(self, value: int) -> None:
-        if value not in iir_coefficient_values:
-            raise ValueError(
-                "Value must be a valid iir_coefficients: COEF_0,COEF_1,COEF_3,COEF_7,COEF_15,COEF_31,COEF_63,COEF_127")
+        # IIR configuration is writable only during STANDBY mode (as per datasheet), update, then return to NORMAL
+        if value not in self.iir_coefficient_values:
+            raise ValueError("Value must be a valid iir_coefficients: COEF_0,COEF_1,COEF_3,COEF_7,COEF_15,COEF_31,COEF_63,COEF_127")
+        # TODO?
+        self._iir_control = 0xff
+#         self._iir_control = 0x3f
         self._iir_coefficient = value
 
     @property
