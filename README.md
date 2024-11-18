@@ -113,6 +113,9 @@ bmp.OSR1 corresponds to x1 for all sensors, bmp.OSR2 corresponds to x2 for all s
 ## Installing
 Make sure the a directory called micropython_bmp58x is on your Raspberry Pi under the /lib directory. You will need to make sure it contains these files: __init__.py, bmp58x.py, and i2c_helpers.py.
 
+## Example projects using this Driver
+* Digital altimeter: https://github.com/bradcar/digital-altimeter-rp2
+
 ## Bosch Sensors Compared
 * Bosch BMP585, MEMS-based barometric pressure sensor, perf similar to BMP581, released 2023.
   * Liquid resistant due to gel sensor
