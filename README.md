@@ -116,17 +116,17 @@ bmp.OSR1 corresponds to x1 for all sensors, bmp.OSR2 corresponds to x2 for all s
 Make sure the a directory called micropython_bmp58x is on your Raspberry Pi under the /lib directory. You will need to make sure it contains these files: __init__.py, bmp58x.py, and i2c_helpers.py.
 
 ## Bosch Sensors Compared
-* Bosch BMP585, Released 2023, MEMS-based barometric pressure sensor, perf similar to BMP581
+* Bosch BMP585, MEMS-based barometric pressure sensor, perf similar to BMP581, released 2023.
   * Liquid resistant due to gel sensor
   * The BMP585 accuracy similar to Bosch’s existing BMP581.
     * Measure change in height of just a few centimeters. 
     * Relative accuracy of +/-0.06 hPa and typical absolute accuracy of +/-0.5 hPa.
-* The BMP581, Released 2022, capacitive-based barometric pressure sensor
+* The BMP581, capacitive-based barometric pressure sensor, released 2022. 
   * The BMP581 accuracy similar to Bosch’s existing BMP585.
     * Measure change in height of just a few centimeters. 
     * Relative accuracy of +/-0.06 hPa and typical absolute accuracy of +/-0.3 hPa.
   * the BMP581 vs. BMP390: draws 85% less current, noise is 80% lower, and temperature coefficient offset is reduced by 33%.
-* Bosch BMP390, previous generation, Released 2021
+* Bosch BMP390, previous generation, released 2021.
   * Relative accuracy of +/-0.03 hPa and typical absolute accuracy of +/-0.5 hPa.
   * Measure change in height of 0.25 meters.
 
