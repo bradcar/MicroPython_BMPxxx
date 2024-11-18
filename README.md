@@ -1,5 +1,5 @@
 # Micropython bmp58x driver
-MicroPython Driver for the Bosch BMP585, BMP581, and BMP390 pressure sensors using I2C
+MicroPython Driver for the Bosch ~~BMP585~~ (to test Nov 2024), BMP581, and BMP390 pressure sensors using I2C
 
 * Code based on
   * micropython_bmp581 Author(s): Jose D. Montoya, jposada202020
@@ -10,8 +10,9 @@ MicroPython Driver for the Bosch BMP585, BMP581, and BMP390 pressure sensors usi
  
 ## Micropython bmp58x driver
 Code includes:
-* BMP585, BMP581, BMP390 support
+* ~~BMP585~~ (to test Nov 18-20, 2024), BMP581, BMP390 supported
 * I2C only (driver needs modifications for SDI)
+  * checks i2c primary address of 0x47, and then checks secondary 0x46
 * All pressures are in hPA.
 * All temperatures are in Celsius.
 * Code enables setting Pressure/Temperature OverSampling and IIR values.
@@ -47,9 +48,9 @@ bmp.sea_level_pressure = 1010.80
 meters = bmp.altitude
 print(f"alt = {meters:.2f} meters")
 ```
-Increase bmp585 sensor to highest accuracy (see below for bmp390):
+Increase bmp585/bmp581 sensor to highest accuracy (see below for bmp390):
 ```
-# Highest resolution for bmp585
+# Highest resolution for bmp585 & bmp581
 bmp.pressure_oversample_rate = bmp.OSR128
 bmp.temperature_oversample_rate = bmp.OSR8
 ```
@@ -113,8 +114,8 @@ bmp.OSR1 corresponds to x1 for all sensors, bmp.OSR2 corresponds to x2 for all s
   * Relative accuracy of +/-0.03 hPa and typical absolute accuracy of +/-0.5 hPa.
   * Measure change in height of 0.25 meters.
 
-## Tested with BMP585 Shuttle Board
-Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I2C interface with Raspberry Pi.
+## To Test in Nov 2024 with BMP585 Shuttle Board
+Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I2C interface with Raspberry Pi. Shuttleboard pin details: https://www.electroniclinic.com/bosch-bmp585-barometric-pressure-sensor-with-arduino/
 * 1.27mm pins not breadboard friendly (boardboards use 2.54mm)
 * 3.3v:
   * vdd to 3.3v (pin 1 of 7 pin connector)
@@ -128,5 +129,9 @@ Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I
   * wire to 3.3v  (pin 3 of 9 pin connector)
 * SDI/SDA: I2C SDA (pin 4 of 9 pin connector)
 
+## License Information
+This product is open source. Please review the LICENSE.md file for license information.
+* distributed as-is; no warranty is given.
+
 ## Todos
-* debug bmp581 class and bmp585 subclass next
+* test/debug bmp585 subclass after delivery of bmp585 on 19-Nov-2024.
