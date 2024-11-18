@@ -1,5 +1,5 @@
 # Micropython bmp58x driver
-MicroPython Driver for the Bosch ~~BMP585~~ (to test Nov 2024), BMP581, and BMP390 pressure sensors using I2C
+MicroPython Driver for the Bosch ~~BMP585~~ (to test Nov 2024), BMP581, and BMP390 pressure sensors using I2C. It has the ability to adjust sea level pressure and/or the sensors altitude at a known elevation for accurate future tracking.
 
 ## Micropython bmp58x driver
 Code includes:
@@ -48,7 +48,6 @@ Increase bmp585/bmp581 sensor to highest accuracy (see below for bmp390):
 bmp.pressure_oversample_rate = bmp.OSR128
 bmp.temperature_oversample_rate = bmp.OSR8
 ```
-
 Other data from sensors, see data sheet for more info:
 ```
 print("Current power mode setting: ", bmp.power_mode)
@@ -67,9 +66,8 @@ for iir_coef in bmp.iir_coefficient_values:
     bmp.iir_coefficient = iir_coef
     print(f"New IRR setting: {bmp.iir_coefficient}")
 ```
-
 ## Recommended Oversampling Rates to Improve Sensors' Accuracy
-The table below is Bosch's recommended oversampling pressure and temperature settings for bmp585 and bmp581. Higher sampling rates effect the refresh rate and the power consumption. Please checked the Bosch datasheets for more information https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/
+The table 1 below is Bosch's recommended oversampling pressure and temperature settings for bmp585 and bmp581. Higher sampling rates effect the refresh rate and the power consumption. Please checked the Bosch datasheets for more information https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/
 
 Table 1: BMP585/BMP581 Recommendations from Bosch
 | Oversampling setting | OSR Pressure | Pressure<br /> Oversampling | Temperature<br /> Oversampling |
@@ -91,7 +89,7 @@ bmp.temperature_oversample_rate = bmp.OSR8
 
 The bmp585 and bmp581 do not have recommended IIR filters to go with the table above.
 
-The table below is Bosch's recommended oversampling pressure and temperature settings for bmp390. There are recommended IIR filter settings for the bmp390 in section 3.5. Filter section, page 17, in bmp390 datasheet
+The table 2 below is Bosch's recommended oversampling pressure and temperature settings for bmp390. There are recommended IIR filter settings for the bmp390 in section 3.5. Filter section, page 17, in bmp390 datasheet
 
 Table 2: BMP390 Recommendations from Bosch
 | Oversampling setting | OSR Pressure | Pressure<br /> Oversampling | Temperature<br /> Oversampling | Sample Use |
