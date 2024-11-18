@@ -1,13 +1,6 @@
 # Micropython bmp58x driver
 MicroPython Driver for the Bosch ~~BMP585~~ (to test Nov 2024), BMP581, and BMP390 pressure sensors using I2C
 
-* Code based on
-  * micropython_bmp581 Author(s): Jose D. Montoya, jposada202020
-  * github:jposada202020/MicroPython_BMP581
-  * Corrected error in altitude calculation
-* Also based on
-  * adafruit_register.i2c_struct, adafruit_register.i2c_bits.  Author(s): Scott Shawcroft
- 
 ## Micropython bmp58x driver
 Code includes:
 * ~~BMP585~~ (to test Nov 18-20, 2024), BMP581, BMP390 supported
@@ -21,7 +14,7 @@ Code includes:
   * For sea level pressure, the driver defaults to 1013.25 hpa which is the international accepted world-wide average hPa. However you should know that weather causes sea level presssure to typically vary from 990 hPa to 1040 hPA or more.
   * It is best to set sea level pressure on each use to that of the nearest airport, for example: https://www.weather.gov/wrh/timeseries?site=KPDX
   * By not setting nearest local known sea level pressure, altitude measurements may be way off. Even at 360 feet (111m) altitudes can be off by 1500 feet (500m) depending on the weather.
-* Various error checkings
+* Various error checks.
 
 ## Sample Usage
 Required Imports:
@@ -100,6 +93,9 @@ bmp.iir_coefficient = bmp.COEF_3
 ```
 bmp.OSR1 corresponds to x1 for all sensors, bmp.OSR2 corresponds to x2 for all sensors, bmp.OSR4 corresponds to x4 for all sensors, etc. If you go over for a particular sensor, then an error message will show possible values.
 
+## Installing
+Make sure the a directory called micropython_bmp58x is on your Raspberry Pi under the /lib directory. You will need to make sure it contains these files: __init__.py, bmp58x.py, and i2c_helpers.py.
+
 ## Bosch Sensors Compared
 * Bosch BMP585, Released 2023, MEMS-based barometric pressure sensor, perf similar to BMP581
   * Liquid resistant due to gel sensor
@@ -133,6 +129,14 @@ Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I
 ## License Information
 This product is open source. Please review the LICENSE.md file for license information.
 * distributed as-is; no warranty is given.
+ 
+## Credits
+Code based on great work by Jose & Scott!
+  * micropython_bmp581 Author(s): Jose D. Montoya, jposada202020
+  * github:jposada202020/MicroPython_BMP581
+  * Corrected error in altitude calculation
+* Also based on
+  * adafruit_register.i2c_struct, adafruit_register.i2c_bits.  Author(s): Scott Shawcroft
 
 ## Todos
 * test/debug bmp585 subclass after delivery of bmp585 on 19-Nov-2024.
