@@ -1,13 +1,6 @@
 # Micropython bmp58x driver
 MicroPython Driver for the Bosch ~~BMP585~~ (to test Nov 2024), BMP581, and BMP390 pressure sensors using I2C
 
-* Code based on
-  * micropython_bmp581 Author(s): Jose D. Montoya, jposada202020
-  * github:jposada202020/MicroPython_BMP581
-  * Corrected error in altitude calculation
-* Also based on
-  * adafruit_register.i2c_struct, adafruit_register.i2c_bits.  Author(s): Scott Shawcroft
- 
 ## Micropython bmp58x driver
 Code includes:
 * ~~BMP585~~ (to test Nov 18-20, 2024), BMP581, BMP390 supported
@@ -21,7 +14,7 @@ Code includes:
   * For sea level pressure, the driver defaults to 1013.25 hpa which is the international accepted world-wide average hPa. However you should know that weather causes sea level presssure to typically vary from 990 hPa to 1040 hPA or more.
   * It is best to set sea level pressure on each use to that of the nearest airport, for example: https://www.weather.gov/wrh/timeseries?site=KPDX
   * By not setting nearest local known sea level pressure, altitude measurements may be way off. Even at 360 feet (111m) altitudes can be off by 1500 feet (500m) depending on the weather.
-* Various error checkings
+* Various error checks.
 
 ## Sample Usage
 Required Imports:
@@ -117,6 +110,14 @@ Make sure the a directory called micropython_bmp58x is on your Raspberry Pi unde
 * Bosch BMP390, previous generation, Released 2021
   * Relative accuracy of +/-0.03 hPa and typical absolute accuracy of +/-0.5 hPa.
   * Measure change in height of 0.25 meters.
+ 
+## Credits
+Code based on:
+  * micropython_bmp581 Author(s): Jose D. Montoya, jposada202020
+  * github:jposada202020/MicroPython_BMP581
+  * Corrected error in altitude calculation
+* Also based on
+  * adafruit_register.i2c_struct, adafruit_register.i2c_bits.  Author(s): Scott Shawcroft
 
 ## To Test in Nov 2024 with BMP585 Shuttle Board
 Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I2C interface with Raspberry Pi. Shuttleboard pin details: https://www.electroniclinic.com/bosch-bmp585-barometric-pressure-sensor-with-arduino/
