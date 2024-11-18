@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-
 import time
 from machine import Pin, I2C
 from micropython_bmp58x import bmp58x
@@ -16,16 +15,16 @@ if i2c1_devices:
 else:
     print("ERROR: No i2c1 devices")
     
-bmp = bmp58x.BMP390(i2c=i2c, address=0x7e)
+bmp = bmp58x.BMP581(i2c=i2c, address=0x47)
 
 sea_level_pressure = bmp.sea_level_pressure
 print(f"initial sea_level_pressure = {sea_level_pressure:.2f} hPa\n")
 
-bmp.sea_level_pressure = 1005.00
+bmp.sea_level_pressure = 1007.10
 
-# HI_RESOLUTION for bmp390
-bmp.pressure_oversample_rate = bmp.OSR32
-bmp.temperature_oversample_rate = bmp.OSR2
+# Highest resolution for bmp585 & bmp581
+bmp.pressure_oversample_rate = bmp.OSR128
+bmp.temperature_oversample_rate = bmp.OSR8
 
 print(f"Oversample rate setting: \n{bmp.pressure_oversample_rate=}\n{bmp.temperature_oversample_rate=}\n")
 
