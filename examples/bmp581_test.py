@@ -33,6 +33,20 @@ bmp.altitude = 111.0
 print(f"Altitude 111m = {bmp.altitude:.2f} meters")
 print(f"Adjusted SLP based on known altitude = {bmp.sea_level_pressure:.2f} hPa\n")
 
+# # bmp585 & bmp581, IIR only configurable during in STANDBY mode.
+# bmp.iir_coefficient = bmp.COEF_3
+# print(f"{ bmp.COEF_3=}")
+# print("Current IIR setting: ", bmp.iir_coefficient)
+# for iir_coef in bmp.iir_coefficient_values:
+#     print(f"{iir_coef}")
+#     bmp.iir_coefficient = iir_coef
+#     print(f"New IRR setting: {bmp.iir_coefficient}")
+# 
+# print("Current power mode setting: ", bmp.power_mode)
+# for power_mode in bmp.power_mode_values:
+#     bmp.power_mode = power_mode
+#     print(f"New Power mode setting: {bmp.power_mode}")
+
 while True:
     # altitude in meters based on sea level pressure stored in driver
     sea_level_pressure = bmp.sea_level_pressure
@@ -63,5 +77,3 @@ while True:
 #             time.sleep(0.5)
 #         bmp.iir_coefficient = iir_coefficient
 
- 
- 
