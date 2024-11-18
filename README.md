@@ -100,7 +100,7 @@ bmp.iir_coefficient = bmp.COEF_3
 ```
 bmp.OSR1 corresponds to x1 for all sensors, bmp.OSR2 corresponds to x2 for all sensors, bmp.OSR4 corresponds to x4 for all sensors, etc. If you go over for a particular sensor, then an error message will show possible values.
 
-## Installing Information
+## Installing
 Make sure the a directory called micropython_bmp58x is on your Raspberry Pi under the /lib directory. You will need to make sure it contains these files: __init__.py, bmp58x.py, and i2c_helpers.py.
 
 ## Bosch Sensors Compared
