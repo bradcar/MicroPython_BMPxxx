@@ -66,7 +66,7 @@ for iir_coef in bmp.iir_coefficient_values:
     bmp.iir_coefficient = iir_coef
     print(f"New IRR setting: {bmp.iir_coefficient}")
 ```
-I2C Addresses
+## I2C Addresses
 If you only have one sensor on the same I2C, they it will use the table below to scan the addresses. If you have multiple devices on the same I2C it is a good practice to specify the sensors address. To change the address to secondary you need to look look up the specs of your specific sensor. Often addresses can be changed with a solder blob or by connecting specific pins on the sensor to ground or vcc. This driver will scan th
 
 Table 1: I2C Sensor Address
@@ -85,6 +85,10 @@ if i2c1_devices:
     for d in i2c1_devices: print(f"i2c1 device at address: {hex(d)}")
 else:
     print("ERROR: No i2c1 devices")
+```
+Example of specifying an address for a bmp581:
+```
+bmp = bmp58x.BMP581(i2c=i2c, address=0x47)
 ```
 ## Recommended Oversampling Rates to Improve Sensors' Accuracy
 The table 2 below is Bosch's recommended oversampling pressure and temperature settings for bmp585 and bmp581. Higher sampling rates effect the refresh rate and the power consumption. Please checked the Bosch datasheets for more information https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/
