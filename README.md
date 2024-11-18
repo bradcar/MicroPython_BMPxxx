@@ -159,4 +159,5 @@ Code based on great work by Jose & Scott!
 
 ## Todos
 * test/debug bmp585 subclass after delivery of bmp585 on 19-Nov-2024.
-* fix IIR filters for bmp585 & bmp581
+* fix IIR filters for bmp585 & bmp581 - current tries to set IIR when running but this is ignored, need to update only in STANDBY power mode.
+* double check IIR filters to make sure limited to correct values for bmp390, note can update IIR on bmp390 on the fly.
