@@ -143,7 +143,8 @@ class BMP581:
     _pressure_oversample_rate = CBits(3, _OSR_CONF, 3)
     _output_data_rate = CBits(5, _ODR_CONFIG, 2)
     _pressure_enabled = CBits(1, _OSR_CONF, 6)
-    _iir_coefficient = CBits(3, _DSP_IIR, 0)
+    _iir_coefficient = CBits(3, _DSP_IIR, 3)       # Pressure IIR coefficient
+    _iir_temp_coefficient = CBits(3, _DSP_IIR, 0)  # Temp IIR coefficient
     _iir_control = CBits(8, _DSP_CONFIG, 0)
     _temperature = CBits(24, 0x1D, 0, 3)
     _pressure = CBits(24, 0x20, 0, 3)
@@ -165,6 +166,7 @@ class BMP581:
         # Must be in STANDBY to initialize _iir_coefficient       
         self._power_mode = STANDBY
         self._iir_coefficient = COEF_0
+        self._iir_temp_coefficient = COEF_0
         self._power_mode = NORMAL
         
         self._pressure_enabled = True
@@ -173,7 +175,20 @@ class BMP581:
     
     def _read_device_id(self) -> int:
         return self._device_id
-        
+
+    @property
+    def config(self):
+        print(f"{hex(self._address)=}")
+        print(f"{hex(self._device_id)=}")
+        print(f"{self.power_mode=}")
+        print(f"{self.pressure_oversample_rate=}")
+        print(f"{self.temperature_oversample_rate=}")
+        print(f"{self.iir_coefficient=}")
+        print(f"{self.sea_level_pressure=}")
+        print(f"{self.pressure=} hPa")      
+        print(f"{self.temperature=} C")
+        print(f"{self.altitude=} m\n")
+
     @property
     def power_mode(self) -> str:
         """
@@ -348,6 +363,7 @@ class BMP581:
 #         self._iir_control = iir_control_value
         if debug: print(f"IIR value: {value=}")
         self._iir_coefficient = value
+        self._iir_temp_coefficient = value
 
         # Restore the original power mode
         self.power_mode = original_mode
@@ -435,6 +451,7 @@ class BMP585(BMP581):
         # Must be in STANDBY to initialize _iir_coefficient       
         self._power_mode = STANDBY
         self._iir_coefficient = COEF_0
+        self._iir_temp_coefficient = COEF_0
         self._power_mode = NORMAL
         
         self._pressure_enabled = True
