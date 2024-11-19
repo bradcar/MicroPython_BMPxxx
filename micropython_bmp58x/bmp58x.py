@@ -161,9 +161,15 @@ class BMP581:
         self._address = address
         if self._read_device_id() != 0x50:  #check _device_id after i2c established
             raise RuntimeError("Failed to find the BMP581 sensor")
+        
+        # Must be in STANDBY to initialize _iir_coefficient       
+        self._power_mode = STANDBY
+        self._iir_coefficient = COEF_0
         self._power_mode = NORMAL
+        
         self._pressure_enabled = True
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
+
     
     def _read_device_id(self) -> int:
         return self._device_id
@@ -186,9 +192,11 @@ class BMP581:
 
     @power_mode.setter
     def power_mode(self, value: int) -> None:
+        debug = False
+        if debug: print(f"{self.power_mode_values}")
+        if debug: print(f"power mode: {value=}")
         if value not in self.power_mode_values:
-            raise ValueError("Value must be a valid power_mode setting")
-        ("Value must be a valid power_mode setting: STANDBY,NORMAL,FORCED,NON_STOP")
+            raise ValueError("Value must be a valid power_mode setting: STANDBY,NORMAL,FORCED,NON_STOP")
         self._power_mode = value
 
     @property
@@ -324,13 +332,25 @@ class BMP581:
 
     @iir_coefficient.setter
     def iir_coefficient(self, value: int) -> None:
-        # IIR configuration is writable only during STANDBY mode (as per datasheet), update, then return to NORMAL
+        debug = False
         if value not in self.iir_coefficient_values:
             raise ValueError("Value must be a valid iir_coefficients: COEF_0,COEF_1,COEF_3,COEF_7,COEF_15,COEF_31,COEF_63,COEF_127")
         # TODO? https://github.com/sparkfun/SparkFun_BMP581_Arduino_Library/blob/main/src/bmp5_api/bmp5.c#L1241 look at lines 870-ish
-        self._iir_control = 0xff
-#         self._iir_control = 0x3f
+        # Ensure the sensor is in STANDBY mode before updating
+        original_mode = self._power_mode  # Save the current mode
+        if debug: print(f"{type(original_mode)=}")
+        if debug: print(f"{original_mode=}")
+        if original_mode != STANDBY:
+            self.power_mode = STANDBY  # Set to STANDBY if not already
+        if debug: print(f"updated power mode = {self.power_mode=}")
+        # Update the internal IIR control register
+#         iir_control_value = 0xFF  # Temporary local variable for clarity
+#         self._iir_control = iir_control_value
+        if debug: print(f"IIR value: {value=}")
         self._iir_coefficient = value
+
+        # Restore the original power mode
+        self.power_mode = original_mode
 
     @property
     def output_data_rate(self) -> int:
@@ -393,7 +413,6 @@ class BMP585(BMP581):
         bmp.temperature_oversample_rate = bmp.OSR8
         meters = bmp.altitude
     """
-    
     BMP585_I2C_ADDRESS_DEFAULT = 0x47
     BMP585_I2C_ADDRESS_SECONDARY = 0x46
 
@@ -412,7 +431,12 @@ class BMP585(BMP581):
         self._address = address
         if self._read_device_id() != 0x51:  # check _device_id after i2c established
             raise RuntimeError("Failed to find the BMP585 sensor")
+        
+        # Must be in STANDBY to initialize _iir_coefficient       
+        self._power_mode = STANDBY
+        self._iir_coefficient = COEF_0
         self._power_mode = NORMAL
+        
         self._pressure_enabled = True
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
         print("*** BMP585 driver untested ***")

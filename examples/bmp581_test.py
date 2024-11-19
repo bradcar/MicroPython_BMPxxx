@@ -33,10 +33,10 @@ bmp.altitude = 111.0
 print(f"Altitude 111m = {bmp.altitude:.2f} meters")
 print(f"Adjusted SLP based on known altitude = {bmp.sea_level_pressure:.2f} hPa\n")
 
-# # bmp585 & bmp581, IIR only configurable during in STANDBY mode.
-# bmp.iir_coefficient = bmp.COEF_3
-# print(f"{ bmp.COEF_3=}")
-# print("Current IIR setting: ", bmp.iir_coefficient)
+# bmp585 & bmp581, IIR only configurable during in STANDBY mode.
+print(f"Current IIR setting: {bmp.iir_coefficient=}")
+bmp.iir_coefficient = bmp.COEF_3
+print(f"update to bmp.COEF_3: {bmp.iir_coefficient=}\n")
 # for iir_coef in bmp.iir_coefficient_values:
 #     print(f"{iir_coef}")
 #     bmp.iir_coefficient = iir_coef
