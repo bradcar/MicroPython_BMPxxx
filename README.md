@@ -60,7 +60,6 @@ for output_data_rate in range(0, 32, 1):
     bmp.output_data_rate = output_data_rate
     print(f"New data rate setting: {bmp.output_data_rate}")
 
-# Currently only works for bmp390  TODO: fix for others
 print("Current IIR setting: ", bmp.iir_coefficient)
 for iir_coef in bmp.iir_coefficient_values:
     bmp.iir_coefficient = iir_coef
