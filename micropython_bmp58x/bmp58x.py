@@ -327,7 +327,7 @@ class BMP581:
         # IIR configuration is writable only during STANDBY mode (as per datasheet), update, then return to NORMAL
         if value not in self.iir_coefficient_values:
             raise ValueError("Value must be a valid iir_coefficients: COEF_0,COEF_1,COEF_3,COEF_7,COEF_15,COEF_31,COEF_63,COEF_127")
-        # TODO?
+        # TODO? https://github.com/sparkfun/SparkFun_BMP581_Arduino_Library/blob/main/src/bmp5_api/bmp5.c#L1241 look at lines 870-ish
         self._iir_control = 0xff
 #         self._iir_control = 0x3f
         self._iir_coefficient = value
@@ -477,8 +477,8 @@ class BMP390(BMP581):
     pressure_oversample_rate_values = (OSR1, OSR2, OSR4, OSR8, OSR16, OSR32)
     temperature_oversample_rate_values = (OSR1, OSR2, OSR4, OSR8, OSR16, OSR32)
     
-    BMP585_I2C_ADDRESS_DEFAULT = 0x7f
-    BMP585_I2C_ADDRESS_SECONDARY = 0x7e
+    BMP390_I2C_ADDRESS_DEFAULT = 0x7f
+    BMP390_I2C_ADDRESS_SECONDARY = 0x7e
 
     ###  BMP390 Constants - notice very different than bmp581
     _REG_WHOAMI_BMP390 = const(0x00)
@@ -528,15 +528,15 @@ class BMP390(BMP581):
         # If no address is provided, try the default, then secondary
         if address is None:
             if self._check_address(i2c, self.BMP390_I2C_ADDRESS_DEFAULT):
-                address = self.BMP581_I2C_ADDRESS_DEFAULT
+                address = self.BMP390_I2C_ADDRESS_DEFAULT
             elif self._check_address(i2c, self.BMP390_I2C_ADDRESS_SECONDARY):
-                address = self.BMP581_I2C_ADDRESS_SECONDARY
+                address = self.BMP390_I2C_ADDRESS_SECONDARY
             else:
                 raise RuntimeError("BMP390 sensor not found at known I2C address (0x7f,0x7e).")
         self._i2c = i2c
         self._address = address
         if self._read_device_id() != 0x60:  # check _device_id after i2c established
-            raise RuntimeError("Failed to find the BMP390 sensor")
+            raise RuntimeError("Failed to find the BMP390 sensor with id=0x60")
         self._power_mode = NORMAL
         self._pressure_enabled = True
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
@@ -778,3 +778,391 @@ class BMP390(BMP581):
         tempc = self._calculate_temperature_compensation(raw_temp)
         comp_press = self._calculate_pressure_compensation(raw_pressure, tempc)
         return comp_press / 100.0  # Convert to hPa
+
+class BMP280(BMP581):
+    """Driver for the BMP390 Sensor connected over I2C.
+
+    :param ~machine.I2C i2c: The I2C bus the BMP280 is connected to.
+    :param int address: The I2C device address. Defaults to :const:`0x7F`
+
+    :raises RuntimeError: if the sensor is not found
+
+    **Quickstart: Importing and using the device**
+
+    Here is an example of using the :class:`BMP280` class.
+    First you will need to import the libraries to use the sensor
+
+    .. code-block:: python
+
+        from machine import Pin, I2C
+        from micropython_bmp58x import bmp58x
+
+    Once this is done you can define your `machine.I2C` object and define your sensor object
+
+    .. code-block:: python
+
+        i2c = I2C(1, sda=Pin(2), scl=Pin(3))
+        bmp = bmp58x.BMP390(i2c)
+
+    Now you have access to the attributes
+
+    .. code-block:: python
+
+        press = bmp.pressure
+        temp = bmp.temperature
+
+        # altitude in meters based on sea level pressure of 1013.25 hPA
+        meters = bmp.altitude
+        print(f"alt = {meters:.2f} meters")
+
+        # set sea level pressure to a known sea level pressure in hPa at nearest airport
+        # https://www.weather.gov/wrh/timeseries?site=KPDX
+        bmp.sea_level_pressure = 1010.80
+        meters = bmp.altitude
+        print(f"alt = {meters:.2f} meters")
+
+        # Highest resolution for bmp390
+        bmp.pressure_oversample_rate = bmp.OSR32
+        bmp.temperature_oversample_rate = bmp.OSR2
+        bmp.iir_coefficient = bmp.COEF_3
+        meters = bmp.altitude
+
+    """
+    # Power Modes for BMP280
+    power_mode_values = (STANDBY, FORCED, NORMAL)
+
+    # oversampling rates
+    OSR_SKIP = const(0x00)
+
+    pressure_oversample_rate_values = (OSR_SKIP, OSR1, OSR2, OSR4, OSR8, OSR16)
+    temperature_oversample_rate_values = (OSR_SKIP, OSR1, OSR2, OSR4, OSR8, OSR16)
+    
+    BMP280_I2C_ADDRESS_DEFAULT = 0x77
+    BMP280_I2C_ADDRESS_SECONDARY = 0x76
+
+    ###  BMP390 Constants - notice very different than bmp581
+    _REG_WHOAMI_BMP280 = const(0xd0)
+    _PWR_CTRL_BMP280 = const(0x1b)
+    _CONTROL_REGISTER_BMP280 = const(0xF4)
+    _CONFIG_BMP280 = const(0xf5)
+
+    _device_id = RegisterStruct(_REG_WHOAMI_BMP390, "B")
+
+    _power_mode = CBits(2,_CONTROL_REGISTER_BMP280, 0)
+    _temperature_oversample_rate = CBits(3, _CONTROL_REGISTER_BMP280, 5)
+    _pressure_oversample_rate = CBits(3, _CONTROL_REGISTER_BMP280, 2)
+    _iir_coefficient = CBits(3, _CONFIG_BMP390, 0)
+
+    # read pressure 0xf7 and temp 0xfa
+    _d = CBits(48, 0xf7, 0, 6)
+
+    # Temp & pressure calibrations are all are 16-bits
+    _dig_t1_msb = CBits(8, 0x89, 0)  # Most significant byte of dig_t1
+    _dig_t1_lsb = CBits(8, 0x88, 0)  # Least significant byte of dig_t1
+    _dig_t2_msb = CBits(8, 0x8b, 0)  # Most significant byte of dig_t2
+    _dig_t2_lsb = CBits(8, 0x8a, 0)  # Least significant byte of dig_t2
+    _dig_t3_msb = CBits(8, 0x8d, 0)  # Most significant byte of dig_t3
+    _dig_t3_lsb = CBits(8, 0x8c, 0)  # Least significant byte of dig_t3
+    
+    _dig_p1_msb = CBits(8, 0x8f, 0)  # Most significant byte of dig_p1
+    _dig_p1_lsb = CBits(8, 0x8e, 0)  # Least significant byte of dig_p1
+    _dig_p2_msb = CBits(8, 0x91, 0)  # Most significant byte of dig_p2
+    _dig_p2_lsb = CBits(8, 0x90, 0)  # Least significant byte of dig_p2
+    _dig_p3_msb = CBits(8, 0x93, 0)  # Most significant byte of dig_p3
+    _dig_p3_lsb = CBits(8, 0x92, 0)  # Least significant byte of dig_p3
+    _dig_p4_msb = CBits(8, 0x95, 0)  # Most significant byte of dig_p4
+    _dig_p4_lsb = CBits(8, 0x94, 0)  # Least significant byte of dig_p4
+    _dig_p5_msb = CBits(8, 0x97, 0)  # Most significant byte of dig_p5
+    _dig_p5_lsb = CBits(8, 0x96, 0)  # Least significant byte of dig_p5
+    _dig_p6_msb = CBits(8, 0x99, 0)  # Most significant byte of dig_p6
+    _dig_p6_lsb = CBits(8, 0x98, 0)  # Least significant byte of dig_p6
+    _dig_p7_msb = CBits(8, 0x9b, 0)  # Most significant byte of dig_p5
+    _dig_p7_lsb = CBits(8, 0x9a, 0)  # Least significant byte of dig_p5
+    _dig_p8_msb = CBits(8, 0x9d, 0)  # Most significant byte of dig_p6
+    _dig_p8_lsb = CBits(8, 0x9c, 0)  # Least significant byte of dig_p6
+    _dig_p9_msb = CBits(8, 0x9f, 0)  # Most significant byte of dig_p9
+    _dig_p9_lsb = CBits(8, 0x9e, 0)  # Least significant byte of dig_p9
+
+    def __init__(self, i2c, address: int = None) -> None:
+        # If no address is provided, try the default, then secondary
+        if address is None:
+            if self._check_address(i2c, self.BMP390_I2C_ADDRESS_DEFAULT):
+                address = self.BMP280_I2C_ADDRESS_DEFAULT
+            elif self._check_address(i2c, self.BMP390_I2C_ADDRESS_SECONDARY):
+                address = self.BMP280_I2C_ADDRESS_SECONDARY
+            else:
+                raise RuntimeError("BMP280 sensor not found at known I2C address (0x7f,0x7e).")
+        self._i2c = i2c
+        self._address = address
+        if self._read_device_id() != 0x58:  # check _device_id after i2c established
+            raise RuntimeError("Failed to find the BMP280 sensor with id 0x58")
+        self._power_mode = BMP280_POWER_NORMAL
+        self._pressure_enabled = True
+        self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
+    
+    def _check_address(self, i2c, address: int) -> bool:
+        """Helper function to check if a device responds at the given I2C address."""
+        try:
+            i2c.writeto(address, b"")  # Attempt a write operation
+            return True
+        except OSError:
+            return False
+
+    def _read_device_id(self) -> int:
+        return self._device_id
+        
+    @property
+    def dig_t1(self) -> int:
+        """Combine _dig_t1_msb and _dig_t1_lsb into a unsigned 16-bit integer."""
+        msb_value = self._dig_t1_msb  # Reads CBits value
+        lsb_value = self._dig_t1_lsb  # Reads CBits value
+        return ((msb_value << 8) | lsb_value) & 0xFFFF
+
+    @property
+    def dig_t2(self) -> int:
+        msb_value = self._dig_t2_msb  # Read most significant byte
+        lsb_value = self._dig_t2_lsb  # Read least significant byte
+        combined = (msb_value << 8) | lsb_value  # Combine into 16-bit integer
+        if combined & 0x8000:  # Check if the sign bit is set (MSB of 16-bit value)
+            combined -= 0x10000  # Subtract 2^16 to sign-extend
+
+    @property
+    def dig_t3(self) -> int:
+        msb_value = self._dig_t3_msb  # Read most significant byte
+        lsb_value = self._dig_t3_lsb  # Read least significant byte
+        combined = (msb_value << 8) | lsb_value  # Combine into 16-bit integer
+        if combined & 0x8000:  # Check if the sign bit is set (MSB of 16-bit value)
+            combined -= 0x10000  # Subtract 2^16 to sign-extend
+
+    @property
+    def dig_p1(self) -> int:
+        """Combine _dig_p1_msb and _dig_p1_lsb into a unsigned 16-bit integer."""
+        msb_value = self._dig_p1_msb  # Reads CBits value
+        lsb_value = self._dig_p1_lsb  # Reads CBits value
+        return ((msb_value << 8) | lsb_value) & 0xFFFF
+    
+    @property
+    def dig_p2(self) -> int:
+        """Combine _dig_p2_msb and _dig_p2_lsb into a signed 16-bit integer."""
+        msb_value = self._dig_p2_msb  # Read most significant byte
+        lsb_value = self._dig_p2_lsb  # Read least significant byte
+        combined = (msb_value << 8) | lsb_value  # Combine into 16-bit integer
+        if combined & 0x8000:  # Check if the sign bit is set
+            combined -= 0x10000  # Sign-extend for two's complement
+        return combined
+
+    @property
+    def dig_p3(self) -> int:
+        """Combine _dig_p3_msb and _dig_p3_lsb into a signed 16-bit integer."""
+        msb_value = self._dig_p3_msb
+        lsb_value = self._dig_p3_lsb
+        combined = (msb_value << 8) | lsb_value
+        if combined & 0x8000:
+            combined -= 0x10000
+        return combined
+
+    @property
+    def dig_p4(self) -> int:
+        """Combine _dig_p4_msb and _dig_p4_lsb into a signed 16-bit integer."""
+        msb_value = self._dig_p4_msb
+        lsb_value = self._dig_p4_lsb
+        combined = (msb_value << 8) | lsb_value
+        if combined & 0x8000:
+            combined -= 0x10000
+        return combined
+
+    @property
+    def dig_p5(self) -> int:
+        """Combine _dig_p5_msb and _dig_p5_lsb into a signed 16-bit integer."""
+        msb_value = self._dig_p5_msb
+        lsb_value = self._dig_p5_lsb
+        combined = (msb_value << 8) | lsb_value
+        if combined & 0x8000:
+            combined -= 0x10000
+        return combined
+
+    @property
+    def dig_p6(self) -> int:
+        """Combine _dig_p6_msb and _dig_p6_lsb into a signed 16-bit integer."""
+        msb_value = self._dig_p6_msb
+        lsb_value = self._dig_p6_lsb
+        combined = (msb_value << 8) | lsb_value
+        if combined & 0x8000:
+            combined -= 0x10000
+        return combined
+
+    @property
+    def dig_p7(self) -> int:
+        """Combine _dig_p7_msb and _dig_p7_lsb into a signed 16-bit integer."""
+        msb_value = self._dig_p7_msb
+        lsb_value = self._dig_p7_lsb
+        combined = (msb_value << 8) | lsb_value
+        if combined & 0x8000:
+            combined -= 0x10000
+        return combined
+
+    @property
+    def dig_p8(self) -> int:
+        """Combine _dig_p8_msb and _dig_p8_lsb into a signed 16-bit integer."""
+        msb_value = self._dig_p8_msb
+        lsb_value = self._dig_p8_lsb
+        combined = (msb_value << 8) | lsb_value
+        if combined & 0x8000:
+            combined -= 0x10000
+        return combined
+
+    @property
+    def dig_p9(self) -> int:
+        """Combine _dig_p9_msb and _dig_p9_lsb into a signed 16-bit integer."""
+        msb_value = self._dig_p9_msb
+        lsb_value = self._dig_p9_lsb
+        combined = (msb_value << 8) | lsb_value
+        if combined & 0x8000:
+            combined -= 0x10000
+        return combined
+
+    @property
+    def power_mode(self) -> str:
+        """
+        Sensor power_mode
+        notice: Bosch changed the numbers assigned to power modes
+        +-----------------------------+------------------+-----------------------------+------------------+
+        | Mode   rest of classes      | Value            | BMP 280 Mode                | Value            |
+        +=============================+==================+=============================+==================+
+        | :py:const:`bmp58x.STANDBY`  | :py:const:`0x00` | :py:const:`bmp280.STANDBY`  | :py:const:`0x00` |
+        | :py:const:`bmp581.NORMAL`   | :py:const:`0x01` | :py:const:`bmp280.FORCED`   | :py:const:`0x01` |
+        | :py:const:`bmp58x.FORCED`   | :py:const:`0x02` | :py:const:`bmp280.FORCED`   | :py:const:`0x02` |
+        | :py:const:`bmp58x.NON_STOP` | :py:const:`0X03` | :py:const:`bmp280.NORMAL`   | :py:const:`0X03` |
+        +-----------------------------+------------------+-----------------------------+------------------+
+        :return: power_mode as string
+        """
+        string_name = ("STANDBY", "NORMAL", "FORCED",)
+        return string_name[self._power_mode]
+
+    @power_mode.setter
+    def power_mode(self, value: int) -> None:
+        if value not in power_mode_values:
+            raise ValueError("Value must be a valid power_mode setting: STANDBY,FORCED,NORMAL")
+        if value == 0x01:  # appropriate for all other classes
+            value = 0x03   # change value to 0x03 for bmp280
+        # notice FORCED = 0x02 which is OK for bmp280 class
+        self._power_mode = value
+
+    @property
+    def pressure_oversample_rate(self) -> str:
+        """
+        Sensor pressure_oversample_rate
+        Oversampling extends the measurement time per measurement by the oversampling
+        factor. Higher oversampling factors offer decreased noise at the cost of
+        higher power consumption.
+        +---------------------------+------------------+---------------------------+------------------+
+        | Mode-for all other classes| Value            | BMP280 Mode                | Value            |
+        +===========================+==================+===========================+==================+
+        | :py:const:`bmp58x.OSR1`   | :py:const:`0x00` | :py:const:`OSR_SKIP'      | :py:const:`0x00` |
+        | :py:const:`bmp58x.OSR2`   | :py:const:`0x01` | :py:const:`bmp280.OSR1`   | :py:const:`0x01` |
+        | :py:const:`bmp58x.OSR4`   | :py:const:`0x02` | :py:const:`bmp280.OSR2`   | :py:const:`0x02` |
+        | :py:const:`bmp58x.OSR8`   | :py:const:`0x03` | :py:const:`bmp280.OSR4`   | :py:const:`0x03` |
+        | :py:const:`bmp58x.OSR16`  | :py:const:`0x04` | :py:const:`bmp280.OSR8``  | :py:const:`0x04` |
+        | :py:const:`bmp58x.OSR32`  | :py:const:`0x05` | :py:const:`bmp280.OSR16`  | :py:const:`0x05` |
+        +---------------------------+------------------+---------------------------+------------------+
+        :return: sampling rate as string
+        """
+        string_name = ("OSR1", "OSR2", "OSR4", "OSR8", "OSR16", "OSR_SKIP", )
+        return string_name[self._pressure_oversample_rate]
+
+    @pressure_oversample_rate.setter
+    def pressure_oversample_rate(self, value: int) -> None:
+        if value not in self.pressure_oversample_rate_values:
+            raise ValueError("Value must be a valid pressure_oversample_rate: OSR_SKIP,OSR1,OSR2,OSR4,OSR8,OSR16")
+        if value == 6:
+            value = 0
+        else:
+            value = value + 1
+        self._pressure_oversample_rate = value
+
+    @property
+    def temperature_oversample_rate(self) -> str:
+        """
+        Sensor temperature_oversample_rate
+        +---------------------------+------------------+---------------------------+------------------+
+        | Mode-for all other classes| Value            | BMP280 Mode                | Value            |
+        +===========================+==================+===========================+==================+
+        | :py:const:`bmp58x.OSR1`   | :py:const:`0x00` | :py:const:`OSR_SKIP'      | :py:const:`0x00` |
+        | :py:const:`bmp58x.OSR2`   | :py:const:`0x01` | :py:const:`bmp280.OSR1`   | :py:const:`0x01` |
+        | :py:const:`bmp58x.OSR4`   | :py:const:`0x02` | :py:const:`bmp280.OSR2`   | :py:const:`0x02` |
+        | :py:const:`bmp58x.OSR8`   | :py:const:`0x03` | :py:const:`bmp280.OSR4`   | :py:const:`0x03` |
+        | :py:const:`bmp58x.OSR16`  | :py:const:`0x04` | :py:const:`bmp280.OSR8``  | :py:const:`0x04` |
+        | :py:const:`bmp58x.OSR32`  | :py:const:`0x05` | :py:const:`bmp280.OSR16`  | :py:const:`0x05` |
+        +---------------------------+------------------+---------------------------+------------------+
+        :return: sampling rate as string
+        """
+        string_name = ("OSR1", "OSR2", "OSR4", "OSR8", "OSR16", "OSR_SKIP", )
+        return string_name[self._temperature_oversample_rate]
+
+    @temperature_oversample_rate.setter
+    def temperature_oversample_rate(self, value: int) -> None:
+        if value not in self.temperature_oversample_rate_values:
+            raise ValueError("Value must be a valid pressure_oversample_rate: OSR_SKIP,OSR1,OSR2,OSR4,OSR8,OSR16")
+        if value == 6:
+            value = 0
+        else:
+            value = value + 1
+        self._temperature_oversample_rate = value
+        
+        # helper function for getting temp & pressure
+        def _get_raw_temp_pressure(self):
+            self._p_raw = (self._d[0] << 12) + (self._d[1] << 4) + (self._d[2] >> 4)
+            self._t_raw = (self._d[3] << 12) + (self._d[4] << 4) + (self._d[5] >> 4)
+            return self._t_raw, self._p_raw
+
+    # Helper method for temperature compensation
+    def _calculate_temperature_compensation_bmp280(self, raw_temp: float) -> float:   
+        global t_fine
+        var1 = (((raw_temp / 16384.0) - (self.dig_t1 / 1024.0)) * self.dig_t2)
+        var2 = ((((raw_temp / 131072.0) - (self.dig_t1 / 8192.0)) *
+                 ((raw_temp / 131072.0) - (self.dig_t1 / 8192.0))) * self.dig_t3)
+        t_fine = int(var1 + var2)
+        tempc = (var1 + var2) / 5120.0
+        return tempc
+
+    # Helper method for pressure compensation
+    def _calculate_pressure_compensation_bmp280(self, raw_pressure: float, tempc: float) -> float:
+        global t_fine
+        var1 = (t_fine / 2.0) - 64000.0
+        var2 = var1 * var1 * self.dig_p6 / 32768.0
+        var2 += var1 * self.dig_p5 * 2.0
+        var2 = (var2 / 4.0) + (self.dig_p4 * 65536.0)
+        var1 = ((self.dig_p3 * var1 * var1 / 524288.0) + (self.dig_p2 * var1)) / 524288.0
+        var1 = (1.0 + var1 / 32768.0) * self.dig_p1
+
+        if var1 == 0.0:
+            return 0  # Avoid division by zero
+
+        p = 1048576.0 - raw_pressure
+        p = (p - (var2 / 4096.0)) * 6250.0 / var1
+        var1 = self.dig_p9 * p * p / 2147483648.0
+        var2 = p * self.dig_p8 / 32768.0
+ 
+        return p + (var1 + var2 + self.dig_p7) / 16.0
+
+    @property
+    def temperature(self) -> float:
+        """
+        The temperature sensor in Celsius
+        :return: Temperature in Celsius
+        """
+        raw_temp, raw_pressure = self._get_raw_temp_pressure
+        return self._calculate_temperature_compensation_bmp280(raw_temp)
+
+    @property
+    def pressure(self) -> float:
+        """
+        The sensor pressure in hPa
+        :return: Pressure in hPa
+        """
+        raw_temp, raw_pressure = self._get_raw_temp_pressure
+
+        tempc = self._calculate_temperature_compensation(raw_temp)
+        comp_press = self._calculate_pressure_compensation_bmp280(raw_pressure, tempc)
+        return comp_press / 100.0  # Convert to hPa
+
