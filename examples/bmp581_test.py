@@ -25,7 +25,7 @@ sea_level_pressure = bmp.sea_level_pressure
 print(f"Initial sea_level_pressure = {sea_level_pressure:.2f} hPa")
 
 # reset driver to contain the accurate sea level pressure (SLP) from my nearest airport this hour
-bmp.sea_level_pressure = 1007.50
+bmp.sea_level_pressure = 1017.0
 print(f"Adjusted sea level pressure = {bmp.sea_level_pressure:.2f} hPa\n")
 
 # Alternatively set known altitude in meters and the sea level pressure will be calculated
