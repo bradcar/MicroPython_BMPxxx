@@ -300,7 +300,7 @@ class BMP581:
         altitude = 44330.0 * (
                 1.0 - ((self.pressure / self.sea_level_pressure) ** (1.0 / 5.255))
         )
-        return round(altitude, 1)
+        return altitude
 
     @altitude.setter
     def altitude(self, value: float) -> None:
