@@ -1,5 +1,5 @@
 # Micropython bmp58x driver
-MicroPython Driver for the Bosch ~~BMP585~~ (to test Nov 2024), BMP581, and BMP390 pressure sensors using I2C
+MicroPython Driver for the Bosch ~~BMP585~~ (to test Nov 2024), BMP581, and BMP390 pressure sensors using I2C. It has the ability to adjust sea level pressure and/or the sensors altitude at a known elevation for accurate future tracking.
 
 ## Micropython bmp58x driver
 Code includes:
@@ -48,7 +48,6 @@ Increase bmp585/bmp581 sensor to highest accuracy (see below for bmp390):
 bmp.pressure_oversample_rate = bmp.OSR128
 bmp.temperature_oversample_rate = bmp.OSR8
 ```
-
 Other data from sensors, see data sheet for more info:
 ```
 print("Current power mode setting: ", bmp.power_mode)
@@ -67,11 +66,34 @@ for iir_coef in bmp.iir_coefficient_values:
     bmp.iir_coefficient = iir_coef
     print(f"New IRR setting: {bmp.iir_coefficient}")
 ```
+## I2C Addresses
+If you only have one sensor on the same I2C, they it will use the table below to scan the addresses. If you have multiple devices on the same I2C it is a good practice to specify the sensors address. To change the address to secondary you need to look look up the specs of your specific sensor. Often addresses can be changed with a solder blob or by connecting specific pins on the sensor to ground or vcc. This driver will scan th
 
+Table 1: I2C Sensor Address
+| Sensor | Default | Secondary | 
+| :--- | :---: | :---: |
+| bmp585 |  0x47   | 0x46     | 
+| bmp581 |  0x47     | 0x46     | 
+| bmp390  |  0x7f    | 0x7e     | 
+
+The following code is useful when scanning for device addresses on I2C. I always put this in my code when bringing up new sensor. Also if device not found triple-check all wiring.
+```
+# Notice this is using i2c1 not i2c0(typically used for REPL)
+i2c = I2C(id=1, scl=Pin(27), sda=Pin(26))
+i2c1_devices = i2c.scan()
+if i2c1_devices:
+    for d in i2c1_devices: print(f"i2c1 device at address: {hex(d)}")
+else:
+    print("ERROR: No i2c1 devices")
+```
+Example of specifying an address for a bmp581:
+```
+bmp = bmp58x.BMP581(i2c=i2c, address=0x47)
+```
 ## Recommended Oversampling Rates to Improve Sensors' Accuracy
-The table below is Bosch's recommended oversampling pressure and temperature settings for bmp585 and bmp581. Higher sampling rates effect the refresh rate and the power consumption. Please checked the Bosch datasheets for more information https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/
+The table 2 below is Bosch's recommended oversampling pressure and temperature settings for bmp585 and bmp581. Higher sampling rates effect the refresh rate and the power consumption. Please checked the Bosch datasheets for more information https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/
 
-Table 1: BMP585/BMP581 Recommendations from Bosch
+Table 2: BMP585/BMP581 Recommendations from Bosch
 | Oversampling setting | OSR Pressure | Pressure<br /> Oversampling | Temperature<br /> Oversampling |
 | :--- | :---: | :---: | :---: |
 | Lowest Power |  000     | x1     | x1     |
@@ -91,9 +113,9 @@ bmp.temperature_oversample_rate = bmp.OSR8
 
 The bmp585 and bmp581 do not have recommended IIR filters to go with the table above.
 
-The table below is Bosch's recommended oversampling pressure and temperature settings for bmp390. There are recommended IIR filter settings for the bmp390 in section 3.5. Filter section, page 17, in bmp390 datasheet
+The table 3 below is Bosch's recommended oversampling pressure and temperature settings for bmp390. There are recommended IIR filter settings for the bmp390 in section 3.5. Filter section, page 17, in bmp390 datasheet
 
-Table 2: BMP390 Recommendations from Bosch
+Table 3: BMP390 Recommendations from Bosch
 | Oversampling setting | OSR Pressure | Pressure<br /> Oversampling | Temperature<br /> Oversampling | Sample Use |
 | :--- | :---: | :---: | :---: | :--- |
 | Ultra low power |  000     | x1     | x1     | Weather monitoring<br />lowest power, iif off|
@@ -115,18 +137,21 @@ bmp.OSR1 corresponds to x1 for all sensors, bmp.OSR2 corresponds to x2 for all s
 ## Installing
 Make sure the a directory called micropython_bmp58x is on your Raspberry Pi under the /lib directory. You will need to make sure it contains these files: __init__.py, bmp58x.py, and i2c_helpers.py.
 
+## Example projects using this Driver
+* Digital altimeter: https://github.com/bradcar/digital-altimeter-rp2
+
 ## Bosch Sensors Compared
-* Bosch BMP585, Released 2023, MEMS-based barometric pressure sensor, perf similar to BMP581
+* Bosch BMP585, MEMS-based barometric pressure sensor, perf similar to BMP581, released 2023.
   * Liquid resistant due to gel sensor
   * The BMP585 accuracy similar to Bosch’s existing BMP581.
     * Measure change in height of just a few centimeters. 
     * Relative accuracy of +/-0.06 hPa and typical absolute accuracy of +/-0.5 hPa.
-* The BMP581, Released 2022, capacitive-based barometric pressure sensor
+* The BMP581, capacitive-based barometric pressure sensor, released 2022. 
   * The BMP581 accuracy similar to Bosch’s existing BMP585.
     * Measure change in height of just a few centimeters. 
     * Relative accuracy of +/-0.06 hPa and typical absolute accuracy of +/-0.3 hPa.
   * the BMP581 vs. BMP390: draws 85% less current, noise is 80% lower, and temperature coefficient offset is reduced by 33%.
-* Bosch BMP390, previous generation, Released 2021
+* Bosch BMP390, previous generation, released 2021.
   * Relative accuracy of +/-0.03 hPa and typical absolute accuracy of +/-0.5 hPa.
   * Measure change in height of 0.25 meters.
 
@@ -151,7 +176,7 @@ This product is open source. Please review the LICENSE.md file for license infor
  
 ## Credits
 Code based on great work by Jose & Scott!
-  * micropython_bmp581 Author(s): Jose D. Montoya, jposada202020
+* micropython_bmp581 Author(s): Jose D. Montoya, jposada202020
   * github:jposada202020/MicroPython_BMP581
   * Corrected error in altitude calculation
 * Also based on
@@ -159,4 +184,5 @@ Code based on great work by Jose & Scott!
 
 ## Todos
 * test/debug bmp585 subclass after delivery of bmp585 on 19-Nov-2024.
-* fix IIR filters for bmp585 & bmp581
+* fix IIR filters for bmp585 & bmp581 - currently tries to set IIR when running (but this is ignored), need to change code to go into STANDBY power modem and then update, then return to previous power mode.
+* double check IIR filters to make sure limited to correct values for bmp390, note can update IIR on bmp390 on the fly.
