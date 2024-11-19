@@ -184,6 +184,7 @@ Code based on great work by Jose & Scott!
 
 ## Todos
 * test/debug bmp585 subclass after delivery of bmp585 on 19-Nov-2024.
-* fix IIR filters for bmp585 & bmp581 - currently tries to set IIR when running (but this is ignored), need to change code to go into STANDBY power modem and then update, then return to previous power mode.
+* ~~fix IIR filters for bmp585 & bmp581 - currently tries to set IIR when running (but this is ignored), need to change code to go into STANDBY power modem and then update, then return to previous power mode.~~
 * double check IIR filters to make sure limited to correct values for bmp390, note can update IIR on bmp390 on the fly.
 * started to add code for bmp280 (going down sensor rabit hole...), untested
+* IIR set for pressure only, may simplify and make IIR set the same for pressure and temperature
