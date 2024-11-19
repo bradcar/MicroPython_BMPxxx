@@ -177,7 +177,7 @@ This product is open source. Please review the LICENSE.md file for license infor
 Code based on great work by Jose & Scott!
 * micropython_bmp581 Author(s): Jose D. Montoya, jposada202020
   * github:jposada202020/MicroPython_BMP581
-  * Corrected error in altitude calculation
+  * Corrected error in altitude calculation, also removed limitation of only 0.1m accuracy.
 * Also based on
   * adafruit_register.i2c_struct, adafruit_register.i2c_bits.  Author(s): Scott Shawcroft
 
