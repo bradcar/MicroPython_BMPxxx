@@ -60,7 +60,6 @@ for output_data_rate in range(0, 32, 1):
     bmp.output_data_rate = output_data_rate
     print(f"New data rate setting: {bmp.output_data_rate}")
 
-# Currently only works for bmp390  TODO: fix for others
 print("Current IIR setting: ", bmp.iir_coefficient)
 for iir_coef in bmp.iir_coefficient_values:
     bmp.iir_coefficient = iir_coef
@@ -186,5 +185,6 @@ Code based on great work by Jose & Scott!
 * test/debug bmp585 subclass after delivery of bmp585 on 19-Nov-2024.
 * ~~fix IIR filters for bmp585 & bmp581 - currently tries to set IIR when running (but this is ignored), need to change code to go into STANDBY power modem and then update, then return to previous power mode.~~
 * double check IIR filters to make sure limited to correct values for bmp390, note can update IIR on bmp390 on the fly.
-* started to add code for bmp280 (going down sensor rabit hole...), untested
-* IIR set for pressure only, may simplify and make IIR set the same for pressure and temperature
+* started to add code for bmp280 (going down sensor rabit hole...), untested awaiting sensor
+* IIR the same for pressure and temperature, this simplifies control and is like bmp280 & bmp390 sensors, but takes away flexibility for newer bmp585 & bmp581 sensors.
+* added bmp.config to print out all major variables & settings, should this stay?
