@@ -48,7 +48,7 @@ bmp.config
 #     bmp.power_mode = power_mode
 #     print(f"New Power mode setting: {bmp.power_mode}")
 
-bmp.iir_coefficient = bmp.COEF_127
+bmp.iir_coefficient = bmp.COEF_0
 while True:
     # altitude in meters based on sea level pressure stored in driver
     sea_level_pressure = bmp.sea_level_pressure

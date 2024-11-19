@@ -769,31 +769,31 @@ class BMP390(BMP581):
 
     # Helper method for temperature compensation
     def _calculate_temperature_compensation(self, raw_temp: float) -> float:
-        partial_data1 = float(raw_temp - (self.par_t1 / 2.0 ** -8))
+        partial_data1 = float(raw_temp - (self.par_t1 * 256.0))
         partial_data2 = partial_data1 * (self.par_t2 / 2.0 ** 30)
-        tempc = partial_data2 + (partial_data1 ** 2) * (self.par_t3 / 2.0 ** 48)
+        tempc = partial_data2 + (partial_data1 * partial_data1) * (self.par_t3 / 2.0 ** 48)
         return tempc
 
     # Helper method for pressure compensation
     def _calculate_pressure_compensation(self, raw_pressure: float, tempc: float) -> float:
         # First part
-        partial_data1 = (self.par_p6 / 2.0 ** 6) * tempc
-        partial_data2 = (self.par_p7 / 2.0 ** 8) * (tempc ** 2)
-        partial_data3 = (self.par_p8 / 2.0 ** 15) * (tempc ** 3)
-        partial_out1 = (self.par_p5 / 2.0 ** -3) + partial_data1 + partial_data2 + partial_data3
+        partial_data1 = (self.par_p6 / 64.0) * tempc
+        partial_data2 = (self.par_p7 / 256.0) * (tempc * tempc)
+        partial_data3 = (self.par_p8 / 2.0 ** 15) * (tempc * tempc * tempc)
+        partial_out1 = (self.par_p5 * 8.0) + partial_data1 + partial_data2 + partial_data3
 
         # Second part
-        partial_data1 = ((self.par_p2 - 2.0 ** 14) / 2.0 ** 29) * tempc
-        partial_data2 = (self.par_p3 / 2.0 ** 32) * (tempc ** 2)
-        partial_data3 = (self.par_p4 / 2.0 ** 37) * (tempc ** 3)
+        partial_data1 = ((self.par_p2 - 16384.0) / 2.0 ** 29) * tempc
+        partial_data2 = (self.par_p3 / 2.0 ** 32) * (tempc * tempc)
+        partial_data3 = (self.par_p4 / 2.0 ** 37) * (tempc * tempc * tempc)
         partial_out2 = raw_pressure * (
-                ((self.par_p1 - 2.0 ** 14) / 2.0 ** 20) + partial_data1 + partial_data2 + partial_data3)
+                ((self.par_p1 - 16384.0) / 2.0 ** 20) + partial_data1 + partial_data2 + partial_data3)
 
         # Third part
-        partial_data1 = raw_pressure ** 2
+        partial_data1 = raw_pressure * raw_pressure
         partial_data2 = (self.par_p9 / 2.0 ** 48) + (self.par_p10 / 2.0 ** 48) * tempc
         partial_data3 = partial_data1 * partial_data2
-        partial_data4 = partial_data3 + (raw_pressure ** 3) * (self.par_p11 / 2.0 ** 65)
+        partial_data4 = partial_data3 + (raw_pressure * raw_pressure * raw_pressure) * (self.par_p11 / 2.0 ** 65)
 
         # Final compensated pressure
         return partial_out1 + partial_out2 + partial_data4
