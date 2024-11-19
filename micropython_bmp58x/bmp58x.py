@@ -280,7 +280,7 @@ class BMP581:
         :return: Temperature in Celsius
         """
         raw_temp = self._temperature
-        return self._twos_comp(raw_temp, 24) / 2.0**16
+        return self._twos_comp(raw_temp, 24) / 65536.0
 
     @property
     def pressure(self) -> float:
@@ -289,7 +289,7 @@ class BMP581:
         :return: Pressure in hPa
         """
         raw_pressure = self._pressure
-        return self._twos_comp(raw_pressure, 24) / 2.0**6 / 100.0
+        return self._twos_comp(raw_pressure, 24) / 64.0 / 100.0
 
     @property
     def altitude(self) -> float:
@@ -353,15 +353,14 @@ class BMP581:
         # TODO? https://github.com/sparkfun/SparkFun_BMP581_Arduino_Library/blob/main/src/bmp5_api/bmp5.c#L1241 look at lines 870-ish
         # Ensure the sensor is in STANDBY mode before updating
         original_mode = self._power_mode  # Save the current mode
-        if debug: print(f"{type(original_mode)=}")
-        if debug: print(f"{original_mode=}")
+        if debug:
+            print(f"{type(original_mode)=}")
+            print(f"{original_mode=}")
         if original_mode != STANDBY:
             self.power_mode = STANDBY  # Set to STANDBY if not already
-        if debug: print(f"updated power mode = {self.power_mode=}")
-        # Update the internal IIR control register
-#         iir_control_value = 0xFF  # Temporary local variable for clarity
-#         self._iir_control = iir_control_value
-        if debug: print(f"IIR value: {value=}")
+        if debug:
+            print(f"updated power mode = {self.power_mode=}")
+            print(f"IIR value: {value=}")
         self._iir_coefficient = value
         self._iir_temp_coefficient = value
 
@@ -697,10 +696,10 @@ class BMP390(BMP581):
         +-----------------------------+------------------+
         | Mode                        | Value            |
         +=============================+==================+
-        | :py:const:`bmp58x.STANDBY`  | :py:const:`0x00` |
-        | :py:const:`bmp58x.FORCED`   | :py:const:`0x01` |
-        | :py:const:`bmp58x.FORCED`   | :py:const:`0x02` |
-        | :py:const:`bmp58x.NORMAL`   | :py:const:`0X03` |
+        | :py:const:`bmp390.STANDBY`  | :py:const:`0x00` |
+        | :py:const:`bmp390.FORCED`   | :py:const:`0x01` |
+        | :py:const:`bmp390.FORCED`   | :py:const:`0x02` |
+        | :py:const:`bmp390.NORMAL`   | :py:const:`0X03` |
         +-----------------------------+------------------+
         :return: sampling rate as string
         """
@@ -723,12 +722,12 @@ class BMP390(BMP581):
         +---------------------------+------------------+
         | Mode                      | Value            |
         +===========================+==================+
-        | :py:const:`bmp58x.OSR1`   | :py:const:`0x00` |
-        | :py:const:`bmp58x.OSR2`   | :py:const:`0x01` |
-        | :py:const:`bmp58x.OSR4`   | :py:const:`0x02` |
-        | :py:const:`bmp58x.OSR8`   | :py:const:`0x03` |
-        | :py:const:`bmp58x.OSR16`  | :py:const:`0x04` |
-        | :py:const:`bmp58x.OSR32`  | :py:const:`0x05` |
+        | :py:const:`bmp390.OSR1`   | :py:const:`0x00` |
+        | :py:const:`bmp390.OSR2`   | :py:const:`0x01` |
+        | :py:const:`bmp390.OSR4`   | :py:const:`0x02` |
+        | :py:const:`bmp390.OSR8`   | :py:const:`0x03` |
+        | :py:const:`bmp390.OSR16`  | :py:const:`0x04` |
+        | :py:const:`bmp390.OSR32`  | :py:const:`0x05` |
         +---------------------------+------------------+
         :return: sampling rate as string
         """
@@ -748,12 +747,12 @@ class BMP390(BMP581):
         +---------------------------+------------------+
         | Mode                      | Value            |
         +===========================+==================+
-        | :py:const:`bmp58x.OSR1`   | :py:const:`0x00` |
-        | :py:const:`bmp58x.OSR2`   | :py:const:`0x01` |
-        | :py:const:`bmp58x.OSR4`   | :py:const:`0x02` |
-        | :py:const:`bmp58x.OSR8`   | :py:const:`0x03` |
-        | :py:const:`bmp58x.OSR16`  | :py:const:`0x04` |
-        | :py:const:`bmp58x.OSR32`  | :py:const:`0x05` |
+        | :py:const:`bmp390.OSR1`   | :py:const:`0x00` |
+        | :py:const:`bmp390.OSR2`   | :py:const:`0x01` |
+        | :py:const:`bmp390.OSR4`   | :py:const:`0x02` |
+        | :py:const:`bmp390.OSR8`   | :py:const:`0x03` |
+        | :py:const:`bmp390.OSR16`  | :py:const:`0x04` |
+        | :py:const:`bmp390.OSR32`  | :py:const:`0x05` |
         +---------------------------+------------------+
         :return: sampling rate as string
         """
