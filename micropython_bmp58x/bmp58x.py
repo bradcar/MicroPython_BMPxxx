@@ -173,7 +173,7 @@ class BMP581:
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
         _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
         _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
-        time.sleep_ms(1)
+        time.sleep_ms(10)
         _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
         _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
 
@@ -462,9 +462,9 @@ class BMP585(BMP581):
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
         _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
         _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
-#         time.sleep_ms(1)
-#         _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
-#         _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
+        time.sleep_ms(10)
+        _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
+        _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
 
     def _read_device_id(self) -> int:
         return self._device_id
