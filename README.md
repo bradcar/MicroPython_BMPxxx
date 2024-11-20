@@ -22,10 +22,15 @@ Required Imports:
 from machine import Pin, I2C
 from micropython_bmp58x import bmp58x
 ```
-Define your machine.I2C object to be I2C 1 (not 0) and your sensor objects:
+If you have bmp581, define your machine.I2C object using I2C 1:
 ```
 i2c = I2C(1, sda=Pin(2), scl=Pin(3))
 bmp = bmp58x.BMP581(i2c)
+```
+Or, If if you have a different sensor use the appropriate onem, below we show for BMP390, supported sensor (BMP585, BMP581, BMP390, BMP280):
+```
+i2c = I2C(1, sda=Pin(2), scl=Pin(3))
+bmp = bmp58x.BMP390(i2c)
 ```
 Access sensor's data:
 ```
