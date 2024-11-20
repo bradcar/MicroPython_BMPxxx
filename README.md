@@ -13,7 +13,7 @@ Code includes:
 * One can adjusting sea level pressure setting to known local measurements.
   * For sea level pressure, the driver defaults to 1013.25 hpa which is the international accepted world-wide average hPa. However you should know that weather causes sea level presssure to typically vary from 990 hPa to 1040 hPA or more.
   * It is best to set sea level pressure on each use to that of the nearest airport, for example: https://www.weather.gov/wrh/timeseries?site=KPDX
-  * By not setting nearest local known sea level pressure, altitude measurements may be way off. Even at 360 feet (111m) altitudes can be off by 1500 feet (500m) depending on the weather.
+  * altitude measurements may be way off if you do not set sea level to the nearest local known sea level pressure at the current time. Even at 360 feet (111m), altitudes can be off by 1500 feet (500m) depending on the weather.
 * Various error checks.
 
 ## Sample Usage
@@ -117,13 +117,13 @@ The table 3 below is Bosch's recommended oversampling pressure and temperature s
 
 Table 3: BMP390 Recommendations from Bosch
 | Oversampling setting | OSR Pressure | Pressure<br /> Oversampling | Temperature<br /> Oversampling | Sample Use |
-| :--- | :---: | :---: | :---: | :--- |
-| Ultra low power |  000     | x1     | x1     | Weather monitoring<br />lowest power, iif off|
-| Low power |  001     | x2     | x1     | Drop detecton, iir off |
-| Standard resolution |  010     | x4     | x1     | Handheld dynamic|
-| High resolution |  011     | x8     | x1     | Drone,<br />low power|
-| Ultra high resolution |  100     | x16     | x2     | Indoor navigation|
-| Highest resolution|  101     | x32     | x2     | Highest, Drone accurate |
+| :-------------------- |:---:|:---:|:---:| :--- |
+| Ultra low power       | 000 | x1  | x1  | Weather monitoring<br />lowest power, iif off|
+| Low power             | 001 | x2  | x1  | Drop detecton, iir off |
+| Standard resolution   | 010 | x4  | x1  | Handheld dynamic|
+| High resolution       | 011 | x8  | x1  | Drone,<br />low power|
+| Ultra high resolution | 100 | x16 | x2  | Indoor navigation|
+| Highest resolution    | 101 | x32 | x2  | Highest, Drone accurate |
 
 ```
 # Highest recommended for combined pressure and temperature for bmp390 sensor
