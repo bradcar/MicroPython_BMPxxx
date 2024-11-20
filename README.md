@@ -70,10 +70,11 @@ If you only have one sensor on the same I2C, they it will use the table below to
 
 Table 1: I2C Sensor Address
 | Sensor | Default | Secondary | 
-| :--- | :---: | :---: |
-| bmp585 |  0x47   | 0x46     | 
-| bmp581 |  0x47     | 0x46     | 
-| bmp390  |  0x7f    | 0x7e     | 
+| :---:  | :---:| :---: |
+| bmp585 | 0x47 | 0x46  | 
+| bmp581 | 0x47 | 0x46  | 
+| bmp390 | 0x7f | 0x7e  | 
+| bmp390 | 0x77 | 0x76  | 
 
 The following code is useful when scanning for device addresses on I2C. I always put this in my code when bringing up new sensor. Also if device not found triple-check all wiring.
 ```
@@ -96,12 +97,12 @@ Table 2: BMP585/BMP581 Recommendations from Bosch
 | Oversampling setting | OSR Pressure | Pressure<br /> Oversampling | Temperature<br /> Oversampling |
 | :--- | :---: | :---: | :---: |
 | Lowest Power |  000     | x1     | x1     |
-| |  001     | x2     | x1     |
+| |  001  | x2     | x1     |
 | Standard resolution |  010     | x4     | x1     |
-| |  011     | x8     | x1     |
+| |  011  | x8     | x1     |
 | High resolution    |  100     | x16     | x1     |
-| |  101     | x32     | x2     |
-| |  110     | x64     | x4     |
+| |  101  | x32     | x2     |
+| |  110  | x64     | x4     |
 | Highest resolution |  111     | x128     | x8     |
 
 ```
@@ -186,5 +187,5 @@ Code based on great work by Jose & Scott!
 * ~~fix IIR filters for bmp585 & bmp581 - currently tries to set IIR when running (but this is ignored), need to change code to go into STANDBY power modem and then update, then return to previous power mode.~~
 * double check IIR filters to make sure limited to correct values for bmp390, note can update IIR on bmp390 on the fly.
 * started to add code for bmp280 (going down sensor rabit hole...), untested awaiting sensor
-* IIR the same for pressure and temperature, this simplifies control and is like bmp280 & bmp390 sensors, but takes away flexibility for newer bmp585 & bmp581 sensors.
-* added bmp.config to print out all major variables & settings, should this stay?
+* IIR code for  bmp585 & bmp581 uses the same IIR for pressure and temperature, this simplifies control and is like bmp280 & bmp390 sensors, but takes away flexibility for newer sensors.
+* added bmp.config to print out all major variables & settings, open question: should this stay?
