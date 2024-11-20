@@ -27,7 +27,7 @@ If you have bmp581, define your machine.I2C object using I2C 1:
 i2c = I2C(1, sda=Pin(2), scl=Pin(3))
 bmp = bmp58x.BMP581(i2c)
 ```
-Or, If if you have a different sensor use the appropriate onem, below we show for BMP390, supported sensor (BMP585, BMP581, BMP390, BMP280):
+Or, If if you have a different sensor specify the appropriate one, below we show for BMP390, supported sensor (BMP585, BMP581, BMP390, BMP280):
 ```
 i2c = I2C(1, sda=Pin(2), scl=Pin(3))
 bmp = bmp58x.BMP390(i2c)
