@@ -12,7 +12,7 @@ else:
     print("ERROR: No i2c1 devices")
 print("")
     
-bmp = bmp58x.BMP390(i2c=i2c, address=0x7e)
+bmp = bmp58x.BMP390(i2c=i2c, address=0x76)
 
 sea_level_pressure = bmp.sea_level_pressure
 print(f"initial sea_level_pressure = {sea_level_pressure:.2f} hPa")
@@ -21,12 +21,39 @@ print(f"initial sea_level_pressure = {sea_level_pressure:.2f} hPa")
 bmp.sea_level_pressure = 1007.10
 print(f"new sea level pressure = {bmp.sea_level_pressure:.2f} hPa\n")
 
-# HI_RESOLUTION for bmp390
+# Set for the Highest resolution for bmp390
 bmp.pressure_oversample_rate = bmp.OSR32
 bmp.temperature_oversample_rate = bmp.OSR2
 print(f"Oversample rate setting:")
 print(f"{bmp.pressure_oversample_rate=}")
 print(f"{bmp.temperature_oversample_rate=}\n")
+
+sea_level_pressure = bmp.sea_level_pressure
+print(f"Initial sea_level_pressure = {sea_level_pressure:.2f} hPa")
+
+# reset driver to contain the accurate sea level pressure (SLP) from my nearest airport this hour
+bmp.sea_level_pressure = 1017.0
+print(f"Adjusted sea level pressure = {bmp.sea_level_pressure:.2f} hPa\n")
+
+# Alternatively set known altitude in meters and the sea level pressure will be calculated
+bmp.altitude = 111.0
+print(f"Altitude 111m = {bmp.altitude:.2f} meters")
+print(f"Adjusted SLP based on known altitude = {bmp.sea_level_pressure:.2f} hPa\n")
+
+bmp.config
+
+# bmp390, IIR only configurable during in STANDBY mode.
+print(f"Current IIR setting: {bmp.iir_coefficient=}")
+bmp.iir_coefficient = bmp.COEF_3
+print(f"update to bmp.COEF_3: {bmp.iir_coefficient=}\n")
+for iir_coef in bmp.iir_coefficient_values:
+    bmp.iir_coefficient = iir_coef
+    print(f"New IIR setting: {bmp.iir_coefficient}")
+
+# print("Current power mode setting: ", bmp.power_mode)
+# for power_mode in bmp.power_mode_values:
+#     bmp.power_mode = power_mode
+#     print(f"New Power mode setting: {bmp.power_mode}")
 
 while True:
     print(f"Pressure = {bmp.pressure:.2f} hPa")
@@ -45,15 +72,4 @@ while True:
     print(f"sea level pressure = {sea_level_pressure:.2f} hPa\n")
 
     time.sleep(2.5)
-
-# while True:
-#     for iir_coefficient in bmp.iir_coefficient_values:
-#         print(f"Current IIR Coefficient setting: {bmp.iir_coefficient}")
-#         for _ in range(10):
-#             print(f"Pressure: {bmp.pressure:.2f} hPa")
-#             print()
-#             time.sleep(0.5)
-#         bmp.iir_coefficient = iir_coefficient
-
- 
  

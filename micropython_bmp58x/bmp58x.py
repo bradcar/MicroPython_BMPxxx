@@ -157,7 +157,12 @@ class BMP581:
             elif self._check_address(i2c, self.BMP581_I2C_ADDRESS_SECONDARY):
                 address = self.BMP581_I2C_ADDRESS_SECONDARY
             else:
-                raise RuntimeError("BMP581 sensor not found at known I2C address (0x47,0x46).")
+                raise RuntimeError("BMP581 sensor not found at I2C expected address (0x47,0x46).")
+        else:
+        # Check if the specified address is valid
+            if not self._check_address(i2c, address):
+                raise RuntimeError("BMP581 sensor not found at I2C expected address (0x47,0x46).")
+
         self._i2c = i2c
         self._address = address
         if self._read_device_id() != 0x50:  #check _device_id after i2c established
@@ -177,7 +182,14 @@ class BMP581:
         _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
         _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
 
-    
+    def _check_address(self, i2c, address: int) -> bool:
+        """Helper function to check if a device responds at the given I2C address."""
+        try:
+            i2c.writeto(address, b"")  # Attempt a write operation
+            return True
+        except OSError:
+            return False
+
     def _read_device_id(self) -> int:
         return self._device_id
 
@@ -356,7 +368,7 @@ class BMP581:
         debug = False
         if value not in self.iir_coefficient_values:
             raise ValueError("Value must be a valid iir_coefficients: COEF_0,COEF_1,COEF_3,COEF_7,COEF_15,COEF_31,COEF_63,COEF_127")
-        # TODO? https://github.com/sparkfun/SparkFun_BMP581_Arduino_Library/blob/main/src/bmp5_api/bmp5.c#L1241 look at lines 870-ish
+
         # Ensure the sensor is in STANDBY mode before updating
         original_mode = self._power_mode  # Save the current mode
         if debug:
@@ -445,8 +457,12 @@ class BMP585(BMP581):
             elif self._check_address(i2c, self.BMP585_I2C_ADDRESS_SECONDARY):
                 address = self.BMP585_I2C_ADDRESS_SECONDARY
             else:
-                raise RuntimeError("BMP585 sensor not found at known I2C address (0x47,0x46).")
-        
+                raise RuntimeError("BMP585 sensor not found at I2C expected address (0x47,0x46).")
+        else:
+        # Check if the specified address is valid
+            if not self._check_address(i2c, address):
+                raise RuntimeError("BMP585 sensor not found at I2C expected address (0x47,0x46).")
+  
         self._i2c = i2c
         self._address = address
         if self._read_device_id() != 0x51:  # check _device_id after i2c established
@@ -581,7 +597,12 @@ class BMP390(BMP581):
             elif self._check_address(i2c, self.BMP390_I2C_ADDRESS_SECONDARY):
                 address = self.BMP390_I2C_ADDRESS_SECONDARY
             else:
-                raise RuntimeError("BMP390 sensor not found at known I2C address (0x7f,0x7e).")
+                raise RuntimeError("BMP390 sensor not found at I2C expected address (0x7f,0x7e).")    
+        else:
+        # Check if the specified address is valid
+            if not self._check_address(i2c, address):
+                raise RuntimeError(f"BMP390 sensor not found at specified I2C address (0x{address:02x}).")
+    
         self._i2c = i2c
         self._address = address
         if self._read_device_id() != 0x60:  # check _device_id after i2c established
@@ -589,17 +610,6 @@ class BMP390(BMP581):
         self._power_mode = NORMAL
         self._pressure_enabled = True
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
-    
-    def _check_address(self, i2c, address: int) -> bool:
-        """Helper function to check if a device responds at the given I2C address."""
-        try:
-            i2c.writeto(address, b"")  # Attempt a write operation
-            return True
-        except OSError:
-            return False
-
-    def _read_device_id(self) -> int:
-        return self._device_id
         
     @property
     def par_t1(self) -> int:
@@ -774,6 +784,34 @@ class BMP390(BMP581):
             raise ValueError(
                 "Value must be a valid temperature_oversample_rate: OSR1,OSR2,OSR4,OSR8,OSR16,OSR32")
         self._temperature_oversample_rate = value
+        
+    @property
+    def iir_coefficient(self) -> str:
+        """
+        Sensor iir_coefficient
+        +----------------------------+------------------+
+        | Mode                       | Value            |
+        +============================+==================+
+        | :py:const:`bmp58x.COEF_0`  | :py:const:`0x00` |
+        | :py:const:`bmp58x.COEF_1`  | :py:const:`0x01` |
+        | :py:const:`bmp58x.COEF_3`  | :py:const:`0x02` |
+        | :py:const:`bmp58x.COEF_7`  | :py:const:`0x03` |
+        | :py:const:`bmp58x.COEF_15` | :py:const:`0x04` |
+        | :py:const:`bmp58x.COEF_31` | :py:const:`0x05` |
+        | :py:const:`bmp58x.COEF_63` | :py:const:`0x06` |
+        | :py:const:`bmp58x.COEF_127`| :py:const:`0x07` |
+        +----------------------------+------------------+
+        :return: coefficients as string
+        """
+        values = ("COEF_0", "COEF_1", "COEF_3", "COEF_7", "COEF_15", "COEF_31", "COEF_63", "COEF_127",)
+        return values[self._iir_coefficient]
+
+    @iir_coefficient.setter
+    def iir_coefficient(self, value: int) -> None:
+        debug = False
+        if value not in self.iir_coefficient_values:
+            raise ValueError("Value must be a valid iir_coefficients: COEF_0,COEF_1,COEF_3,COEF_7,COEF_15,COEF_31,COEF_63,COEF_127")
+        self._iir_coefficient = value
 
     # Helper method for temperature compensation
     def _calculate_temperature_compensation(self, raw_temp: float) -> float:
@@ -940,7 +978,12 @@ class BMP280(BMP581):
             elif self._check_address(i2c, self.BMP390_I2C_ADDRESS_SECONDARY):
                 address = self.BMP280_I2C_ADDRESS_SECONDARY
             else:
-                raise RuntimeError("BMP280 sensor not found at known I2C address (0x7f,0x7e).")
+                raise RuntimeError("BMP280 sensor not found at I2C expected address (0x7f,0x7e).")
+        else:
+        # Check if the specified address is valid
+            if not self._check_address(i2c, address):
+                raise RuntimeError("BMP280 sensor not found at I2C expected address (0x7f,0x7e).")
+
         self._i2c = i2c
         self._address = address
         if self._read_device_id() != 0x58:  # check _device_id after i2c established
@@ -949,16 +992,6 @@ class BMP280(BMP581):
         self._pressure_enabled = True
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
     
-    def _check_address(self, i2c, address: int) -> bool:
-        """Helper function to check if a device responds at the given I2C address."""
-        try:
-            i2c.writeto(address, b"")  # Attempt a write operation
-            return True
-        except OSError:
-            return False
-
-    def _read_device_id(self) -> int:
-        return self._device_id
         
     @property
     def dig_t1(self) -> int:
