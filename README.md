@@ -1,19 +1,19 @@
 # Micropython bmp58x driver
-MicroPython Driver for the Bosch ~~BMP585~~ (to test Nov 2024), BMP581, and BMP390 pressure sensors using I2C. It has the ability to adjust sea level pressure and/or the sensors altitude at a known elevation for accurate future tracking.
+MicroPython Driver for the Bosch BMP585, BMP581, BMP390, and ~~BMP280~~  pressure sensors using I2C. It has the ability to adjust sea level pressure and/or the sensors altitude at a known elevation for accurate future tracking.
 
 ## Micropython bmp58x driver
 Code includes:
-* ~~BMP585~~ (to test Nov 18-20, 2024), BMP581, BMP390 supported
-* I2C only (driver needs modifications for SDI)
-  * checks i2c primary address of 0x47, and then checks secondary 0x46
+* BMP585, BMP581, BMP390, ~~BMP280~~(to test Nov 20, 2024) supported
+* I2C only (driver would need modifications for SDI)
+  * checks i2c primary address and if not present it then checks secondary (see table 1 below for addresses for each device)
 * All pressures are in hPA.
 * All temperatures are in Celsius.
 * Code enables setting Pressure/Temperature OverSampling and IIR values.
 * It also can calculate altitude based on current pressure and sea level pressure.
 * One can adjusting sea level pressure setting to known local measurements.
-  * For sea level pressure, the driver defaults to 1013.25 hpa which is the international accepted world-wide average hPa. However you should know that weather causes sea level presssure to typically vary from 990 hPa to 1040 hPA or more.
+  * For sea level pressure, the driver defaults to 1013.25 hpa which is the international accepted world-wide average hPa. However you should know that weather causes sea level presssure to typically vary from 990 hPa to 1040 hPA.
   * It is best to set sea level pressure on each use to that of the nearest airport, for example: https://www.weather.gov/wrh/timeseries?site=KPDX
-  * By not setting nearest local known sea level pressure, altitude measurements may be way off. Even at 360 feet (111m) altitudes can be off by 1500 feet (500m) depending on the weather.
+  * altitude measurements may be way off if you do not set sea level to the nearest local known sea level pressure at the current time. Even at 360 feet (111m), altitudes can be off by 1500 feet (500m) depending on the weather.
 * Various error checks.
 
 ## Sample Usage
@@ -22,7 +22,7 @@ Required Imports:
 from machine import Pin, I2C
 from micropython_bmp58x import bmp58x
 ```
-Define your machine.I2C object in this case I2C 1 (not 0) and your sensor objects:
+Define your machine.I2C object to be I2C 1 (not 0) and your sensor objects:
 ```
 i2c = I2C(1, sda=Pin(2), scl=Pin(3))
 bmp = bmp58x.BMP581(i2c)
@@ -70,10 +70,11 @@ If you only have one sensor on the same I2C, they it will use the table below to
 
 Table 1: I2C Sensor Address
 | Sensor | Default | Secondary | 
-| :--- | :---: | :---: |
-| bmp585 |  0x47   | 0x46     | 
-| bmp581 |  0x47     | 0x46     | 
-| bmp390  |  0x7f    | 0x7e     | 
+| :---:  | :---:| :---: |
+| bmp585 | 0x47 | 0x46  | 
+| bmp581 | 0x47 | 0x46  | 
+| bmp390 | 0x7f | 0x7e  | 
+| bmp280 | 0x77 | 0x76  | 
 
 The following code is useful when scanning for device addresses on I2C. I always put this in my code when bringing up new sensor. Also if device not found triple-check all wiring.
 ```
@@ -96,12 +97,12 @@ Table 2: BMP585/BMP581 Recommendations from Bosch
 | Oversampling setting | OSR Pressure | Pressure<br /> Oversampling | Temperature<br /> Oversampling |
 | :--- | :---: | :---: | :---: |
 | Lowest Power |  000     | x1     | x1     |
-| |  001     | x2     | x1     |
+| |  001  | x2     | x1     |
 | Standard resolution |  010     | x4     | x1     |
-| |  011     | x8     | x1     |
+| |  011  | x8     | x1     |
 | High resolution    |  100     | x16     | x1     |
-| |  101     | x32     | x2     |
-| |  110     | x64     | x4     |
+| |  101  | x32     | x2     |
+| |  110  | x64     | x4     |
 | Highest resolution |  111     | x128     | x8     |
 
 ```
@@ -116,13 +117,13 @@ The table 3 below is Bosch's recommended oversampling pressure and temperature s
 
 Table 3: BMP390 Recommendations from Bosch
 | Oversampling setting | OSR Pressure | Pressure<br /> Oversampling | Temperature<br /> Oversampling | Sample Use |
-| :--- | :---: | :---: | :---: | :--- |
-| Ultra low power |  000     | x1     | x1     | Weather monitoring<br />lowest power, iif off|
-| Low power |  001     | x2     | x1     | Drop detecton, iir off |
-| Standard resolution |  010     | x4     | x1     | Handheld dynamic|
-| High resolution |  011     | x8     | x1     | Drone,<br />low power|
-| Ultra high resolution |  100     | x16     | x2     | Indoor navigation|
-| Highest resolution|  101     | x32     | x2     | Highest, Drone accurate |
+| :-------------------- |:---:|:---:|:---:| :--- |
+| Ultra low power       | 000 | x1  | x1  | Weather monitoring<br />lowest power, iif off|
+| Low power             | 001 | x2  | x1  | Drop detecton, iir off |
+| Standard resolution   | 010 | x4  | x1  | Handheld dynamic|
+| High resolution       | 011 | x8  | x1  | Drone,<br />low power|
+| Ultra high resolution | 100 | x16 | x2  | Indoor navigation|
+| Highest resolution    | 101 | x32 | x2  | Highest, Drone accurate |
 
 ```
 # Highest recommended for combined pressure and temperature for bmp390 sensor
@@ -154,7 +155,28 @@ Make sure the a directory called micropython_bmp58x is on your Raspberry Pi unde
   * Relative accuracy of +/-0.03 hPa and typical absolute accuracy of +/-0.5 hPa.
   * Measure change in height of 0.25 meters.
 
-## To Test in Nov 2024 with BMP585 Shuttle Board
+
+## License Information
+This product is open source. Please review the LICENSE.md file for license information.
+* distributed as-is; no warranty is given.
+ 
+## Credits
+Code based on great work by Jose & Scott!
+* micropython_bmp581 Author(s): Jose D. Montoya, jposada202020
+  * github:jposada202020/MicroPython_BMP581
+  * Corrected error in altitude calculation, also removed cod that limits accuracy to 100 cm instead of allowing 1cm.
+* Also based on
+  * adafruit_register.i2c_struct, adafruit_register.i2c_bits.  Author(s): Scott Shawcroft
+
+## Todos
+* ~~test/debug bmp585 subclass after delivery of bmp585 on 19-Nov-2024.~~
+* ~~fix IIR filters for bmp585 & bmp581 - currently tries to set IIR when running (but this is ignored), need to change code to go into STANDBY power modem and then update, then return to previous power mode.~~
+* double check IIR filters to make sure limited to correct values for bmp390, note can update IIR on bmp390 on the fly.
+* started to add code for bmp280 (going down sensor rabit hole...), untested awaiting sensor
+* IIR code for  bmp585 & bmp581 uses the same IIR for pressure and temperature, this simplifies control and is like bmp280 & bmp390 sensors, but takes away flexibility for newer sensors.
+* added bmp.config to print out all major variables & settings, open question: should this stay?
+
+## Tested BMP585 Shuttle Board
 Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I2C interface with Raspberry Pi. Shuttleboard pin details: https://www.electroniclinic.com/bosch-bmp585-barometric-pressure-sensor-with-arduino/
 * 1.27mm pins not breadboard friendly (boardboards use 2.54mm)
 * 3.3v:
@@ -169,22 +191,6 @@ Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I
   * wire to 3.3v  (pin 3 of 9 pin connector)
 * SDI/SDA: I2C SDA (pin 4 of 9 pin connector)
 
-## License Information
-This product is open source. Please review the LICENSE.md file for license information.
-* distributed as-is; no warranty is given.
- 
-## Credits
-Code based on great work by Jose & Scott!
-* micropython_bmp581 Author(s): Jose D. Montoya, jposada202020
-  * github:jposada202020/MicroPython_BMP581
-  * Corrected error in altitude calculation, also removed limitation of only 0.1m accuracy.
-* Also based on
-  * adafruit_register.i2c_struct, adafruit_register.i2c_bits.  Author(s): Scott Shawcroft
-
-## Todos
-* test/debug bmp585 subclass after delivery of bmp585 on 19-Nov-2024.
-* ~~fix IIR filters for bmp585 & bmp581 - currently tries to set IIR when running (but this is ignored), need to change code to go into STANDBY power modem and then update, then return to previous power mode.~~
-* double check IIR filters to make sure limited to correct values for bmp390, note can update IIR on bmp390 on the fly.
-* started to add code for bmp280 (going down sensor rabit hole...), untested awaiting sensor
-* IIR the same for pressure and temperature, this simplifies control and is like bmp280 & bmp390 sensors, but takes away flexibility for newer bmp585 & bmp581 sensors.
-* added bmp.config to print out all major variables & settings, should this stay?
+Images of quick hack to shuttle board
+![Quick hack to BMP585 Shuttle Board back](imgs/bmp585-shuttle-back.png)
+![Quick hack to BMP585 Shuttle Board front](imgs/bmp585-shuttle-frot.png)
