@@ -38,18 +38,18 @@ print(f"Adjusted SLP based on known altitude = {bmp.sea_level_pressure:.2f} hPa\
 
 bmp.config
 
-# # bmp585 & bmp581, IIR only configurable during in STANDBY mode.
-# print(f"Current IIR setting: {bmp.iir_coefficient=}")
-# bmp.iir_coefficient = bmp.COEF_3
-# print(f"update to bmp.COEF_3: {bmp.iir_coefficient=}\n")
-# for iir_coef in bmp.iir_coefficient_values:
-#     bmp.iir_coefficient = iir_coef
-#     print(f"New IIR setting: {bmp.iir_coefficient}")
-# 
-# print("Current power mode setting: ", bmp.power_mode)
-# for power_mode in bmp.power_mode_values:
-#     bmp.power_mode = power_mode
-#     print(f"New Power mode setting: {bmp.power_mode}")
+# bmp585 & bmp581, IIR only configurable during in STANDBY mode.
+print(f"Current IIR setting: {bmp.iir_coefficient=}")
+bmp.iir_coefficient = bmp.COEF_3
+print(f"update to bmp.COEF_3: {bmp.iir_coefficient=}\n")
+for iir_coef in bmp.iir_coefficient_values:
+    bmp.iir_coefficient = iir_coef
+    print(f"New IIR setting: {bmp.iir_coefficient}")
+
+print("Current power mode setting: ", bmp.power_mode)
+for power_mode in bmp.power_mode_values:
+    bmp.power_mode = power_mode
+    print(f"New Power mode setting: {bmp.power_mode}")
 
 bmp.iir_coefficient = bmp.COEF_0
 while True:

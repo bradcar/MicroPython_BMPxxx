@@ -446,7 +446,6 @@ class BMP585(BMP581):
                 address = self.BMP585_I2C_ADDRESS_SECONDARY
             else:
                 raise RuntimeError("BMP585 sensor not found at known I2C address (0x47,0x46).")
-        print("*** BMP585 driver untested ***")
         
         self._i2c = i2c
         self._address = address
@@ -461,7 +460,6 @@ class BMP585(BMP581):
         
         self._pressure_enabled = True
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
-        print("*** BMP585 driver untested ***")
         _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
         _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
 #         time.sleep_ms(1)
