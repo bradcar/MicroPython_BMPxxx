@@ -1,6 +1,6 @@
 import time
 from machine import Pin, I2C
-from micropython_bmp58x import bmp58x
+from micropython_bmpxxx import bmpxxx
 
 #i2c = I2C(1, sda=Pin(2), scl=Pin(3))  # Correct I2C pins for RP2040
 i2c = I2C(id=1, scl=Pin(27), sda=Pin(26), freq=400_000)
@@ -12,7 +12,7 @@ else:
     print("ERROR: No i2c1 devices")
 print("")
     
-bmp = bmp58x.BMP390(i2c=i2c, address=0x76)
+bmp = bmpxxx.BMP390(i2c=i2c, address=0x76)
 
 sea_level_pressure = bmp.sea_level_pressure
 print(f"initial sea_level_pressure = {sea_level_pressure:.2f} hPa")

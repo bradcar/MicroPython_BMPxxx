@@ -27,7 +27,7 @@
 `bmp58x`
 ================================================================================
 
-MicroPython Driver for the Bosch BMP585, BMP581, BMP390 pressure sensors
+MicroPython Driver for the Bosch BMP585, BMP581, BMP390, BMP280 pressure sensors
 
 * Author: Brad Carlile
 
@@ -38,7 +38,7 @@ Based on
 """
 import time
 from micropython import const
-from micropython_bmp58x.i2c_helpers import CBits, RegisterStruct
+from micropython_bmpxxx.i2c_helpers import CBits, RegisterStruct
 
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/bradcar/MicroPython_BMP58x.git"
