@@ -53,7 +53,7 @@ Increase bmp585/bmp581 sensor to highest accuracy (see below for bmp390):
 bmp.pressure_oversample_rate = bmp.OSR128
 bmp.temperature_oversample_rate = bmp.OSR8
 ```
-Other data from sensors, see data sheet for more info:
+Below are other settings you can adjust on the sensor, see data sheet for more info:
 ```
 print("Current power mode setting: ", bmp.power_mode)
 for power_mode in bmp.power_mode_values:
