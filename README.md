@@ -1,11 +1,11 @@
 # Micropython bmp58x driver
-MicroPython Driver for the Bosch ~~BMP585~~ (to test Nov 2024), BMP581, and BMP390 pressure sensors using I2C. It has the ability to adjust sea level pressure and/or the sensors altitude at a known elevation for accurate future tracking.
+MicroPython Driver for the Bosch BMP585, BMP581, BMP390, and ~~BMP280~~  pressure sensors using I2C. It has the ability to adjust sea level pressure and/or the sensors altitude at a known elevation for accurate future tracking.
 
 ## Micropython bmp58x driver
 Code includes:
-* ~~BMP585~~ (to test Nov 19, 2024), BMP581, BMP390, BMP280 supported
-* I2C only (driver needs modifications for SDI)
-  * checks i2c primary address of 0x47, and then checks secondary 0x46
+* BMP585, BMP581, BMP390, ~~BMP280~~(to test Nov 20, 2024) supported
+* I2C only (driver would need modifications for SDI)
+  * checks i2c primary address and if not present it then checks secondary (see table 1 below for addresses for each device)
 * All pressures are in hPA.
 * All temperatures are in Celsius.
 * Code enables setting Pressure/Temperature OverSampling and IIR values.
@@ -155,20 +155,6 @@ Make sure the a directory called micropython_bmp58x is on your Raspberry Pi unde
   * Relative accuracy of +/-0.03 hPa and typical absolute accuracy of +/-0.5 hPa.
   * Measure change in height of 0.25 meters.
 
-## To Test in Nov 2024 with BMP585 Shuttle Board
-Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I2C interface with Raspberry Pi. Shuttleboard pin details: https://www.electroniclinic.com/bosch-bmp585-barometric-pressure-sensor-with-arduino/
-* 1.27mm pins not breadboard friendly (boardboards use 2.54mm)
-* 3.3v:
-  * vdd to 3.3v (pin 1 of 7 pin connector)
-  * vddio to 3.3v (pin 2 of 7 pin connector)
-* gnd:
-  * wire gnd to ground (pins 3 of 7 pin connector)
-* CS for I2C mode:
-  * wire to 3.3v (pin 1 of 9 pin connector)
-* SCK/SCL: I2C SCL (pin 2 of 9 pin connector)
-* SDO for I2C mode:
-  * wire to 3.3v  (pin 3 of 9 pin connector)
-* SDI/SDA: I2C SDA (pin 4 of 9 pin connector)
 
 ## License Information
 This product is open source. Please review the LICENSE.md file for license information.
@@ -183,9 +169,24 @@ Code based on great work by Jose & Scott!
   * adafruit_register.i2c_struct, adafruit_register.i2c_bits.  Author(s): Scott Shawcroft
 
 ## Todos
-* test/debug bmp585 subclass after delivery of bmp585 on 19-Nov-2024.
+* ~~test/debug bmp585 subclass after delivery of bmp585 on 19-Nov-2024.~~
 * ~~fix IIR filters for bmp585 & bmp581 - currently tries to set IIR when running (but this is ignored), need to change code to go into STANDBY power modem and then update, then return to previous power mode.~~
 * double check IIR filters to make sure limited to correct values for bmp390, note can update IIR on bmp390 on the fly.
 * started to add code for bmp280 (going down sensor rabit hole...), untested awaiting sensor
 * IIR code for  bmp585 & bmp581 uses the same IIR for pressure and temperature, this simplifies control and is like bmp280 & bmp390 sensors, but takes away flexibility for newer sensors.
 * added bmp.config to print out all major variables & settings, open question: should this stay?
+
+## Tested BMP585 Shuttle Board
+Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I2C interface with Raspberry Pi. Shuttleboard pin details: https://www.electroniclinic.com/bosch-bmp585-barometric-pressure-sensor-with-arduino/
+* 1.27mm pins not breadboard friendly (boardboards use 2.54mm)
+* 3.3v:
+  * vdd to 3.3v (pin 1 of 7 pin connector)
+  * vddio to 3.3v (pin 2 of 7 pin connector)
+* gnd:
+  * wire gnd to ground (pins 3 of 7 pin connector)
+* CS for I2C mode:
+  * wire to 3.3v (pin 1 of 9 pin connector)
+* SCK/SCL: I2C SCL (pin 2 of 9 pin connector)
+* SDO for I2C mode:
+  * wire to 3.3v  (pin 3 of 9 pin connector)
+* SDI/SDA: I2C SDA (pin 4 of 9 pin connector)
