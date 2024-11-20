@@ -3,7 +3,7 @@ MicroPython Driver for the Bosch ~~BMP585~~ (to test Nov 2024), BMP581, and BMP3
 
 ## Micropython bmp58x driver
 Code includes:
-* ~~BMP585~~ (to test Nov 18-20, 2024), BMP581, BMP390 supported
+* ~~BMP585~~ (to test Nov 19, 2024), BMP581, BMP390, BMP280 supported
 * I2C only (driver needs modifications for SDI)
   * checks i2c primary address of 0x47, and then checks secondary 0x46
 * All pressures are in hPA.
@@ -11,7 +11,7 @@ Code includes:
 * Code enables setting Pressure/Temperature OverSampling and IIR values.
 * It also can calculate altitude based on current pressure and sea level pressure.
 * One can adjusting sea level pressure setting to known local measurements.
-  * For sea level pressure, the driver defaults to 1013.25 hpa which is the international accepted world-wide average hPa. However you should know that weather causes sea level presssure to typically vary from 990 hPa to 1040 hPA or more.
+  * For sea level pressure, the driver defaults to 1013.25 hpa which is the international accepted world-wide average hPa. However you should know that weather causes sea level presssure to typically vary from 990 hPa to 1040 hPA.
   * It is best to set sea level pressure on each use to that of the nearest airport, for example: https://www.weather.gov/wrh/timeseries?site=KPDX
   * altitude measurements may be way off if you do not set sea level to the nearest local known sea level pressure at the current time. Even at 360 feet (111m), altitudes can be off by 1500 feet (500m) depending on the weather.
 * Various error checks.
@@ -22,7 +22,7 @@ Required Imports:
 from machine import Pin, I2C
 from micropython_bmp58x import bmp58x
 ```
-Define your machine.I2C object in this case I2C 1 (not 0) and your sensor objects:
+Define your machine.I2C object to be I2C 1 (not 0) and your sensor objects:
 ```
 i2c = I2C(1, sda=Pin(2), scl=Pin(3))
 bmp = bmp58x.BMP581(i2c)
@@ -178,7 +178,7 @@ This product is open source. Please review the LICENSE.md file for license infor
 Code based on great work by Jose & Scott!
 * micropython_bmp581 Author(s): Jose D. Montoya, jposada202020
   * github:jposada202020/MicroPython_BMP581
-  * Corrected error in altitude calculation, also removed limitation of only 0.1m accuracy.
+  * Corrected error in altitude calculation, also removed cod that limits accuracy to 100 cm instead of allowing 1cm.
 * Also based on
   * adafruit_register.i2c_struct, adafruit_register.i2c_bits.  Author(s): Scott Shawcroft
 
