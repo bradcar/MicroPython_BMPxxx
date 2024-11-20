@@ -192,5 +192,5 @@ Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I
 * SDI/SDA: I2C SDA (pin 4 of 9 pin connector)
 
 Images of quick hack to shuttle board
-![Quick hack to BMP585 Shuttle Board back]
-(imgs/bmp585-shuttle-back.png) (imgs/bmp585-shuttle-front.png)
+![Quick hack to BMP585 Shuttle Board back](imgs/bmp585-shuttle-back.png)
+![Quick hack to BMP585 Shuttle Board front](imgs/bmp585-shuttle-front.png)
