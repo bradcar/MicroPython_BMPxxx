@@ -74,7 +74,7 @@ Table 1: I2C Sensor Address
 | bmp585 | 0x47 | 0x46  | 
 | bmp581 | 0x47 | 0x46  | 
 | bmp390 | 0x7f | 0x7e  | 
-| bmp390 | 0x77 | 0x76  | 
+| bmp280 | 0x77 | 0x76  | 
 
 The following code is useful when scanning for device addresses on I2C. I always put this in my code when bringing up new sensor. Also if device not found triple-check all wiring.
 ```
