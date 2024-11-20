@@ -127,7 +127,7 @@ Table 3: BMP390 Recommendations from Bosch
 
 ```
 # Highest recommended for combined pressure and temperature for bmp390 sensor
-# Indoor Navigation page 17 of bmp390 datasheet
+# below are recommended for Indoor Navigation on bmp390 (page 17 of bmp390 datasheet)
 bmp.pressure_oversample_rate = bmp.OSR32
 bmp.temperature_oversample_rate = bmp.OSR2
 bmp.iir_coefficient = bmp.COEF_3
@@ -157,7 +157,6 @@ Make sure the a directory called micropython_bmp58x is on your Raspberry Pi unde
 * Bosch BMP280, old generation, released 2015.
   * Relative accuracy of +/-0.12 hPa and typical absolute accuracy of +/-1.0 hPa.
   * Measure change in height of+/-1 meter.
-
 
 ## License Information
 This product is open source. Please review the LICENSE.md file for license information.
