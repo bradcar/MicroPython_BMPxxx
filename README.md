@@ -35,22 +35,23 @@ Or, If if you have a different sensor specify the appropriate one, below we show
 i2c = I2C(1, sda=Pin(2), scl=Pin(3))
 bmp = bmp58x.BMP390(i2c)
 ```
-Access sensor's data:
+Getting pressure, temperature, and altitude from the sensor:
 ```
 press = bmp.pressure
 temp = bmp.temperature
 
-# altitude in meters based on sea level pressure of 1013.25 hPA
+# altitude in meters is based on sea level pressure of 1013.25 hPA
 meters = bmp.altitude
 print(f"alt = {meters:.2f} meters")
-
-# set sea level pressure to a known sea level pressure in hPa at nearest airport
-# https://www.weather.gov/wrh/timeseries?site=KPDX
+```
+To improve the accuracy of the Altitude, it is best to explicity set the set sea level pressure to a known sea level pressure in hPa at nearest airport, for exmaple:
+https://www.weather.gov/wrh/timeseries?site=KPDX:
+```
 bmp.sea_level_pressure = 1010.80
 meters = bmp.altitude
 print(f"alt = {meters:.2f} meters")
 ```
-Increase bmp585/bmp581 sensor to highest accuracy (see below for bmp390):
+Increase bmp585/bmp581 sensor to highest resolution using oversampling. Each sensor has different allowable values:
 ```
 # Highest resolution for bmp585 & bmp581
 bmp.pressure_oversample_rate = bmp.OSR128
