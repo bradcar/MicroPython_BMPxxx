@@ -154,6 +154,9 @@ Make sure the a directory called micropython_bmp58x is on your Raspberry Pi unde
 * Bosch BMP390, previous generation, released 2021.
   * Relative accuracy of +/-0.03 hPa and typical absolute accuracy of +/-0.5 hPa.
   * Measure change in height of 0.25 meters.
+* Bosch BMP280, old generation, released 2015.
+  * Relative accuracy of +/-0.12 hPa and typical absolute accuracy of +/-1.0 hPa.
+  * Measure change in height of+/-1 meter.
 
 
 ## License Information
