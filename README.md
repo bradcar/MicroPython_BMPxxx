@@ -1,7 +1,7 @@
-# Micropython bmp58x driver
+# Micropython bmpxxx driver
 MicroPython Driver for the Bosch BMP585, BMP581, BMP390, and ~~BMP280~~  pressure sensors using I2C. It has the ability to adjust sea level pressure and/or the sensors altitude at a known elevation for accurate future tracking.
 
-## Micropython bmp58x driver
+## Micropython bmpxxx driver
 Code includes:
 * BMP585, BMP581, BMP390, ~~BMP280~~(to test Nov 20, 2024) supported
 * I2C only (driver would need modifications for SDI)
@@ -17,23 +17,23 @@ Code includes:
 * Various error checks.
 
 ## Getting Started - Installing
-This driver has three required files: __init__.py, bmp58x.py, and i2c_helpers.py. All three must be copied to the board (/ or /lib) in order for it to work. We find it best to have them in a directory [micropython_bmp58x](micropython_bmp58x). The best way to start is to try some of the provided [examples](examples).
+This driver has three required files: __init__.py, bmpxxx.py, and i2c_helpers.py. All three must be copied to the board (/ or /lib) in order for it to work. We find it best to have them in a directory [micropython_bmpxxx](micropython_bmpxxx). The best way to start is to try some of the provided [examples](examples).
 
 ## Sample Usage
 Required Imports:
 ```
 from machine import Pin, I2C
-from micropython_bmp58x import bmp58x
+from micropython_bmpxxx import bmpxxx
 ```
 If you have bmp581, define your machine.I2C object using I2C 1:
 ```
 i2c = I2C(1, sda=Pin(2), scl=Pin(3))
-bmp = bmp58x.BMP581(i2c)
+bmp = bmpxxx.BMP581(i2c)
 ```
 Or, If if you have a different sensor specify the appropriate one, below we show for BMP390, supported sensor (BMP585, BMP581, BMP390, BMP280):
 ```
 i2c = I2C(1, sda=Pin(2), scl=Pin(3))
-bmp = bmp58x.BMP390(i2c)
+bmp = bmpxxx.BMP390(i2c)
 ```
 Getting pressure, temperature, and altitude from the sensor:
 ```
@@ -97,7 +97,7 @@ else:
 ```
 Example of specifying an address for a bmp581:
 ```
-bmp = bmp58x.BMP581(i2c=i2c, address=0x47)
+bmp = bmpxxx.BMP581(i2c=i2c, address=0x47)
 ```
 ## Recommended Oversampling Rates to Improve Sensors' Accuracy
 The table 2 below is Bosch's recommended oversampling pressure and temperature settings for bmp585 and bmp581. Higher sampling rates effect the refresh rate and the power consumption. Please checked the Bosch datasheets for more information https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/
