@@ -17,7 +17,7 @@ Code includes:
 * Various error checks.
 
 ## Getting Started - Installing
-This driver has three required files: __init__.py, bmp58x.py, and i2c_helpers.py. All three must be copied to the board (/ or /lib) in order for it to work.
+This driver has three required files: __init__.py, bmp58x.py, and i2c_helpers.py. All three must be copied to the board (/ or /lib) in order for it to work. We find it best to have them in a directory [micropython_bmp58x]
 
 ## Sample Usage
 Required Imports:
