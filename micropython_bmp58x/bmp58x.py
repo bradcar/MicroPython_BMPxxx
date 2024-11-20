@@ -36,7 +36,7 @@ Based on
 * micropython-bmp581/bmp581py. Author(s): Jose D. Montoya
 
 """
-
+import time
 from micropython import const
 from micropython_bmp58x.i2c_helpers import CBits, RegisterStruct
 
@@ -171,6 +171,11 @@ class BMP581:
         
         self._pressure_enabled = True
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
+        _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
+        _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
+        time.sleep_ms(1)
+        _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
+        _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
 
     
     def _read_device_id(self) -> int:
@@ -208,8 +213,9 @@ class BMP581:
     @power_mode.setter
     def power_mode(self, value: int) -> None:
         debug = False
-        if debug: print(f"{self.power_mode_values}")
-        if debug: print(f"power mode: {value=}")
+        if debug:
+            print(f"{self.power_mode_values}")
+            print(f"power mode: {value=}")
         if value not in self.power_mode_values:
             raise ValueError("Value must be a valid power_mode setting: STANDBY,NORMAL,FORCED,NON_STOP")
         self._power_mode = value
@@ -456,6 +462,11 @@ class BMP585(BMP581):
         self._pressure_enabled = True
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
         print("*** BMP585 driver untested ***")
+        _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
+        _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
+#         time.sleep_ms(1)
+#         _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
+#         _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
 
     def _read_device_id(self) -> int:
         return self._device_id

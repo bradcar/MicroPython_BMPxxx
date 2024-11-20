@@ -12,7 +12,10 @@ else:
     print("ERROR: No i2c1 devices")
 print("")
     
-bmp = bmp58x.BMP581(i2c=i2c, address=0x47)
+bmp = bmp58x.BMP585(i2c=i2c, address=0x47)
+
+print(f"Sensor pressure = {bmp.pressure:.2f} hPa")
+print(f"Sensor pressure = {bmp.pressure:.2f} hPa")
 
 # Set for the Highest resolution for bmp585 & bmp581
 bmp.pressure_oversample_rate = bmp.OSR128
@@ -52,21 +55,21 @@ bmp.iir_coefficient = bmp.COEF_0
 while True:
     # altitude in meters based on sea level pressure stored in driver
     sea_level_pressure = bmp.sea_level_pressure
-#     print(f"Sea level pressure = {sea_level_pressure:.2f} hPa")
+    print(f"Sea level pressure = {sea_level_pressure:.2f} hPa")
     
     # Pressure in hPA measured at sensor, temperature in Celsius
     pressure = bmp.pressure
-#     print(f"Sensor pressure = {pressure:.2f} hPa")
+    print(f"Sensor pressure = {pressure:.2f} hPa")
     temp = bmp.temperature
-#     print(f"temp = {temp:.2f} C")
+    print(f"temp = {temp:.2f} C")
   
     # Pressure in hPA measured at sensor
     meters = bmp.altitude
-    print(f"Altitude = {meters:.2f} meters")
+    print(f"Altitude = {meters:.3f} meters")
     feet = meters * 3.28084
     feet_only = int(feet)
     inches = (feet - feet_only) * 12
-#     print(f"Altitude = {feet_only} feet {inches:.1f} inches\n")
+    print(f"Altitude = {feet_only} feet {inches:.1f} inches\n")
 
     time.sleep(2.5)
 
