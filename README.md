@@ -16,6 +16,9 @@ Code includes:
   * altitude measurements may be way off if you do not set sea level to the nearest local known sea level pressure at the current time. Even at 360 feet (111m), altitudes can be off by 1500 feet (500m) depending on the weather.
 * Various error checks.
 
+## Getting Started - Installing
+This driver has three required files: __init__.py, bmp58x.py, and i2c_helpers.py. All three must be copied to the board (/ or /lib) in order for it to work.
+
 ## Sample Usage
 Required Imports:
 ```
@@ -138,9 +141,6 @@ bmp.temperature_oversample_rate = bmp.OSR2
 bmp.iir_coefficient = bmp.COEF_3
 ```
 bmp.OSR1 corresponds to x1 for all sensors, bmp.OSR2 corresponds to x2 for all sensors, bmp.OSR4 corresponds to x4 for all sensors, etc. If you go over for a particular sensor, then an error message will show possible values.
-
-## Installing
-Make sure the a directory called micropython_bmp58x is on your Raspberry Pi under the /lib directory. You will need to make sure it contains these files: __init__.py, bmp58x.py, and i2c_helpers.py.
 
 ## Example projects using this Driver
 * Digital altimeter: https://github.com/bradcar/digital-altimeter-rp2
