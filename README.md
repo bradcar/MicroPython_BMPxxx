@@ -193,4 +193,4 @@ Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I
 
 Images of quick hack to shuttle board
 ![Quick hack to BMP585 Shuttle Board back](imgs/bmp585-shuttle-back.png)
-![Quick hack to BMP585 Shuttle Board front](imgs/bmp585-shuttle-front.png)
+![Quick hack to BMP585 Shuttle Board front](imgs/bmp585_shuttle-front.png)
