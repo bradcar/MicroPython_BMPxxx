@@ -172,12 +172,8 @@ Code based on great work by Jose & Scott!
   * adafruit_register.i2c_struct, adafruit_register.i2c_bits.  Author(s): Scott Shawcroft
 
 ## Todos
-* ~~test/debug bmp585 subclass after delivery of bmp585 on 19-Nov-2024.~~
-* ~~fix IIR filters for bmp585 & bmp581 - currently tries to set IIR when running (but this is ignored), need to change code to go into STANDBY power modem and then update, then return to previous power mode.~~
-* double check IIR filters to make sure limited to correct values for bmp390, note can update IIR on bmp390 on the fly.
 * started to add code for bmp280 (going down sensor rabit hole...), untested awaiting sensor
 * IIR code for  bmp585 & bmp581 uses the same IIR for pressure and temperature, this simplifies control and is like bmp280 & bmp390 sensors, but takes away flexibility for newer sensors.
-* added bmp.config to print out all major variables & settings, open question: should this stay?
 
 ## Tested BMP585 Shuttle Board
 Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I2C interface with Raspberry Pi. Shuttleboard pin details: https://www.electroniclinic.com/bosch-bmp585-barometric-pressure-sensor-with-arduino/
