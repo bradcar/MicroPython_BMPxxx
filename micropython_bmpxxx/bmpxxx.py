@@ -915,6 +915,8 @@ class BMP280(BMP581):
         meters = bmp.altitude
 
     """
+
+    
     # Power Modes for BMP280
     power_mode_values = (STANDBY, FORCED, NORMAL)
 
@@ -933,12 +935,12 @@ class BMP280(BMP581):
     _CONTROL_REGISTER_BMP280 = const(0xF4)
     _CONFIG_BMP280 = const(0xf5)
 
-    _device_id = RegisterStruct(_REG_WHOAMI_BMP390, "B")
+    _device_id = RegisterStruct(_REG_WHOAMI_BMP280, "B")
 
     _power_mode = CBits(2,_CONTROL_REGISTER_BMP280, 0)
     _temperature_oversample_rate = CBits(3, _CONTROL_REGISTER_BMP280, 5)
     _pressure_oversample_rate = CBits(3, _CONTROL_REGISTER_BMP280, 2)
-    _iir_coefficient = CBits(3, _CONFIG_BMP390, 0)
+    _iir_coefficient = CBits(3, _CONFIG_BMP280, 0)
 
     # read pressure 0xf7 and temp 0xfa
     _d = CBits(48, 0xf7, 0, 6)
@@ -963,26 +965,30 @@ class BMP280(BMP581):
     _dig_p5_lsb = CBits(8, 0x96, 0)  # Least significant byte of dig_p5
     _dig_p6_msb = CBits(8, 0x99, 0)  # Most significant byte of dig_p6
     _dig_p6_lsb = CBits(8, 0x98, 0)  # Least significant byte of dig_p6
-    _dig_p7_msb = CBits(8, 0x9b, 0)  # Most significant byte of dig_p5
-    _dig_p7_lsb = CBits(8, 0x9a, 0)  # Least significant byte of dig_p5
-    _dig_p8_msb = CBits(8, 0x9d, 0)  # Most significant byte of dig_p6
-    _dig_p8_lsb = CBits(8, 0x9c, 0)  # Least significant byte of dig_p6
+    _dig_p7_msb = CBits(8, 0x9b, 0)  # Most significant byte of dig_p7
+    _dig_p7_lsb = CBits(8, 0x9a, 0)  # Least significant byte of dig_p7
+    _dig_p8_msb = CBits(8, 0x9d, 0)  # Most significant byte of dig_p8
+    _dig_p8_lsb = CBits(8, 0x9c, 0)  # Least significant byte of dig_p8
     _dig_p9_msb = CBits(8, 0x9f, 0)  # Most significant byte of dig_p9
     _dig_p9_lsb = CBits(8, 0x9e, 0)  # Least significant byte of dig_p9
 
     def __init__(self, i2c, address: int = None) -> None:
+        
+        print("\n******* BMP280 UNTESTED DRIVER ********")
+        print("******* BMP280 UNTESTED DRIVER ********\n")
+        
         # If no address is provided, try the default, then secondary
         if address is None:
-            if self._check_address(i2c, self.BMP390_I2C_ADDRESS_DEFAULT):
+            if self._check_address(i2c, self.BMP280_I2C_ADDRESS_DEFAULT):
                 address = self.BMP280_I2C_ADDRESS_DEFAULT
-            elif self._check_address(i2c, self.BMP390_I2C_ADDRESS_SECONDARY):
+            elif self._check_address(i2c, self.BMP280_I2C_ADDRESS_SECONDARY):
                 address = self.BMP280_I2C_ADDRESS_SECONDARY
             else:
-                raise RuntimeError("BMP280 sensor not found at I2C expected address (0x7f,0x7e).")
+                raise RuntimeError("BMP280 sensor not found at I2C expected address (0x77,0x76).")
         else:
         # Check if the specified address is valid
             if not self._check_address(i2c, address):
-                raise RuntimeError("BMP280 sensor not found at I2C expected address (0x7f,0x7e).")
+                raise RuntimeError("BMP280 sensor not found at I2C expected address (0x77,0x76).")
 
         self._i2c = i2c
         self._address = address
@@ -991,117 +997,63 @@ class BMP280(BMP581):
         self._power_mode = BMP280_POWER_NORMAL
         self._pressure_enabled = True
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
+        
+    def _combine_unsigned(self, msb, lsb):
+        """Combine msb and lsb into a unsigned 16-bit integer."""
+        return ((msb << 8) | lsb) & 0xFFFF
     
+    def _combine_signed(self, msb, lsb):
+        combined = (msb << 8) | lsb
+        # Check if the sign bit is set (MSB of 16-bit value), Subtract 2^16 to sign-extend
+        return combined - 0x10000 if combined & 0x8000 else combined
         
     @property
     def dig_t1(self) -> int:
-        """Combine _dig_t1_msb and _dig_t1_lsb into a unsigned 16-bit integer."""
-        msb_value = self._dig_t1_msb  # Reads CBits value
-        lsb_value = self._dig_t1_lsb  # Reads CBits value
-        return ((msb_value << 8) | lsb_value) & 0xFFFF
+        return _combine_unsigned(self._dig_t1_msb, self._dig_t1_lsb)
 
     @property
     def dig_t2(self) -> int:
-        msb_value = self._dig_t2_msb  # Read most significant byte
-        lsb_value = self._dig_t2_lsb  # Read least significant byte
-        combined = (msb_value << 8) | lsb_value  # Combine into 16-bit integer
-        if combined & 0x8000:  # Check if the sign bit is set (MSB of 16-bit value)
-            combined -= 0x10000  # Subtract 2^16 to sign-extend
+        return _combine_signed(self._dig_t2_msb, self._dig_t2_lsb)
 
     @property
     def dig_t3(self) -> int:
-        msb_value = self._dig_t3_msb  # Read most significant byte
-        lsb_value = self._dig_t3_lsb  # Read least significant byte
-        combined = (msb_value << 8) | lsb_value  # Combine into 16-bit integer
-        if combined & 0x8000:  # Check if the sign bit is set (MSB of 16-bit value)
-            combined -= 0x10000  # Subtract 2^16 to sign-extend
+        return _combine_signed(self._dig_t3_msb, self._dig_t3_lsb)
 
     @property
     def dig_p1(self) -> int:
-        """Combine _dig_p1_msb and _dig_p1_lsb into a unsigned 16-bit integer."""
-        msb_value = self._dig_p1_msb  # Reads CBits value
-        lsb_value = self._dig_p1_lsb  # Reads CBits value
-        return ((msb_value << 8) | lsb_value) & 0xFFFF
+        return _combine_unsigned(self._dig_p1_msb, self._dig_p1_lsb)
     
     @property
     def dig_p2(self) -> int:
-        """Combine _dig_p2_msb and _dig_p2_lsb into a signed 16-bit integer."""
-        msb_value = self._dig_p2_msb  # Read most significant byte
-        lsb_value = self._dig_p2_lsb  # Read least significant byte
-        combined = (msb_value << 8) | lsb_value  # Combine into 16-bit integer
-        if combined & 0x8000:  # Check if the sign bit is set
-            combined -= 0x10000  # Sign-extend for two's complement
-        return combined
+        return _combine_signed(self._dig_p2_msb, self._dig_p2_lsb)
 
     @property
     def dig_p3(self) -> int:
-        """Combine _dig_p3_msb and _dig_p3_lsb into a signed 16-bit integer."""
-        msb_value = self._dig_p3_msb
-        lsb_value = self._dig_p3_lsb
-        combined = (msb_value << 8) | lsb_value
-        if combined & 0x8000:
-            combined -= 0x10000
-        return combined
-
+        return _combine_signed(self._dig_p3_msb, self._dig_p3_lsb)
+    
     @property
     def dig_p4(self) -> int:
-        """Combine _dig_p4_msb and _dig_p4_lsb into a signed 16-bit integer."""
-        msb_value = self._dig_p4_msb
-        lsb_value = self._dig_p4_lsb
-        combined = (msb_value << 8) | lsb_value
-        if combined & 0x8000:
-            combined -= 0x10000
-        return combined
+        return _combine_signed(self._dig_p4_msb, self._dig_p4_lsb)
 
     @property
     def dig_p5(self) -> int:
-        """Combine _dig_p5_msb and _dig_p5_lsb into a signed 16-bit integer."""
-        msb_value = self._dig_p5_msb
-        lsb_value = self._dig_p5_lsb
-        combined = (msb_value << 8) | lsb_value
-        if combined & 0x8000:
-            combined -= 0x10000
-        return combined
+        return _combine_signed(self._dig_p5_msb, self._dig_p5_lsb)
 
     @property
     def dig_p6(self) -> int:
-        """Combine _dig_p6_msb and _dig_p6_lsb into a signed 16-bit integer."""
-        msb_value = self._dig_p6_msb
-        lsb_value = self._dig_p6_lsb
-        combined = (msb_value << 8) | lsb_value
-        if combined & 0x8000:
-            combined -= 0x10000
-        return combined
-
+        return _combine_signed(self._dig_p6_msb, self._dig_p6_lsb)
+    
     @property
     def dig_p7(self) -> int:
-        """Combine _dig_p7_msb and _dig_p7_lsb into a signed 16-bit integer."""
-        msb_value = self._dig_p7_msb
-        lsb_value = self._dig_p7_lsb
-        combined = (msb_value << 8) | lsb_value
-        if combined & 0x8000:
-            combined -= 0x10000
-        return combined
+        return _combine_signed(self._dig_p7_msb, self._dig_p7_lsb)
 
     @property
     def dig_p8(self) -> int:
-        """Combine _dig_p8_msb and _dig_p8_lsb into a signed 16-bit integer."""
-        msb_value = self._dig_p8_msb
-        lsb_value = self._dig_p8_lsb
-        combined = (msb_value << 8) | lsb_value
-        if combined & 0x8000:
-            combined -= 0x10000
-        return combined
+        return _combine_signed(self._dig_p8_msb, self._dig_p8_lsb)
 
     @property
     def dig_p9(self) -> int:
-        """Combine _dig_p9_msb and _dig_p9_lsb into a signed 16-bit integer."""
-        msb_value = self._dig_p9_msb
-        lsb_value = self._dig_p9_lsb
-        combined = (msb_value << 8) | lsb_value
-        if combined & 0x8000:
-            combined -= 0x10000
-        return combined
+        return _combine_signed(self._dig_p9_msb, self._dig_p9_lsb)
 
     @property
     def power_mode(self) -> str:
@@ -1233,7 +1185,7 @@ class BMP280(BMP581):
         The temperature sensor in Celsius
         :return: Temperature in Celsius
         """
-        raw_temp, raw_pressure = self._get_raw_temp_pressure
+        raw_temp, raw_pressure = self._get_raw_temp_pressure()
         return self._calculate_temperature_compensation_bmp280(raw_temp)
 
     @property
@@ -1242,7 +1194,7 @@ class BMP280(BMP581):
         The sensor pressure in hPa
         :return: Pressure in hPa
         """
-        raw_temp, raw_pressure = self._get_raw_temp_pressure
+        raw_temp, raw_pressure = self._get_raw_temp_pressure()
 
         tempc = self._calculate_temperature_compensation(raw_temp)
         comp_press = self._calculate_pressure_compensation_bmp280(raw_pressure, tempc)
