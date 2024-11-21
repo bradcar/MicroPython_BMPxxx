@@ -132,12 +132,14 @@ class BMP581:
     BMP581_I2C_ADDRESS_SECONDARY = 0x46
 
     _REG_WHOAMI = const(0x01)
+    _INT_STATUS = const(0x27)
+    _DSP_CONFIG = const(0x30)
+    _DSP_IIR = const(0x31)
     _OSR_CONF = const(0x36)
     _ODR_CONFIG = const(0x37)
-    _DSP_IIR = const(0x31)
-    _DSP_CONFIG = const(0x30)
 
     _device_id = RegisterStruct(_REG_WHOAMI, "B")
+    _drdy_status = CBits(1, _INT_STATUS, 0)
     _power_mode = CBits(2, _ODR_CONFIG, 0)
     _temperature_oversample_rate = CBits(3, _OSR_CONF, 0)
     _pressure_oversample_rate = CBits(3, _OSR_CONF, 3)
@@ -173,12 +175,15 @@ class BMP581:
         self._iir_coefficient = COEF_0
         self._iir_temp_coefficient = COEF_0
         self._power_mode = NORMAL
-        
+        print(f"{self._drdy_status=}")
         self._pressure_enabled = True
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
+        print(f"{self._drdy_status=}")
         _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
         _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
+        print(f"{self._drdy_status=}")
         time.sleep_ms(20)
+        print(f"{self._drdy_status=}")
         _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
         _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
 
@@ -468,18 +473,15 @@ class BMP585(BMP581):
         if self._read_device_id() != 0x51:  # check _device_id after i2c established
             raise RuntimeError("Failed to find the BMP585 sensor")
         
-        # Must be in STANDBY to initialize _iir_coefficient       
+        # Must be in STANDBY to initialize _iir_coefficient    
         self._power_mode = STANDBY
         self._iir_coefficient = COEF_0
         self._iir_temp_coefficient = COEF_0
         self._power_mode = NORMAL
-        
         self._pressure_enabled = True
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
-        _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
         _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
-        time.sleep_ms(10)
-        _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
+        time.sleep_ms(20)
         _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
 
     def _read_device_id(self) -> int:
@@ -609,10 +611,8 @@ class BMP390(BMP581):
             raise RuntimeError("Failed to find the BMP390 sensor with id=0x60")
         self._power_mode = NORMAL
         self._pressure_enabled = True
-        _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
         _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
         time.sleep_ms(20)
-        _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
         _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
 
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE

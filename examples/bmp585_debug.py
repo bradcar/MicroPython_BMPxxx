@@ -16,8 +16,11 @@ bmp = bmpxxx.BMP585(i2c=i2c, address=0x47)
 # print major driver parameters
 bmp.config
 
-print("---- loop ----")
+bmp.altitude = 111.0
+print(f"Altitude 111m = {bmp.altitude:.2f} meters")
+print(f"Adjusted SLP based on known altitude = {bmp.sea_level_pressure:.2f} hPa\n")
 
+print("---- loop ----")
 while True:
     # altitude in meters based on sea level pressure stored in driver
     sea_level_pressure = bmp.sea_level_pressure
