@@ -178,7 +178,7 @@ class BMP581:
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
         _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
         _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
-        time.sleep_ms(10)
+        time.sleep_ms(20)
         _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
         _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
 
@@ -609,6 +609,12 @@ class BMP390(BMP581):
             raise RuntimeError("Failed to find the BMP390 sensor with id=0x60")
         self._power_mode = NORMAL
         self._pressure_enabled = True
+        _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
+        _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
+        time.sleep_ms(20)
+        _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
+        _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
+
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
         
     @property
@@ -996,6 +1002,12 @@ class BMP280(BMP581):
             raise RuntimeError("Failed to find the BMP280 sensor with id 0x58")
         self._power_mode = BMP280_POWER_NORMAL
         self._pressure_enabled = True
+        _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
+        _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
+        time.sleep_ms(20)
+        _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
+        _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
+
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
         
     def _combine_unsigned(self, msb, lsb):
