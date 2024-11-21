@@ -170,20 +170,21 @@ class BMP581:
         if self._read_device_id() != 0x50:  #check _device_id after i2c established
             raise RuntimeError("Failed to find the BMP581 sensor")
         
-        # Must be in STANDBY to initialize _iir_coefficient       
+        # Must be in STANDBY to initialize _iir_coefficient
+        debug = False
         self._power_mode = STANDBY
         self._iir_coefficient = COEF_0
         self._iir_temp_coefficient = COEF_0
         self._power_mode = NORMAL
-        print(f"{self._drdy_status=}")
+        if debug: print(f"{self._drdy_status=}")
         self._pressure_enabled = True
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
-        print(f"{self._drdy_status=}")
+        if debug: print(f"{self._drdy_status=}")
         _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
         _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
-        print(f"{self._drdy_status=}")
+        if debug: print(f"{self._drdy_status=}")
         time.sleep_ms(20)
-        print(f"{self._drdy_status=}")
+        if debug: print(f"{self._drdy_status=}")
         _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
         _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
 
