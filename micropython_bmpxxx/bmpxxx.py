@@ -24,7 +24,7 @@
 # SOFTWARE
 
 """
-`bmp58x`
+`bmpxxx`
 ================================================================================
 
 MicroPython Driver for the Bosch BMP585, BMP581, BMP390, BMP280 pressure sensors
@@ -923,10 +923,10 @@ class BMP280(BMP581):
         meters = bmp.altitude
 
     """
-
-    
     # Power Modes for BMP280
     power_mode_values = (STANDBY, FORCED, NORMAL)
+    BMP280_NORMAL_POWER = const(0x03)
+    BMP280_FORCED_POWER = const(0x01)
 
     # oversampling rates
     OSR_SKIP = const(0x00)
@@ -981,11 +981,7 @@ class BMP280(BMP581):
     _dig_p9_lsb = CBits(8, 0x9e, 0)  # Least significant byte of dig_p9
 
     def __init__(self, i2c, address: int = None) -> None:
-        time.sleep_ms(3)        # t_powup 2ms
-        
-        print("\n******* BMP280 UNTESTED DRIVER ********")
-        print("******* BMP280 UNTESTED DRIVER ********\n")
-        
+        time.sleep_ms(3)        # t_powup 2ms        
         # If no address is provided, try the default, then secondary
         if address is None:
             if self._check_address(i2c, self.BMP280_I2C_ADDRESS_DEFAULT):
@@ -1002,10 +998,17 @@ class BMP280(BMP581):
         self._address = address
         if self._read_device_id() != 0x58:  # check _device_id after i2c established
             raise RuntimeError("Failed to find the BMP280 sensor with id 0x58")
-        self._power_mode = BMP280_POWER_NORMAL
-        time.sleep_ms(4)   # mode change takes 3ms      
-        self._pressure_enabled = True
+        
+        # To start measurements: temp OSR1, pressure OSR1 must be init with Normal power mode
+        ## TODO remap OSR for bmp280
+        self._temperature_oversample_rate = OSR1 + 1
+        self._pressure_oversample_rate = OSR1 + 1
+        self._power_mode = BMP280_NORMAL_POWER
+
+        time.sleep_ms(4)     # mode change takes 3ms
+        time.sleep_ms(63)    # OSR can be take up to 62.5ms standby  
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
+        self.t_fine = 0 
         
     def _combine_unsigned(self, msb, lsb):
         """Combine msb and lsb into a unsigned 16-bit integer."""
@@ -1018,51 +1021,51 @@ class BMP280(BMP581):
         
     @property
     def dig_t1(self) -> int:
-        return _combine_unsigned(self._dig_t1_msb, self._dig_t1_lsb)
+        return self._combine_unsigned(self._dig_t1_msb, self._dig_t1_lsb)
 
     @property
     def dig_t2(self) -> int:
-        return _combine_signed(self._dig_t2_msb, self._dig_t2_lsb)
+        return self._combine_signed(self._dig_t2_msb, self._dig_t2_lsb)
 
     @property
     def dig_t3(self) -> int:
-        return _combine_signed(self._dig_t3_msb, self._dig_t3_lsb)
+        return self._combine_signed(self._dig_t3_msb, self._dig_t3_lsb)
 
     @property
     def dig_p1(self) -> int:
-        return _combine_unsigned(self._dig_p1_msb, self._dig_p1_lsb)
+        return self._combine_unsigned(self._dig_p1_msb, self._dig_p1_lsb)
     
     @property
     def dig_p2(self) -> int:
-        return _combine_signed(self._dig_p2_msb, self._dig_p2_lsb)
+        return self._combine_signed(self._dig_p2_msb, self._dig_p2_lsb)
 
     @property
     def dig_p3(self) -> int:
-        return _combine_signed(self._dig_p3_msb, self._dig_p3_lsb)
+        return self._combine_signed(self._dig_p3_msb, self._dig_p3_lsb)
     
     @property
     def dig_p4(self) -> int:
-        return _combine_signed(self._dig_p4_msb, self._dig_p4_lsb)
+        return self._combine_signed(self._dig_p4_msb, self._dig_p4_lsb)
 
     @property
     def dig_p5(self) -> int:
-        return _combine_signed(self._dig_p5_msb, self._dig_p5_lsb)
+        return self._combine_signed(self._dig_p5_msb, self._dig_p5_lsb)
 
     @property
     def dig_p6(self) -> int:
-        return _combine_signed(self._dig_p6_msb, self._dig_p6_lsb)
+        return self._combine_signed(self._dig_p6_msb, self._dig_p6_lsb)
     
     @property
     def dig_p7(self) -> int:
-        return _combine_signed(self._dig_p7_msb, self._dig_p7_lsb)
+        return self._combine_signed(self._dig_p7_msb, self._dig_p7_lsb)
 
     @property
     def dig_p8(self) -> int:
-        return _combine_signed(self._dig_p8_msb, self._dig_p8_lsb)
+        return self._combine_signed(self._dig_p8_msb, self._dig_p8_lsb)
 
     @property
     def dig_p9(self) -> int:
-        return _combine_signed(self._dig_p9_msb, self._dig_p9_lsb)
+        return self._combine_signed(self._dig_p9_msb, self._dig_p9_lsb)
 
     @property
     def power_mode(self) -> str:
@@ -1079,15 +1082,19 @@ class BMP280(BMP581):
         +-----------------------------+------------------+-----------------------------+------------------+
         :return: power_mode as string
         """
-        string_name = ("STANDBY", "NORMAL", "FORCED",)
+        # Notice ordering is different only for BMP280
+        string_name = ("STANDBY", "FORCED", "FORCED", "NORMAL",)
         return string_name[self._power_mode]
 
     @power_mode.setter
     def power_mode(self, value: int) -> None:
         if value not in power_mode_values:
             raise ValueError("Value must be a valid power_mode setting: STANDBY,FORCED,NORMAL")
+        print(f"mode setter {value=}")
         if value == 0x01:  # appropriate for all other classes
             value = 0x03   # change value to 0x03 for bmp280
+        if value == 0x03:  # appropriate for all other classes
+            value = 0x01   # change value to 0x03 for bmp280
         # notice FORCED = 0x02 which is OK for bmp280 class
         self._power_mode = value
 
@@ -1110,7 +1117,7 @@ class BMP280(BMP581):
         +---------------------------+------------------+---------------------------+------------------+
         :return: sampling rate as string
         """
-        string_name = ("OSR1", "OSR2", "OSR4", "OSR8", "OSR16", "OSR_SKIP", )
+        string_name = ("OSR_SKIP", "OSR1", "OSR2", "OSR4", "OSR8", "OSR16",)
         return string_name[self._pressure_oversample_rate]
 
     @pressure_oversample_rate.setter
@@ -1139,7 +1146,7 @@ class BMP280(BMP581):
         +---------------------------+------------------+---------------------------+------------------+
         :return: sampling rate as string
         """
-        string_name = ("OSR1", "OSR2", "OSR4", "OSR8", "OSR16", "OSR_SKIP", )
+        string_name = ("OSR_SKIP", "OSR1", "OSR2", "OSR4", "OSR8", "OSR16", )
         return string_name[self._temperature_oversample_rate]
 
     @temperature_oversample_rate.setter
@@ -1152,26 +1159,31 @@ class BMP280(BMP581):
             value = value + 1
         self._temperature_oversample_rate = value
         
-        # helper function for getting temp & pressure
-        def _get_raw_temp_pressure(self):
-            self._p_raw = (self._d[0] << 12) + (self._d[1] << 4) + (self._d[2] >> 4)
-            self._t_raw = (self._d[3] << 12) + (self._d[4] << 4) + (self._d[5] >> 4)
-            return self._t_raw, self._p_raw
+    # helper function for getting temp & pressure
+    def _get_raw_temp_pressure(self):
+        raw_data = self._d 
+        t_xlsb = (raw_data >> 40) & 0xFF
+        t_lsb = (raw_data >> 32) & 0xFF
+        t_msb = (raw_data >> 24) & 0xFF
+        p_xlsb = (raw_data >> 16) & 0xFF 
+        p_lsb = (raw_data >> 8) & 0xFF
+        p_msb = raw_data & 0xFF
+        self._p_raw = (p_msb << 12) | (p_lsb << 4) | (p_xlsb >> 4)
+        self._t_raw = (t_msb << 12) | (t_lsb << 4) | (t_xlsb >> 4)
+        return self._t_raw, self._p_raw
 
     # Helper method for temperature compensation
-    def _calculate_temperature_compensation_bmp280(self, raw_temp: float) -> float:   
-        global t_fine
+    def _calculate_temperature_compensation_bmp280(self, raw_temp: float) -> float:
         var1 = (((raw_temp / 16384.0) - (self.dig_t1 / 1024.0)) * self.dig_t2)
         var2 = ((((raw_temp / 131072.0) - (self.dig_t1 / 8192.0)) *
                  ((raw_temp / 131072.0) - (self.dig_t1 / 8192.0))) * self.dig_t3)
-        t_fine = int(var1 + var2)
+        self.t_fine = int(var1 + var2)  # Store t_fine as an instance variable
         tempc = (var1 + var2) / 5120.0
         return tempc
 
     # Helper method for pressure compensation
     def _calculate_pressure_compensation_bmp280(self, raw_pressure: float, tempc: float) -> float:
-        global t_fine
-        var1 = (t_fine / 2.0) - 64000.0
+        var1 = (self.t_fine / 2.0) - 64000.0
         var2 = var1 * var1 * self.dig_p6 / 32768.0
         var2 += var1 * self.dig_p5 * 2.0
         var2 = (var2 / 4.0) + (self.dig_p4 * 65536.0)
@@ -1205,7 +1217,7 @@ class BMP280(BMP581):
         """
         raw_temp, raw_pressure = self._get_raw_temp_pressure()
 
-        tempc = self._calculate_temperature_compensation(raw_temp)
+        tempc = self._calculate_temperature_compensation_bmp280(raw_temp)
         comp_press = self._calculate_pressure_compensation_bmp280(raw_pressure, tempc)
         return comp_press / 100.0  # Convert to hPa
 
