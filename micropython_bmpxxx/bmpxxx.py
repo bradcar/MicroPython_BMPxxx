@@ -178,6 +178,7 @@ class BMP581:
         self._iir_temp_coefficient = COEF_0
         self._power_mode = NORMAL
         time.sleep_ms(5)   # mode change takes 4ms
+        self._pressure_enabled = True
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
 
     def _check_address(self, i2c, address: int) -> bool:
@@ -466,6 +467,9 @@ class BMP585(BMP581):
         self._address = address
         if self._read_device_id() != 0x51:  # check _device_id after i2c established
             raise RuntimeError("Failed to find the BMP585 sensor")
+        print(f"{self._drdy_status=}")
+
+        print(f"{self._drdy_status=}")
         
         # Must be in STANDBY to initialize _iir_coefficient    
         self._power_mode = STANDBY
@@ -474,6 +478,13 @@ class BMP585(BMP581):
         self._iir_temp_coefficient = COEF_0
         self._power_mode = NORMAL
         time.sleep_ms(5)   # mode change takes 4ms
+ 
+#         self._write_reg(0x18, 0x01)  # Enable data ready interrupts
+#         val = self._read_reg(0x27, 1)[0]  # Read Interrupt Status Register
+#         drdy_data_reg = (val & 0x01) != 0  # Check Data Ready bit
+# 
+#         print(f"{drdy_data_reg=}")
+        self._pressure_enabled = True
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
 
         
@@ -604,8 +615,8 @@ class BMP390(BMP581):
         if self._read_device_id() != 0x60:  # check _device_id after i2c established
             raise RuntimeError("Failed to find the BMP390 sensor with id=0x60")
         self._power_mode = NORMAL
-        self._pressure_enabled = True
         time.sleep_ms(4)   # mode change takes 3ms      
+        self._pressure_enabled = True
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
         
     @property
@@ -992,8 +1003,8 @@ class BMP280(BMP581):
         if self._read_device_id() != 0x58:  # check _device_id after i2c established
             raise RuntimeError("Failed to find the BMP280 sensor with id 0x58")
         self._power_mode = BMP280_POWER_NORMAL
-        self._pressure_enabled = True
         time.sleep_ms(4)   # mode change takes 3ms      
+        self._pressure_enabled = True
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
         
     def _combine_unsigned(self, msb, lsb):
