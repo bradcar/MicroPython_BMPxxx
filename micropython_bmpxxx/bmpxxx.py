@@ -313,15 +313,16 @@ class BMP581:
         """
         Using the sensor's measured pressure and the pressure at sea level (e.g., 1013.25 hPa),
         the altitude in meters is calculated with the international barometric formula
+        https://ncar.github.io/aircraft_ProcessingAlgorithms/www/PressureAltitude.pdf
         """
-        altitude = 44330.0 * (
-                1.0 - ((self.pressure / self.sea_level_pressure) ** (1.0 / 5.255))
+        altitude = 44330.77 * (
+                1.0 - ((self.pressure / self.sea_level_pressure) ** 0.1902632)
         )
         return altitude
 
     @altitude.setter
     def altitude(self, value: float) -> None:
-        self.sea_level_pressure = self.pressure / (1.0 - value / 44330.0) ** 5.255
+        self.sea_level_pressure = self.pressure / (1.0 - value / 44330.77) ** (1/0.1902632)
 
     @property
     def sea_level_pressure(self) -> float:
@@ -897,7 +898,7 @@ class BMP280(BMP581):
     .. code-block:: python
 
         i2c = I2C(1, sda=Pin(2), scl=Pin(3))
-        bmp = bmp58x.BMP390(i2c)
+        bmp = bmp58x.BMP280(i2c)
 
     Now you have access to the attributes
 
@@ -916,7 +917,7 @@ class BMP280(BMP581):
         meters = bmp.altitude
         print(f"alt = {meters:.2f} meters")
 
-        # Highest resolution for bmp390
+        # Highest resolution for bmp280
         bmp.pressure_oversample_rate = bmp.OSR32
         bmp.temperature_oversample_rate = bmp.OSR2
         bmp.iir_coefficient = bmp.COEF_3
