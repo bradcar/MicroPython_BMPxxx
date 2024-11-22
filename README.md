@@ -1,9 +1,9 @@
 # Micropython BMPxxx driver
-MicroPython Driver for the Bosch BMP585, BMP581, BMP390, and ~~BMP280~~  pressure sensors using I2C. It has the ability to adjust sea level pressure and/or the sensors altitude at a known elevation for accurate future tracking.
+MicroPython Driver for the Bosch BMP585, BMP581, BMP390, and BMP280  pressure sensors using I2C. It has the ability to adjust sea level pressure and/or the sensors altitude at a known elevation for accurate future tracking.
 
 ## Driver Features
 Code includes:
-* BMP585, BMP581, BMP390, ~~BMP280~~(to test Nov 20, 2024) sensors
+* BMP585, BMP581, BMP390, and BMP280 sensors supported
 * I2C only (driver would need modifications for SDI)
   * checks i2c primary address and if not present it then checks secondary (see table 1 below for addresses for each sensor)
 * All pressures are in hPA.
@@ -75,7 +75,7 @@ for iir_coef in bmp.iir_coefficient_values:
     print(f"New IRR setting: {bmp.iir_coefficient}")
 ```
 ## I2C Addresses
-If you only have one sensor on the same I2C, they it will use the table below to scan the addresses. If you have multiple devices on the same I2C it is a good practice to specify the sensors address. To change the address to secondary you need to look look up the specs of your specific sensor. Often addresses can be changed with a solder blob or by connecting specific pins on the sensor to ground or vcc. This driver will scan th
+If you only have one sensor on the same I2C, they it will use the table below to scan the addresses. If you have multiple devices on the same I2C it is a good practice to specify the sensors address. To change the address to secondary you need to look look up the specs of your specific sensor. Often addresses can be changed with a solder blob or by connecting specific pins on the sensor to ground or vcc. This driver will scan for both the primary and secondary addresses. It then checks each sensors unique id to see if it is one of these bmp sensors.
 
 Table 1: I2C Sensor Address
 | Sensor | Default | Secondary | 
@@ -119,7 +119,6 @@ Table 2: BMP585/BMP581 Recommendations from Bosch
 bmp.pressure_oversample_rate = bmp.OSR128
 bmp.temperature_oversample_rate = bmp.OSR8
 ```
-
 The bmp585 and bmp581 do not have recommended IIR filters to go with the table above.
 
 The table 3 below is Bosch's recommended oversampling pressure and temperature settings for bmp390. There are recommended IIR filter settings for the bmp390 in section 3.5. Filter section, page 17, in bmp390 datasheet
@@ -177,8 +176,7 @@ Code based on great work by Jose & Scott!
   * adafruit_register.i2c_struct, adafruit_register.i2c_bits.  Author(s): Scott Shawcroft
 
 ## Todos
-* started to add code for bmp280 (going down sensor rabit hole...), untested awaiting sensor
-* IIR code for  bmp585 & bmp581 uses the same IIR for pressure and temperature, this simplifies control and is like bmp280 & bmp390 sensors, but takes away flexibility for newer sensors.
+* Open Question: IIR code for bmp585 & bmp581 uses the same IIR for pressure and temperature, this simplifies control and is like the bmp280 & bmp390 sensors, but takes away flexibility for newer sensors.
 
 ## Tested BMP585 Shuttle Board
 Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I2C interface with Raspberry Pi. Shuttleboard pin details: https://www.electroniclinic.com/bosch-bmp585-barometric-pressure-sensor-with-arduino/
