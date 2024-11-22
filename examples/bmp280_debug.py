@@ -10,19 +10,20 @@ if i2c1_devices:
 else:
     print("ERROR: No i2c1 devices")
 print("")
-    
+
+# I had to modify my sensor to 0x76 address, if only using default address: bmpxxx.BMP280(i2c=i2c)
 bmp = bmpxxx.BMP280(i2c=i2c, address=0x76)
 
 # print major driver parameters
 bmp.config
 
+# altitude in meters based on sea level pressure stored in driver
+sea_level_pressure = bmp.sea_level_pressure
+print(f"Sea level pressure = {sea_level_pressure:.2f} hPa")
+
 print("---- loop ----")
 
-while True:
-    # altitude in meters based on sea level pressure stored in driver
-    sea_level_pressure = bmp.sea_level_pressure
-    print(f"Sea level pressure = {sea_level_pressure:.2f} hPa")
-    
+while True: 
     # Pressure in hPA measured at sensor, temperature in Celsius
     pressure = bmp.pressure
     print(f"Sensor pressure = {pressure:.2f} hPa")
