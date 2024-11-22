@@ -11,7 +11,7 @@ else:
     print("ERROR: No i2c1 devices")
 print("")
     
-bmp = bmpxxx.BMP280(i2c=i2c, address=0x7f)
+bmp = bmpxxx.BMP280(i2c=i2c, address=0x76)
 
 # print major driver parameters
 bmp.config
