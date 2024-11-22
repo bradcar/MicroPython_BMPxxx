@@ -152,6 +152,7 @@ class BMP581:
     _pressure = CBits(24, 0x20, 0, 3)
 
     def __init__(self, i2c, address: int = None) -> None:
+        time.sleep_ms(3)    # t_powup 2ms
         # If no address is provided, try the default, then secondary
         if address is None:
             if self._check_address(i2c, self.BMP581_I2C_ADDRESS_DEFAULT):
@@ -170,23 +171,14 @@ class BMP581:
         if self._read_device_id() != 0x50:  #check _device_id after i2c established
             raise RuntimeError("Failed to find the BMP581 sensor")
         
-        # Must be in STANDBY to initialize _iir_coefficient
-        debug = False
+        # Must be in STANDBY to initialize _iir_coefficient    
         self._power_mode = STANDBY
+        time.sleep_ms(5)   # mode change takes 4ms
         self._iir_coefficient = COEF_0
         self._iir_temp_coefficient = COEF_0
         self._power_mode = NORMAL
-        if debug: print(f"{self._drdy_status=}")
-        self._pressure_enabled = True
+        time.sleep_ms(5)   # mode change takes 4ms
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
-        if debug: print(f"{self._drdy_status=}")
-        _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
-        _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
-        if debug: print(f"{self._drdy_status=}")
-        time.sleep_ms(20)
-        if debug: print(f"{self._drdy_status=}")
-        _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
-        _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
 
     def _check_address(self, i2c, address: int) -> bool:
         """Helper function to check if a device responds at the given I2C address."""
@@ -456,6 +448,7 @@ class BMP585(BMP581):
     BMP585_I2C_ADDRESS_SECONDARY = 0x46
 
     def __init__(self, i2c, address: int = None) -> None:
+        time.sleep_ms(3)   # t_powup 2ms
         # If no address is provided, try the default, then secondary
         if address is None:
             if self._check_address(i2c, self.BMP585_I2C_ADDRESS_DEFAULT):
@@ -476,15 +469,14 @@ class BMP585(BMP581):
         
         # Must be in STANDBY to initialize _iir_coefficient    
         self._power_mode = STANDBY
+        time.sleep_ms(5)   # mode change takes 4ms
         self._iir_coefficient = COEF_0
         self._iir_temp_coefficient = COEF_0
         self._power_mode = NORMAL
-        self._pressure_enabled = True
+        time.sleep_ms(5)   # mode change takes 4ms
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
-        _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
-        time.sleep_ms(20)
-        _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
 
+        
     def _read_device_id(self) -> int:
         return self._device_id
 
@@ -593,6 +585,7 @@ class BMP390(BMP581):
     _par_p11 = CBits(8, 0x45, 0)  # Only byte for par_p11
 
     def __init__(self, i2c, address: int = None) -> None:
+        time.sleep_ms(3)        # t_powup 2ms
         # If no address is provided, try the default, then secondary
         if address is None:
             if self._check_address(i2c, self.BMP390_I2C_ADDRESS_DEFAULT):
@@ -612,10 +605,7 @@ class BMP390(BMP581):
             raise RuntimeError("Failed to find the BMP390 sensor with id=0x60")
         self._power_mode = NORMAL
         self._pressure_enabled = True
-        _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
-        time.sleep_ms(20)
-        _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
-
+        time.sleep_ms(4)   # mode change takes 3ms      
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
         
     @property
@@ -980,6 +970,7 @@ class BMP280(BMP581):
     _dig_p9_lsb = CBits(8, 0x9e, 0)  # Least significant byte of dig_p9
 
     def __init__(self, i2c, address: int = None) -> None:
+        time.sleep_ms(3)        # t_powup 2ms
         
         print("\n******* BMP280 UNTESTED DRIVER ********")
         print("******* BMP280 UNTESTED DRIVER ********\n")
@@ -996,19 +987,13 @@ class BMP280(BMP581):
         # Check if the specified address is valid
             if not self._check_address(i2c, address):
                 raise RuntimeError("BMP280 sensor not found at I2C expected address (0x77,0x76).")
-
         self._i2c = i2c
         self._address = address
         if self._read_device_id() != 0x58:  # check _device_id after i2c established
             raise RuntimeError("Failed to find the BMP280 sensor with id 0x58")
         self._power_mode = BMP280_POWER_NORMAL
         self._pressure_enabled = True
-        _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
-        _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
-        time.sleep_ms(20)
-        _ = self.temperature # throw away 1st temp measurement, some times it does not init correctly
-        _ = self.pressure    # throw away 1st pressure measurement, some times it does not init correctly
-
+        time.sleep_ms(4)   # mode change takes 3ms      
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
         
     def _combine_unsigned(self, msb, lsb):
