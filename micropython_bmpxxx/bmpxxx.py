@@ -930,10 +930,15 @@ class BMP280(BMP581):
     BMP280_FORCED_POWER = const(0x01)
 
     # oversampling rates
-    OSR_SKIP = const(0x00)
+    # Here we give OSR_SKIP a unique value 0x05, but will remap it to bmp280 values
+    # When we get       OSR1=0, OSR2=1, OSR4=2, OSR8=3, OSR16=4, OSR_SKIP=5
+    # input to BMP280,  OSR1=1, OSR2=2, OSR4=3, OSR8=4, OSR16=5, OSR_SKIP=0
+    # this will be translated in _translate_osr_bmp280
+    OSR_SKIP = const(0x05) 
 
-    pressure_oversample_rate_values = (OSR_SKIP, OSR1, OSR2, OSR4, OSR8, OSR16)
-    temperature_oversample_rate_values = (OSR_SKIP, OSR1, OSR2, OSR4, OSR8, OSR16)
+    # OSR_SKIP turns off sampling and we do not present it as setable from outside the driver
+    pressure_oversample_rate_values = (OSR1, OSR2, OSR4, OSR8, OSR16, )
+    temperature_oversample_rate_values = (OSR1, OSR2, OSR4, OSR8, OSR16, )
     
     BMP280_I2C_ADDRESS_DEFAULT = 0x77
     BMP280_I2C_ADDRESS_SECONDARY = 0x76
@@ -947,8 +952,8 @@ class BMP280(BMP581):
     _device_id = RegisterStruct(_REG_WHOAMI_BMP280, "B")
 
     _power_mode = CBits(2,_CONTROL_REGISTER_BMP280, 0)
-    _temperature_oversample_rate = CBits(3, _CONTROL_REGISTER_BMP280, 5)
     _pressure_oversample_rate = CBits(3, _CONTROL_REGISTER_BMP280, 2)
+    _temperature_oversample_rate = CBits(3, _CONTROL_REGISTER_BMP280, 5)
     _iir_coefficient = CBits(3, _CONFIG_BMP280, 0)
 
     # read pressure 0xf7 and temp 0xfa
@@ -1114,22 +1119,37 @@ class BMP280(BMP581):
         | :py:const:`bmp58x.OSR4`   | :py:const:`0x02` | :py:const:`bmp280.OSR2`   | :py:const:`0x02` |
         | :py:const:`bmp58x.OSR8`   | :py:const:`0x03` | :py:const:`bmp280.OSR4`   | :py:const:`0x03` |
         | :py:const:`bmp58x.OSR16`  | :py:const:`0x04` | :py:const:`bmp280.OSR8``  | :py:const:`0x04` |
-        | :py:const:`bmp58x.OSR32`  | :py:const:`0x05` | :py:const:`bmp280.OSR16`  | :py:const:`0x05` |
+        |                           |                  | :py:const:`bmp280.OSR16`  | :py:const:`0x05` |
         +---------------------------+------------------+---------------------------+------------------+
         :return: sampling rate as string
         """
+        # Notice these are in the order and numbering that is appropriate for bmp280, which is different
+        # than the other sensors
+        print(f"{self._pressure_oversample_rate=}")
         string_name = ("OSR_SKIP", "OSR1", "OSR2", "OSR4", "OSR8", "OSR16",)
         return string_name[self._pressure_oversample_rate]
+    
+    def _translate_osr_bmp280(self, osr_value):
+    # Map the constants to their corresponding values
+        osr_map = {
+            OSR1: 1,  # OSR1=0 for other sensors, but 1 for bmp280
+            OSR2: 2,  # OSR2=1 for other sensors, but 2 for bmp280
+            OSR4: 3,  # OSR4=2 for other sensors, but 3 for bmp280
+            OSR8: 4,  # OSR8=3 for other sensors, but 4 for bmp280
+            OSR16: 5,  # OSR16=4 for other sensors, but 5 for bmp280
+            OSR_SKIP: 0   # OSR_SKIP=0 for bmp280, no other sensor has OSR_SKIP, above we assigned it to 0x05
+        }
+        # Return the translated value
+        return osr_map.get(osr_value, 0)
 
     @pressure_oversample_rate.setter
     def pressure_oversample_rate(self, value: int) -> None:
+        print(f"pressure {value=}")
         if value not in self.pressure_oversample_rate_values:
             raise ValueError("Value must be a valid pressure_oversample_rate: OSR_SKIP,OSR1,OSR2,OSR4,OSR8,OSR16")
-        if value == 6:
-            value = 0
-        else:
-            value = value + 1
-        self._pressure_oversample_rate = value
+        # we provide different values into the bmp280 with most of the same names
+        self._pressure_oversample_rate = self._translate_osr_bmp280(value)
+        time.sleep_ms(100)
 
     @property
     def temperature_oversample_rate(self) -> str:
@@ -1143,7 +1163,7 @@ class BMP280(BMP581):
         | :py:const:`bmp58x.OSR4`   | :py:const:`0x02` | :py:const:`bmp280.OSR2`   | :py:const:`0x02` |
         | :py:const:`bmp58x.OSR8`   | :py:const:`0x03` | :py:const:`bmp280.OSR4`   | :py:const:`0x03` |
         | :py:const:`bmp58x.OSR16`  | :py:const:`0x04` | :py:const:`bmp280.OSR8``  | :py:const:`0x04` |
-        | :py:const:`bmp58x.OSR32`  | :py:const:`0x05` | :py:const:`bmp280.OSR16`  | :py:const:`0x05` |
+        |                           |                  | :py:const:`bmp280.OSR16`  | :py:const:`0x05` |
         +---------------------------+------------------+---------------------------+------------------+
         :return: sampling rate as string
         """
@@ -1152,13 +1172,11 @@ class BMP280(BMP581):
 
     @temperature_oversample_rate.setter
     def temperature_oversample_rate(self, value: int) -> None:
+        print(f"temp {value=}")
         if value not in self.temperature_oversample_rate_values:
             raise ValueError("Value must be a valid pressure_oversample_rate: OSR_SKIP,OSR1,OSR2,OSR4,OSR8,OSR16")
-        if value == 6:
-            value = 0
-        else:
-            value = value + 1
-        self._temperature_oversample_rate = value
+        # we provide different values into the bmp280 with most of the same names
+        self._temperature_oversample_rate = self._translate_osr_bmp280(value)
         
     # helper function for getting temp & pressure
     def _get_raw_temp_pressure(self):
