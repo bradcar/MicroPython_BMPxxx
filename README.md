@@ -176,7 +176,7 @@ Code based on great work by Jose & Scott!
   * adafruit_register.i2c_struct, adafruit_register.i2c_bits.  Author(s): Scott Shawcroft
 
 ## Todos
-* Open Question: IIR code for  bmp585 & bmp581 uses the same IIR for pressure and temperature, this simplifies control and is like bmp280 & bmp390 sensors, but takes away flexibility for newer sensors.
+* Open Question: IIR code for bmp585 & bmp581 uses the same IIR for pressure and temperature, this simplifies control and is like the bmp280 & bmp390 sensors, but takes away flexibility for newer sensors.
 
 ## Tested BMP585 Shuttle Board
 Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I2C interface with Raspberry Pi. Shuttleboard pin details: https://www.electroniclinic.com/bosch-bmp585-barometric-pressure-sensor-with-arduino/
