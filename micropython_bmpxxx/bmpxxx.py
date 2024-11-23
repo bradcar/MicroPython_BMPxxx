@@ -468,9 +468,6 @@ class BMP585(BMP581):
         self._address = address
         if self._read_device_id() != 0x51:  # check _device_id after i2c established
             raise RuntimeError("Failed to find the BMP585 sensor")
-        print(f"{self._drdy_status=}")
-
-        print(f"{self._drdy_status=}")
         
         # Must be in STANDBY to initialize _iir_coefficient    
         self._power_mode = STANDBY
@@ -954,6 +951,8 @@ class BMP280(BMP581):
     _power_mode = CBits(2,_CONTROL_REGISTER_BMP280, 0)
     _pressure_oversample_rate = CBits(3, _CONTROL_REGISTER_BMP280, 2)
     _temperature_oversample_rate = CBits(3, _CONTROL_REGISTER_BMP280, 5)
+    _control_register = CBits(8, _CONTROL_REGISTER_BMP280, 0)
+    _config_register = CBits(8, _CONFIG_BMP280, 0)
     _iir_coefficient = CBits(3, _CONFIG_BMP280, 0)
 
     # read pressure 0xf7 and temp 0xfa
@@ -1006,15 +1005,33 @@ class BMP280(BMP581):
             raise RuntimeError("Failed to find the BMP280 sensor with id 0x58")
         
         # To start measurements: temp OSR1, pressure OSR1 must be init with Normal power mode
-        ## TODO remap OSR for bmp280
-        self._temperature_oversample_rate = OSR1 + 1
-        self._pressure_oversample_rate = OSR1 + 1
-        self._power_mode = BMP280_NORMAL_POWER
+        # set all values at once
+#         self._pressure_oversample_rate = self._translate_osr_bmp280(OSR1)
+#         self._temperature_oversample_rate = self._translate_osr_bmp280(OSR1)
+#         self._power_mode = BMP280_NORMAL_POWER
+#         self._control_register = 0x27
+        self._config_register = 0x00 
+        self._control_register = (self._translate_osr_bmp280(OSR1) << 5) + (self._translate_osr_bmp280(OSR1) << 2) +  BMP280_NORMAL_POWER
+        _ = self.pressure
 
         time.sleep_ms(4)     # mode change takes 3ms
-        time.sleep_ms(63)    # OSR can be take up to 62.5ms standby  
+        time.sleep_ms(63)    # OSR can be take up to 62.5ms standby
+        
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
-        self.t_fine = 0 
+        self.t_fine = 0
+        
+    def _translate_osr_bmp280(self, osr_value):
+    # Map the constants to their corresponding values
+        osr_map = {
+            OSR1: 1,  # OSR1=0 for other sensors, but 1 for bmp280
+            OSR2: 2,  # OSR2=1 for other sensors, but 2 for bmp280
+            OSR4: 3,  # OSR4=2 for other sensors, but 3 for bmp280
+            OSR8: 4,  # OSR8=3 for other sensors, but 4 for bmp280
+            OSR16: 5,  # OSR16=4 for other sensors, but 5 for bmp280
+            OSR_SKIP: 0   # OSR_SKIP=0 for bmp280, no other sensor has OSR_SKIP, above we assigned it to 0x05
+        }
+        # Return the translated value
+        return osr_map.get(osr_value, 0)
         
     def _combine_unsigned(self, msb, lsb):
         """Combine msb and lsb into a unsigned 16-bit integer."""
@@ -1125,26 +1142,11 @@ class BMP280(BMP581):
         """
         # Notice these are in the order and numbering that is appropriate for bmp280, which is different
         # than the other sensors
-        print(f"{self._pressure_oversample_rate=}")
         string_name = ("OSR_SKIP", "OSR1", "OSR2", "OSR4", "OSR8", "OSR16",)
         return string_name[self._pressure_oversample_rate]
-    
-    def _translate_osr_bmp280(self, osr_value):
-    # Map the constants to their corresponding values
-        osr_map = {
-            OSR1: 1,  # OSR1=0 for other sensors, but 1 for bmp280
-            OSR2: 2,  # OSR2=1 for other sensors, but 2 for bmp280
-            OSR4: 3,  # OSR4=2 for other sensors, but 3 for bmp280
-            OSR8: 4,  # OSR8=3 for other sensors, but 4 for bmp280
-            OSR16: 5,  # OSR16=4 for other sensors, but 5 for bmp280
-            OSR_SKIP: 0   # OSR_SKIP=0 for bmp280, no other sensor has OSR_SKIP, above we assigned it to 0x05
-        }
-        # Return the translated value
-        return osr_map.get(osr_value, 0)
 
     @pressure_oversample_rate.setter
     def pressure_oversample_rate(self, value: int) -> None:
-        print(f"pressure {value=}")
         if value not in self.pressure_oversample_rate_values:
             raise ValueError("Value must be a valid pressure_oversample_rate: OSR_SKIP,OSR1,OSR2,OSR4,OSR8,OSR16")
         # we provide different values into the bmp280 with most of the same names
@@ -1172,7 +1174,6 @@ class BMP280(BMP581):
 
     @temperature_oversample_rate.setter
     def temperature_oversample_rate(self, value: int) -> None:
-        print(f"temp {value=}")
         if value not in self.temperature_oversample_rate_values:
             raise ValueError("Value must be a valid pressure_oversample_rate: OSR_SKIP,OSR1,OSR2,OSR4,OSR8,OSR16")
         # we provide different values into the bmp280 with most of the same names
