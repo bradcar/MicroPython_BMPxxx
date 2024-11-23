@@ -7,15 +7,17 @@ i2c = I2C(id=1, scl=Pin(27), sda=Pin(26), freq=400_000)
 # I had to modify my sensor to 0x76 address, if only using default address: bmpxxx.BMP280(i2c=i2c)
 bmp = bmpxxx.BMP280(i2c=i2c, address=0x76)
 
-# Set for the Highest resolution for bmp585 & bmp581
-bmp.pressure_oversample_rate = bmp.OSR128
-bmp.temperature_oversample_rate = bmp.OSR8
+print(f"{bmp.pressure_oversample_rate_values=}")
+
+# Set for the Highest suggested resolution for bmp280
+bmp.pressure_oversample_rate = bmp.OSR16
+bmp.temperature_oversample_rate = bmp.OSR2
 print(f"{bmp.pressure_oversample_rate=}")
 print(f"{bmp.temperature_oversample_rate=}\n")
 
-# Then overwrite and go throug each oversample rate
+print(f"{bmp.pressure_oversample_rate_values=}")
 
-print(f"{bmp.pressure_oversample_rate=}")
+# Then overwrite as we cycle through each oversample rate
 
 print("---- loop ----")
 while True:
