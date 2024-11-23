@@ -14,7 +14,7 @@ Code includes:
   * For sea level pressure, the driver defaults to 1013.25 hpa which is the international accepted world-wide average hPa. However you should know that weather causes sea level presssure to vary significantly (typ: 990 hPa to 1040 hPA).
   * It is best to set sea level pressure on each use to that of the nearest airport, for example: https://www.weather.gov/wrh/timeseries?site=KPDX
   * altitude measurements may be way off if you do not set sea level to the nearest local known sea level pressure at the current time. Even at 360 feet (111m), altitudes can be off by 1500 feet (500m) depending on the weather.
-  * Altitude calcuations use NSF's NCAR formula: https://ncar.github.io/aircraft_ProcessingAlgorithms/www/PressureAltitude.pdf
+  * Altitude calcuLations in this code use NSF's NCAR formula: https://ncar.github.io/aircraft_ProcessingAlgorithms/www/PressureAltitude.pdf
 * Various error checks throughout driver.
 
 ## Getting Started - Installing
@@ -198,3 +198,6 @@ Images of quick hack to shuttle board
 
 ![Quick hack to BMP585 Shuttle Board back](imgs/bmp585-shuttle-back.png)
 ![Quick hack to BMP585 Shuttle Board front](imgs/bmp585_shuttle-front.png)
+
+Bosch video showing using BMP585 underwater (of course the shuttle board won't work underwater :) ):
+* https://www.youtube.com/watch?v=BaAhb2vaAQg
