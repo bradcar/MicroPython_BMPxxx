@@ -198,3 +198,6 @@ Images of quick hack to shuttle board
 
 ![Quick hack to BMP585 Shuttle Board back](imgs/bmp585-shuttle-back.png)
 ![Quick hack to BMP585 Shuttle Board front](imgs/bmp585_shuttle-front.png)
+
+Bosch video showing using BMP585 underwater (of course the shuttle board won't work underwater :) ):
+* https://www.youtube.com/watch?v=BaAhb2vaAQg
