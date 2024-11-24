@@ -733,7 +733,7 @@ class BMP390(BMP581):
 
     @power_mode.setter
     def power_mode(self, value: int) -> None:
-        if value not in power_mode_values:
+        if value not in self.power_mode_values:
             raise ValueError("Value must be a valid power_mode setting: STANDBY,FORCED,NORMAL")
         self._power_mode = value
 
@@ -934,8 +934,8 @@ class BMP280(BMP581):
     OSR_SKIP = const(0x05) 
 
     # OSR_SKIP turns off sampling and we do not present it as setable from outside the driver
-    pressure_oversample_rate_values = (OSR1, OSR2, OSR4, OSR8, OSR16, )
-    temperature_oversample_rate_values = (OSR1, OSR2, OSR4, OSR8, OSR16, )
+    pressure_oversample_rate_values = (OSR1, OSR2, OSR4, OSR8, OSR16)
+    temperature_oversample_rate_values = (OSR1, OSR2, OSR4, OSR8, OSR16)
     
     BMP280_I2C_ADDRESS_DEFAULT = 0x77
     BMP280_I2C_ADDRESS_SECONDARY = 0x76
@@ -1111,14 +1111,15 @@ class BMP280(BMP581):
 
     @power_mode.setter
     def power_mode(self, value: int) -> None:
-        if value not in power_mode_values:
+        if value not in self.power_mode_values:
             raise ValueError("Value must be a valid power_mode setting: STANDBY,FORCED,NORMAL")
         print(f"mode setter {value=}")
+        # remap NORMAL and FORCED for other sensors to the values for bmp280
+        # 0x02 = FORCED is ok for bmp280 which has two values for FORCED
         if value == 0x01:  # appropriate for all other classes
-            value = 0x03   # change value to 0x03 for bmp280
+            value = BMP280_NORMAL_POWER   # change value to 0x03 for bmp280
         if value == 0x03:  # appropriate for all other classes
-            value = 0x01   # change value to 0x03 for bmp280
-        # notice FORCED = 0x02 which is OK for bmp280 class
+            value = BMP280_FORCED_POWER   # change value to 0x03 for bmp280    
         self._power_mode = value
 
     @property
@@ -1149,9 +1150,13 @@ class BMP280(BMP581):
     def pressure_oversample_rate(self, value: int) -> None:
         if value not in self.pressure_oversample_rate_values:
             raise ValueError("Value must be a valid pressure_oversample_rate: OSR_SKIP,OSR1,OSR2,OSR4,OSR8,OSR16")
-        # we provide different values into the bmp280 with most of the same names
-        self._pressure_oversample_rate = self._translate_osr_bmp280(value)
-        time.sleep_ms(100)
+        # Get whole control register for temp Oversample (3-bits), pressure Oversample (3-bits), powermode
+        current_control_register = self._control_register
+        # only update pressure oversample
+        current_control_register = (current_control_register & 0xe3) + (self._translate_osr_bmp280(value) << 2)
+        # Write whole control register at once
+        self._config_register = 0x00 
+        self._control_register = current_control_register
 
     @property
     def temperature_oversample_rate(self) -> str:
@@ -1176,8 +1181,13 @@ class BMP280(BMP581):
     def temperature_oversample_rate(self, value: int) -> None:
         if value not in self.temperature_oversample_rate_values:
             raise ValueError("Value must be a valid pressure_oversample_rate: OSR_SKIP,OSR1,OSR2,OSR4,OSR8,OSR16")
-        # we provide different values into the bmp280 with most of the same names
-        self._temperature_oversample_rate = self._translate_osr_bmp280(value)
+        # Get current control register for temp Oversample (3-bits), pressure Oversample (3-bits), powermode
+        current_control_register = self._control_register
+        # only update temperature oversample
+        current_control_register = (current_control_register & 0x1f) + (self._translate_osr_bmp280(value) << 5)
+        # Write whole control register at once
+        self._config_register = 0x00 
+        self._control_register = current_control_register
         
     # helper function for getting temp & pressure
     def _get_raw_temp_pressure(self):
