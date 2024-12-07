@@ -13,6 +13,7 @@ Code includes:
 * One can adjusting sea level pressure setting to known local measurements.
   * For sea level pressure, the driver defaults to 1013.25 hpa which is the international accepted world-wide average hPa. However you should know that weather causes sea level presssure to vary significantly (typ: 990 hPa to 1040 hPA).
   * It is best to set sea level pressure on each use to that of the nearest airport, for example: https://www.weather.gov/wrh/timeseries?site=KPDX
+  * Your local sea level pressure is NOT the pressure at your sensor, it is pressure that would be measured if your altitude was sea level.
   * altitude measurements may be way off if you do not set sea level to the nearest local known sea level pressure at the current time. Even at 360 feet (111m), altitudes can be off by 1500 feet (500m) depending on the weather.
   * Altitude calcuLations in this code use NSF's NCAR formula: https://ncar.github.io/aircraft_ProcessingAlgorithms/www/PressureAltitude.pdf
 * Various error checks throughout driver.
