@@ -7,8 +7,10 @@
 
 I2C Communications helpers
 
-
+* Author(s): Brad Carlile
+  * Fixed typos
 * Author(s): Jose D. Montoya
+
 
 Based on
 
@@ -57,16 +59,12 @@ class CBits:
     ) -> None:
         self.bit_mask = ((1 << num_bits) - 1) << start_bit
         self.register = register_address
-        self.star_bit = start_bit
-        self.lenght = register_width
+        self.start_bit = start_bit
+        self.length = register_width
         self.lsb_first = lsb_first
 
-    def __get__(
-        self,
-        obj,
-        objtype=None,
-    ) -> int:
-        mem_value = obj._i2c.readfrom_mem(obj._address, self.register, self.lenght)
+    def __get__(self, obj, objtype=None) -> int:
+        mem_value = obj._i2c.readfrom_mem(obj._address, self.register, self.length)
 
         reg = 0
         order = range(len(mem_value) - 1, -1, -1)
@@ -75,12 +73,12 @@ class CBits:
         for i in order:
             reg = (reg << 8) | mem_value[i]
 
-        reg = (reg & self.bit_mask) >> self.star_bit
+        reg = (reg & self.bit_mask) >> self.start_bit
 
         return reg
 
     def __set__(self, obj, value: int) -> None:
-        memory_value = obj._i2c.readfrom_mem(obj._address, self.register, self.lenght)
+        memory_value = obj._i2c.readfrom_mem(obj._address, self.register, self.length)
 
         reg = 0
         order = range(len(memory_value) - 1, -1, -1)
@@ -90,9 +88,9 @@ class CBits:
             reg = (reg << 8) | memory_value[i]
         reg &= ~self.bit_mask
 
-        value <<= self.star_bit
+        value <<= self.start_bit
         reg |= value
-        reg = reg.to_bytes(self.lenght, "big")
+        reg = reg.to_bytes(self.length, "big")
 
         obj._i2c.writeto_mem(obj._address, self.register, reg)
 
@@ -105,27 +103,14 @@ class RegisterStruct:
     def __init__(self, register_address: int, form: str) -> None:
         self.format = form
         self.register = register_address
-        self.lenght = struct.calcsize(form)
+        self.length = struct.calcsize(form)
 
-    def __get__(
-        self,
-        obj,
-        objtype=None,
-    ):
-        if self.lenght <= 2:
-            value = struct.unpack(
-                self.format,
-                memoryview(
-                    obj._i2c.readfrom_mem(obj._address, self.register, self.lenght)
-                ),
-            )[0]
+    def __get__(self, obj, objtype=None):
+        data = obj._i2c.readfrom_mem(obj._address, self.register, self.length)
+        if self.length <= 2:
+            value = struct.unpack(self.format, memoryview(data))[0]
         else:
-            value = struct.unpack(
-                self.format,
-                memoryview(
-                    obj._i2c.readfrom_mem(obj._address, self.register, self.lenght)
-                ),
-            )
+            value = struct.unpack(self.format, memoryview(data))
         return value
 
     def __set__(self, obj, value):
