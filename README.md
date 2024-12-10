@@ -55,9 +55,10 @@ print(f"alt = {meters:.2f} meters")
 ```
 Increase bmp585/bmp581 sensor to highest resolution using oversampling. Each sensor has different allowable values:
 ```
-# Highest resolution for bmp585 & bmp581
+# Highest resolution for bmp585 & bmp581, often we also set IIR to smooth out noise
 bmp.pressure_oversample_rate = bmp.OSR128
 bmp.temperature_oversample_rate = bmp.OSR8
+bmp.iir_coefficient = bmp.COEF_7
 ```
 Below are other settings you can adjust on the sensor, see data sheet for more info:
 ```
