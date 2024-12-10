@@ -15,7 +15,7 @@ print(f"Adjusted sea level pressure = {bmp.sea_level_pressure:.2f} hPa\n")
 
 bmp.pressure_oversample_rate = bmp.OSR128
 bmp.temperature_oversample_rate = bmp.OSR8
-
+bmp.iir_coefficient = bmp.COEF_3
 
 # Alternatively set known altitude in meters and the sea level pressure will be calculated
 bmp.altitude = 111.0
@@ -26,9 +26,9 @@ print("---- loop ----")
 while True:    
     # Pressure in hPA measured at sensor, temperature in Celsius
     pressure = bmp.pressure
-    print(f"Sensor pressure = {pressure:.4f} hPa")
+#     print(f"Sensor pressure = {pressure:.4f} hPa")
     temp = bmp.temperature
-    print(f"temp = {temp:.2f} C")
+#     print(f"temp = {temp:.2f} C")
   
     # Altitude in meters and in feet/inches
     meters = bmp.altitude
@@ -36,7 +36,7 @@ while True:
     feet = meters * 3.28084
     feet_only = int(feet)
     inches = (feet - feet_only) * 12
-    print(f"Altitude = {feet_only} feet {inches:.1f} inches\n")
+#     print(f"Altitude = {feet_only} feet {inches:.1f} inches\n")
 
-    time.sleep(1)
+    time.sleep(.1)
 

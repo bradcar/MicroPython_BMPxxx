@@ -17,9 +17,11 @@ bmp = bmpxxx.BMP585(i2c=i2c, address=0x47)
 # Set for the Highest resolution for bmp585 & bmp581
 bmp.pressure_oversample_rate = bmp.OSR128
 bmp.temperature_oversample_rate = bmp.OSR8
+bmp.iir_coefficient = bmp.COEF_3
 print(f"Oversample rate setting:")
 print(f"{bmp.pressure_oversample_rate=}")
 print(f"{bmp.temperature_oversample_rate=}\n")
+print(f"{bmp.iir_coefficient=}\n")
 
 sea_level_pressure = bmp.sea_level_pressure
 print(f"Initial sea_level_pressure = {sea_level_pressure:.2f} hPa")

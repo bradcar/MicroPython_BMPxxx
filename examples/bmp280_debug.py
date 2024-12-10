@@ -21,6 +21,10 @@ bmp.config
 sea_level_pressure = bmp.sea_level_pressure
 print(f"Sea level pressure = {sea_level_pressure:.2f} hPa")
 
+# set known altitude in meters and the sea level pressure will be calculated
+bmp.altitude = 111.0
+print(f"Adjusted SLP using {bmp.altitude:.2f} meter altitude = {bmp.sea_level_pressure:.2f} hPa\n")
+
 print("---- loop ----")
 
 while True: 
