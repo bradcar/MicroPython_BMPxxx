@@ -713,7 +713,8 @@ class BMP390(BMP581):
     def temperature_oversample_rate(self) -> str:
         """
         Sensor temperature_oversample_rate
-        Issue? if set OSR32, my temp and pressure do not change, so debug or use max of OSR16
+        debug? if set OSR32, my temp/pressure do not change, so debug or only use OSR16
+        I've seen this in other drivers
         +---------------------------+------------------+
         | Mode                      | Value            |
         +===========================+==================+
@@ -722,7 +723,7 @@ class BMP390(BMP581):
         | :py:const:`bmp390.OSR4`   | :py:const:`0x02` |
         | :py:const:`bmp390.OSR8`   | :py:const:`0x03` |
         | :py:const:`bmp390.OSR16`  | :py:const:`0x04` |
-        | :py:const:`bmp390.OSR32`  | :py:const:`0x05` |
+        | :py:const:`bmp390.OSR32`  | :py:const:`0x05` | * debug: sensor may not update?
         +---------------------------+------------------+
         :return: sampling rate as string
         """
