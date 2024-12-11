@@ -481,7 +481,6 @@ class BMP585(BMP581):
         self._iir_temp_coefficient = COEF_0
         self._power_mode = NORMAL
         time.sleep_ms(5)  # mode change takes 4ms
-
         #         self._write_reg(0x18, 0x01)  # Enable data ready interrupts
         #         val = self._read_reg(0x27, 1)[0]  # Read Interrupt Status Register
         #         drdy_data_reg = (val & 0x01) != 0  # Check Data Ready bit
@@ -837,7 +836,7 @@ class BMP280(BMP581):
     BMP280_FORCED_POWER = const(0x01)
 
     # oversampling rates
-    # Here we give OSR_SKIP a unique value 0x05, but will remap it to bmp280 values
+    # Below we give OSR_SKIP a unique value 0x05, but will remap it to bmp280 values
     # When we get       OSR1=0, OSR2=1, OSR4=2, OSR8=3, OSR16=4, OSR_SKIP=5
     # input to BMP280,  OSR1=1, OSR2=2, OSR4=3, OSR8=4, OSR16=5, OSR_SKIP=0
     # this will be translated in _translate_osr_bmp280
