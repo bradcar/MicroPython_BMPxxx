@@ -198,7 +198,7 @@ class BMP581:
         self._power_mode = NORMAL
         time.sleep_ms(5)  # mode change takes 4ms
 
-        self._drdy_status = 0  # Default data-ready status
+#         self._drdy_status = 0  # Default data-ready status
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
 
     def _check_address(self, i2c, address: int) -> bool:
@@ -489,19 +489,6 @@ class BMP585(BMP581):
         #         print(f"{drdy_data_reg=}")
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
 
-    @property
-    def config(self):
-        print(f"{hex(self._address)=}")
-        print(f"{hex(self._device_id)=}")
-        print(f"{self.power_mode=}")
-        print(f"{self.pressure_oversample_rate=}")
-        print(f"{self.temperature_oversample_rate=}")
-        print(f"{self.iir_coefficient=}")
-        print(f"{self.sea_level_pressure=}")
-        print(f"{self.pressure=} hPa")
-        print(f"{self.temperature=} C")
-        print(f"{self.altitude=} m\n")
-
 
 class BMP390(BMP581):
     """Driver for the BMP390 Sensor connected over I2C.
@@ -639,19 +626,6 @@ class BMP390(BMP581):
         #         print(f"p10 (8-bit signed, b): {self.p10}")     # 7 
         #         print(f"p11 (8-bit signed, b): {self.p11}")     # -11
         return
-
-    @property
-    def config(self):
-        print(f"{hex(self._address)=}")
-        print(f"{hex(self._device_id)=}")
-        print(f"{self.power_mode=}")
-        print(f"{self.pressure_oversample_rate=}")
-        print(f"{self.temperature_oversample_rate=}")
-        print(f"{self.iir_coefficient=}")
-        print(f"{self.sea_level_pressure=}")
-        print(f"{self.pressure=} hPa")
-        print(f"{self.temperature=} C")
-        print(f"{self.altitude=} m\n")
 
     @property
     def power_mode(self) -> str:
