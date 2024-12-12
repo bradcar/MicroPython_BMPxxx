@@ -193,6 +193,7 @@ I wanted a small BMP585 sensor board (I2C), so I designed my own. I can apply wa
 
 ## My custom BMP581 Board
 I wanted a small BMP581 sensor board (I2C), so I designed my own. It is only 19.8 mm * 13.3 mm. JLCPCB fabricated this BMP581. This sensor board was designed using EasyEDA.
+
 ![BMP585 Board front - my design](imgs/bmp581-front-cad.png)
 ![BMP585 Board back - my design](imgs/bmp581-back-cad.png)
 
