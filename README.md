@@ -180,8 +180,21 @@ Code based on great work by Jose & Scott!
 
 ## Todos
 * Open Question: IIR code for bmp585 & bmp581 uses the same IIR for pressure and temperature, this simplifies control and is like the bmp280 & bmp390 sensors, but this decision takes away flexibility for these newer sensors.
+* Need to test my custom designed-custom BMP585 and BMP581.
 
-## Tested BMP585 Shuttle Board
+## my custom BMP585 Board
+I wanted a small BMP585 sensorboard (I2C), so I designed my own. I can apply waterproofing to this board for underwater pressure sensing. It is only 22.4 mm * 11.9 mm. PCBWay fabricated BMP585, unfortunately JLCPCB didn't have BMP585. I Designed sensor boards in EasyEDA.
+
+![BMP585 Board front - my design](imgs/bmp585-front-cad.png)
+![BMP585 Board back - my design](imgs/bmp585-back-cad.png)
+
+## my custom BMP581 Board
+I wanted a small BMP581 sensorboard (I2C), so I designed my own. It is only 19.8 mm * 13.3 mm. JLCPCB fabricated this BMP581. I Designed sensor boards (small and for I2C only) in EasyEDA.
+* TODO - test on arrival
+![BMP585 Board front - my design](imgs/bmp581-front-cad.png)
+![BMP585 Board back - my design](imgs/bmp581-back-cad.png)
+
+## Tested hacked BMP585 Shuttle Board
 Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I2C interface with Raspberry Pi. Shuttleboard pin details: https://www.electroniclinic.com/bosch-bmp585-barometric-pressure-sensor-with-arduino/
 * 1.27mm pins not breadboard friendly (boardboards use 2.54mm)
 * 3.3v:
