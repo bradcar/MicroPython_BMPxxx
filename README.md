@@ -166,29 +166,32 @@ bmp.OSR1 corresponds to x1 for all sensors, bmp.OSR2 corresponds to x2 for all s
   * Relative accuracy of +/-0.12 hPa and typical absolute accuracy of +/-1.0 hPa.
   * Measure change in height of+/-1 meter.
 
+Bosch video showing using BMP585 underwater (the Bosch shuttle board won't work underwater :) ):
+* https://www.youtube.com/watch?v=BaAhb2vaAQg
+
 ## License Information
-This product is open source. Please review the LICENSE.md file for license information.
+This software product is open source. Please review the LICENSE.md file for license information.
 * distributed as-is; no warranty is given.
  
 ## Credits
 Code based on great work by Jose & Scott!
-* micropython_bmp581 Author(s): Jose D. Montoya, jposada202020
+* micropython_bmp581 Author: Jose D. Montoya, jposada202020
   * github:jposada202020/MicroPython_BMP581
   * Corrected error in altitude calculation, also removed cod that limits accuracy to 100 cm instead of allowing 1cm.
 * Also based on
-  * adafruit_register.i2c_struct, adafruit_register.i2c_bits.  Author(s): Scott Shawcroft
+  * adafruit_register.i2c_struct, adafruit_register.i2c_bits.  Author: Scott Shawcroft
 
 ## Todos
 * Open Question: IIR code for bmp585 & bmp581 uses the same IIR for pressure and temperature, this simplifies control and is like the bmp280 & bmp390 sensors, but this decision takes away flexibility for these newer sensors.
 * Need to test my custom designed-custom BMP585 and BMP581.
 
-## my custom BMP585 Board
+## My custom BMP585 Board
 I wanted a small BMP585 sensor board (I2C), so I designed my own. I can apply waterproofing to this board for underwater pressure sensing. It is only 22.4 mm * 11.9 mm. PCBWay fabricated BMP585, unfortunately JLCPCB didn't have BMP585. I Designed sensor boards in EasyEDA.
 
 ![BMP585 Board front - my design](imgs/bmp585-front-cad.png)
 ![BMP585 Board back - my design](imgs/bmp585-back-cad.png)
 
-## my custom BMP581 Board
+## My custom BMP581 Board
 I wanted a small BMP581 sensor board (I2C), so I designed my own. It is only 19.8 mm * 13.3 mm. JLCPCB fabricated this BMP581. I Designed sensor boards (small and for I2C only) in EasyEDA.
 
 ![BMP585 Board front - my design](imgs/bmp581-front-cad.png)
@@ -209,10 +212,7 @@ Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I
   * wire to 3.3v  (pin 3 of 9 pin connector)
 * SDI/SDA: I2C SDA (pin 4 of 9 pin connector)
 
-Images of quick hack to shuttle board:
+Images of my quick hack to shuttle board:
 
 ![Quick hack to BMP585 Shuttle Board back](imgs/bmp585-shuttle-back.png)
 ![Quick hack to BMP585 Shuttle Board front](imgs/bmp585_shuttle-front.png)
-
-Bosch video showing using BMP585 underwater (of course the shuttle board won't work underwater :) ):
-* https://www.youtube.com/watch?v=BaAhb2vaAQg
