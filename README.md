@@ -166,6 +166,9 @@ bmp.OSR1 corresponds to x1 for all sensors, bmp.OSR2 corresponds to x2 for all s
   * Relative accuracy of +/-0.12 hPa and typical absolute accuracy of +/-1.0 hPa.
   * Measure change in height of+/-1 meter.
 
+Bosch video showing using BMP585 underwater (of course the shuttle board won't work underwater :) ):
+* https://www.youtube.com/watch?v=BaAhb2vaAQg
+
 ## License Information
 This product is open source. Please review the LICENSE.md file for license information.
 * distributed as-is; no warranty is given.
@@ -209,10 +212,8 @@ Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I
   * wire to 3.3v  (pin 3 of 9 pin connector)
 * SDI/SDA: I2C SDA (pin 4 of 9 pin connector)
 
-Images of quick hack to shuttle board:
+Images of my quick hack to shuttle board:
 
 ![Quick hack to BMP585 Shuttle Board back](imgs/bmp585-shuttle-back.png)
 ![Quick hack to BMP585 Shuttle Board front](imgs/bmp585_shuttle-front.png)
 
-Bosch video showing using BMP585 underwater (of course the shuttle board won't work underwater :) ):
-* https://www.youtube.com/watch?v=BaAhb2vaAQg
