@@ -188,6 +188,8 @@ Code based on great work by Jose & Scott!
 ## My custom BMP585 Board
 I wanted a small BMP585 sensor board (I2C), so I designed my own. I can apply waterproofing to this board for underwater pressure sensing. It is only 22.4 mm * 11.9 mm. PCBWay fabricated BMP585, unfortunately JLCPCB didn't have BMP585. This sensor board was designed using EasyEDA.
 
+![BMP585 Board front - my design](imgs/bmp585-front.png)
+![BMP585 Board back - my design](imgs/bmp585-back.png)
 ![BMP585 Board front - my design](imgs/bmp585-front-cad.png)
 ![BMP585 Board back - my design](imgs/bmp585-back-cad.png)
 
