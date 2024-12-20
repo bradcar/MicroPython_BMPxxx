@@ -197,7 +197,7 @@ I wanted a small BMP581 sensor board (I2C), so I designed my own. It is only 19.
 ![BMP585 Board front - my design](imgs/bmp581-front-cad.png)
 ![BMP585 Board back - my design](imgs/bmp581-back-cad.png)
 
-## Tested hacked BMP585 Shuttle Board
+## Hacked BMP585 Shuttle Board
 Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I2C interface with Raspberry Pi. Shuttleboard pin details: https://www.electroniclinic.com/bosch-bmp585-barometric-pressure-sensor-with-arduino/
 * 1.27mm pins not breadboard friendly (boardboards use 2.54mm)
 * 3.3v:
