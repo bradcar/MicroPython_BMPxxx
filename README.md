@@ -27,7 +27,7 @@ Required Imports:
 from machine import Pin, I2C
 from micropython_bmpxxx import bmpxxx
 ```
-If you have bmp581, define your machine.I2C object using I2C 1:
+If you have BMP581, define your machine.I2C object using I2C 1:
 ```
 i2c = I2C(1, sda=Pin(2), scl=Pin(3))
 bmp = bmpxxx.BMP581(i2c)
@@ -53,9 +53,9 @@ bmp.sea_level_pressure = 1010.80
 meters = bmp.altitude
 print(f"alt = {meters:.2f} meters")
 ```
-Increase bmp585/bmp581 sensor to highest resolution using oversampling. Each sensor has different allowable values:
+Increase BMP585/BMP581 sensor to highest resolution using oversampling. Each sensor has different allowable values:
 ```
-# Highest resolution for bmp585 & bmp581, often we also set IIR to smooth out noise
+# Highest resolution for BMP585 & BMP581, often we also set IIR to smooth out noise
 bmp.pressure_oversample_rate = bmp.OSR128
 bmp.temperature_oversample_rate = bmp.OSR8
 bmp.iir_coefficient = bmp.COEF_7
@@ -83,10 +83,10 @@ If you only have one sensor on the same I2C, they it will use the table below to
 Table 1: I2C Sensor Address
 | Sensor | Default | Secondary | 
 | :---:  | :---:| :---: |
-| bmp585 | 0x47 | 0x46  | 
-| bmp581 | 0x47 | 0x46  | 
-| bmp390 | 0x7f | 0x7e  | 
-| bmp280 | 0x77 | 0x76  | 
+| BMP585 | 0x47 | 0x46  | 
+| BMP581 | 0x47 | 0x46  | 
+| BMP390 | 0x7f | 0x7e  | 
+| BMP280 | 0x77 | 0x76  | 
 
 The following code is useful when scanning for device addresses on I2C. I always put this in my code when bringing up new sensor. Also if device not found triple-check all wiring.
 ```
@@ -98,12 +98,12 @@ if i2c1_devices:
 else:
     print("ERROR: No i2c1 devices")
 ```
-Example of specifying an address for a bmp581:
+Example of specifying an address for a BMP581:
 ```
 bmp = bmpxxx.BMP581(i2c=i2c, address=0x47)
 ```
 ## Recommended Oversampling Rates to Improve Sensors' Accuracy
-The table 2 below is Bosch's recommended oversampling pressure and temperature settings for bmp585 and bmp581. Higher sampling rates effect the refresh rate and the power consumption. Please checked the Bosch datasheets for more information https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/
+The table 2 below is Bosch's recommended oversampling pressure and temperature settings for BMP585 and BMP581. Higher sampling rates effect the refresh rate and the power consumption. Please checked the Bosch datasheets for more information https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/
 
 Table 2: BMP585/BMP581 Recommendations from Bosch
 | Oversampling setting | OSR Pressure | Pressure<br /> Oversampling | Temperature<br /> Oversampling | IIR |
@@ -118,12 +118,12 @@ Table 2: BMP585/BMP581 Recommendations from Bosch
 | Highest resolution |  111     | x128     | x8     | COEF_7 |
 
 ```
-# Highest recommended for combined pressure and temperature for bmp581 or bmp585 sensor
+# Highest recommended for combined pressure and temperature for BMP581 or BMP585 sensor
 bmp.pressure_oversample_rate = bmp.OSR128
 bmp.temperature_oversample_rate = bmp.OSR8
 bmp.iir_coefficient = bmp.COEF_7
 ```
-The bmp585 and bmp581 do not have recommended IIR filters to go with the table above.
+The BMP585 and BMP581 do not have recommended IIR filters to go with the table above.
 
 The table 3 below is Bosch's recommended oversampling pressure and temperature settings for bmp390. There are recommended IIR filter settings for the bmp390 in section 3.5. Filter section, page 17, in bmp390 datasheet
 
@@ -176,13 +176,13 @@ This software product is open source. Please review the LICENSE.md file for lice
 ## Credits
 Code based on great work by Jose & Scott!
 * micropython_bmp581 Author: Jose D. Montoya, jposada202020
-  * github:jposada202020/MicroPython_BMP581
+  * github:jposada202020/MicroPython_bmp581
   * Corrected error in altitude calculation, also removed code that limits accuracy to 100 cm instead of allowing 1cm.
 * Also based on
   * adafruit_register.i2c_struct, adafruit_register.i2c_bits.  Author: Scott Shawcroft
 
 ## Todos
-* Open Question: IIR code for bmp585 & bmp581 uses the same IIR for pressure and temperature, this simplifies control and is like the bmp280 & bmp390 sensors, but this decision takes away flexibility for these newer sensors.
+* Open Question: IIR code for BMP585 & BMP581 uses the same IIR for pressure and temperature, this simplifies control and is like the bmp280 & bmp390 sensors, but this decision takes away flexibility for these newer sensors.
 * Need to test my custom designed-custom BMP581. BMP585 tested and it works. 
 
 ## My custom BMP585 Board
