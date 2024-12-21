@@ -217,4 +217,4 @@ Images of my quick hack to shuttle board:
 ![Quick hack to BMP585 Shuttle Board back](imgs/bmp585-shuttle-back.png)
 ![Quick hack to BMP585 Shuttle Board front](imgs/bmp585_shuttle-front.png)
 
-Additional: http://www.aiperf.com
+Additional info: https://www.aiperf.com/raspberry-pi/bmp585.html
