@@ -1,9 +1,9 @@
-# Micropython BMPxxx driver
-MicroPython Driver for the Bosch BMP585, BMP581, BMP390, and BMP280  pressure sensors using I2C. It has the ability to adjust sea level pressure and/or the sensors altitude at a known elevation for accurate future tracking.
+# Micropython BMPxxx - BMP585, BMP581, BMP380, and BMP280 driver
+MicroPython Driver for the Bosch BMP585, BMP581, BMP390, and BMP280  pressure sensors using I2C. It has the ability to adjust sea level pressure and/or the sensors altitude at a known elevation for accurate future tracking. Raspberry Pi Pico and Pico 2.
 
-## Driver Features
+## Driver Features with focus on BMP585 & BMP581 Sensors
 Code includes:
-* BMP585, BMP581, BMP390, and BMP280 sensors supported
+* BMP585, BMP581, BMP390, and BMP280 sensors are supported
 * I2C only (driver would need modifications for SDI)
   * checks i2c primary address and if not present it then checks secondary (see table 1 below for addresses for each sensor)
 * All pressures are in hPA.
@@ -16,7 +16,7 @@ Code includes:
   * Your local sea level pressure is NOT the pressure at your sensor, it is pressure that would be measured if your altitude was sea level.
   * altitude measurements may be way off if you do not set sea level to the nearest local known sea level pressure at the current time. Even at 360 feet (111m), altitudes can be off by 1500 feet (500m) depending on the weather.
   * Altitude calcuLations in this code use NSF's NCAR formula: https://ncar.github.io/aircraft_ProcessingAlgorithms/www/PressureAltitude.pdf
-* Various error checks throughout driver.
+* Various error checkks are coded throughout the driver.
 
 ## Getting Started - Installing
 This driver has three required files: __init__.py, bmpxxx.py, and i2c_helpers.py. All three must be copied to the board (/ or /lib) in order for it to work. We find it best to have them in a directory [micropython_bmpxxx](micropython_bmpxxx). The best way to start is to try some of the provided [examples](examples).
@@ -27,7 +27,7 @@ Required Imports:
 from machine import Pin, I2C
 from micropython_bmpxxx import bmpxxx
 ```
-If you have bmp581, define your machine.I2C object using I2C 1:
+If you have BMP581, define your machine.I2C object using I2C 1:
 ```
 i2c = I2C(1, sda=Pin(2), scl=Pin(3))
 bmp = bmpxxx.BMP581(i2c)
@@ -53,9 +53,9 @@ bmp.sea_level_pressure = 1010.80
 meters = bmp.altitude
 print(f"alt = {meters:.2f} meters")
 ```
-Increase bmp585/bmp581 sensor to highest resolution using oversampling. Each sensor has different allowable values:
+Increase BMP585/BMP581 sensor to highest resolution using oversampling. Each sensor has different allowable values:
 ```
-# Highest resolution for bmp585 & bmp581, often we also set IIR to smooth out noise
+# Highest resolution for BMP585 & BMP581, often we also set IIR to smooth out noise
 bmp.pressure_oversample_rate = bmp.OSR128
 bmp.temperature_oversample_rate = bmp.OSR8
 bmp.iir_coefficient = bmp.COEF_7
@@ -83,10 +83,10 @@ If you only have one sensor on the same I2C, they it will use the table below to
 Table 1: I2C Sensor Address
 | Sensor | Default | Secondary | 
 | :---:  | :---:| :---: |
-| bmp585 | 0x47 | 0x46  | 
-| bmp581 | 0x47 | 0x46  | 
-| bmp390 | 0x7f | 0x7e  | 
-| bmp280 | 0x77 | 0x76  | 
+| BMP585 | 0x47 | 0x46  | 
+| BMP581 | 0x47 | 0x46  | 
+| BMP390 | 0x7f | 0x7e  | 
+| BMP280 | 0x77 | 0x76  | 
 
 The following code is useful when scanning for device addresses on I2C. I always put this in my code when bringing up new sensor. Also if device not found triple-check all wiring.
 ```
@@ -98,12 +98,12 @@ if i2c1_devices:
 else:
     print("ERROR: No i2c1 devices")
 ```
-Example of specifying an address for a bmp581:
+Example of specifying an address for a BMP581:
 ```
 bmp = bmpxxx.BMP581(i2c=i2c, address=0x47)
 ```
 ## Recommended Oversampling Rates to Improve Sensors' Accuracy
-The table 2 below is Bosch's recommended oversampling pressure and temperature settings for bmp585 and bmp581. Higher sampling rates effect the refresh rate and the power consumption. Please checked the Bosch datasheets for more information https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/
+The table 2 below is Bosch's recommended oversampling pressure and temperature settings for BMP585 and BMP581. Higher sampling rates effect the refresh rate and the power consumption. Please checked the Bosch datasheets for more information https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/
 
 Table 2: BMP585/BMP581 Recommendations from Bosch
 | Oversampling setting | OSR Pressure | Pressure<br /> Oversampling | Temperature<br /> Oversampling | IIR |
@@ -118,12 +118,12 @@ Table 2: BMP585/BMP581 Recommendations from Bosch
 | Highest resolution |  111     | x128     | x8     | COEF_7 |
 
 ```
-# Highest recommended for combined pressure and temperature for bmp581 or bmp585 sensor
+# Highest recommended for combined pressure and temperature for BMP581 or BMP585 sensor
 bmp.pressure_oversample_rate = bmp.OSR128
 bmp.temperature_oversample_rate = bmp.OSR8
 bmp.iir_coefficient = bmp.COEF_7
 ```
-The bmp585 and bmp581 do not have recommended IIR filters to go with the table above.
+The BMP585 and BMP581 do not have recommended IIR filters to go with the table above.
 
 The table 3 below is Bosch's recommended oversampling pressure and temperature settings for bmp390. There are recommended IIR filter settings for the bmp390 in section 3.5. Filter section, page 17, in bmp390 datasheet
 
@@ -176,17 +176,17 @@ This software product is open source. Please review the LICENSE.md file for lice
 ## Credits
 Code based on great work by Jose & Scott!
 * micropython_bmp581 Author: Jose D. Montoya, jposada202020
-  * github:jposada202020/MicroPython_BMP581
+  * github:jposada202020/MicroPython_bmp581
   * Corrected error in altitude calculation, also removed code that limits accuracy to 100 cm instead of allowing 1cm.
 * Also based on
   * adafruit_register.i2c_struct, adafruit_register.i2c_bits.  Author: Scott Shawcroft
 
 ## Todos
-* Open Question: IIR code for bmp585 & bmp581 uses the same IIR for pressure and temperature, this simplifies control and is like the bmp280 & bmp390 sensors, but this decision takes away flexibility for these newer sensors.
+* Open Question: IIR code for BMP585 & BMP581 uses the same IIR for pressure and temperature, this simplifies control and is like the bmp280 & bmp390 sensors, but this decision takes away flexibility for these newer sensors.
 * Need to test my custom designed-custom BMP581. BMP585 tested and it works. 
 
 ## My custom BMP585 Board
-I wanted a small BMP585 sensor board (I2C), so I designed my own. I can apply waterproofing to this board for underwater pressure sensing. It is only 22.4 mm * 11.9 mm. PCBWay fabricated BMP585, unfortunately JLCPCB didn't have BMP585. This sensor board was designed using EasyEDA. This board is tested and works. I decided to re-design the layout and the next version will be smaller at 19mm x 11.9mm.
+I wanted a small BMP585 sensor board (I2C), so I designed my own. I can apply waterproofing to this board for underwater pressure sensing. It is only 16.1 mm * 11.9 mm. JLCPCB fabricated my BMP585, board. This sensor board was designed using EasyEDA. Current image shows the larger 19mm x 11.9mm prototype.
 
 ![BMP585 Board front - my design](imgs/bmp585-front.png)
 ![BMP585 Board back - my design](imgs/bmp585-back.png)
@@ -197,7 +197,7 @@ I wanted a small BMP581 sensor board (I2C), so I designed my own. It is only 19.
 ![BMP585 Board front - my design](imgs/bmp581-front-cad.png)
 ![BMP585 Board back - my design](imgs/bmp581-back-cad.png)
 
-## Tested hacked BMP585 Shuttle Board
+## Hacked BMP585 Shuttle Board
 Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I2C interface with Raspberry Pi. Shuttleboard pin details: https://www.electroniclinic.com/bosch-bmp585-barometric-pressure-sensor-with-arduino/
 * 1.27mm pins not breadboard friendly (boardboards use 2.54mm)
 * 3.3v:
@@ -216,3 +216,5 @@ Images of my quick hack to shuttle board:
 
 ![Quick hack to BMP585 Shuttle Board back](imgs/bmp585-shuttle-back.png)
 ![Quick hack to BMP585 Shuttle Board front](imgs/bmp585_shuttle-front.png)
+
+Additional info: https://www.aiperf.com/raspberry-pi/bmp585.html
