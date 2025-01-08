@@ -32,11 +32,11 @@ while True:
   
     # Altitude in meters and in feet/inches
     meters = bmp.altitude
-    print(f"Altitude = {meters:.3f} meters")
+    print(f"Altitude = {meters:.2f} meters")
     feet = meters * 3.28084
     feet_only = int(feet)
-    inches = (feet - feet_only) * 12
-#     print(f"Altitude = {feet_only} feet {inches:.1f} inches\n")
+    inches = int((feet - feet_only) * 12)
+#     print(f"Altitude = {feet_only} feet {inches} inches\n")
 
     time.sleep(.1)
 

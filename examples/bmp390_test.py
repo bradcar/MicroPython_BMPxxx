@@ -37,8 +37,9 @@ while True:
     print(f"Altitude = {meters:.2f} meters")
     feet = meters * 3.28084
     feet_only = int(feet)
-    inches = (feet - feet_only) * 12
-    print(f"Altitude = {feet_only} feet {inches:.1f} inches")
+    inches = int((feet - feet_only) * 12)
+    print(f"Altitude = {feet_only} feet {inches} inches")
+    
 
     time.sleep(2.5)
  
