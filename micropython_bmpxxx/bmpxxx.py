@@ -176,7 +176,7 @@ class BMP581:
         else:
             # Check if the specified address is valid
             if not self._check_address(i2c, address):
-                raise RuntimeError("BMP581 sensor not found at I2C expected address (0x47,0x46).")
+                raise RuntimeError(f"BMP581 sensor not found at specified I2C address ({hex(address)}).")
 
         self._i2c = i2c
         self._address = address
@@ -461,7 +461,7 @@ class BMP585(BMP581):
         else:
             # Check if the specified address is valid
             if not self._check_address(i2c, address):
-                raise RuntimeError("BMP585 sensor not found at I2C expected address (0x47,0x46).")
+                raise RuntimeError(f"BMP585 sensor not found at specified I2C address ({hex(address)}).")
 
         self._i2c = i2c
         self._address = address
@@ -580,7 +580,8 @@ class BMP390(BMP581):
         else:
             # Check if the specified address is valid
             if not self._check_address(i2c, address):
-                raise RuntimeError(f"BMP390 sensor not found at specified I2C address (0x{address:02x}).")
+                raise RuntimeError(f"BMP390 sensor not found at specified I2C address ({hex(address)}).")
+
 
         self._i2c = i2c
         self._address = address
@@ -884,7 +885,8 @@ class BMP280(BMP581):
         else:
             # Check if the specified address is valid
             if not self._check_address(i2c, address):
-                raise RuntimeError("BMP280 sensor not found at I2C expected address (0x77,0x76).")
+                raise RuntimeError(f"BMP280 sensor not found at specified I2C address ({hex(address)}).")
+
         self._i2c = i2c
         self._address = address
         if self._read_device_id() != 0x58:  # check _device_id after i2c established
