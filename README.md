@@ -4,12 +4,12 @@ MicroPython Driver for the Bosch BMP585, BMP581, BMP390, and BMP280  pressure se
 ## Driver Features with focus on BMP585 & BMP581 Sensors
 Code includes:
 * BMP585, BMP581, BMP390, and BMP280 sensors are supported
-* I2C only (possible future additions for SDI)
+* I2C only (possible future additions may include SDI)
   * checks i2c primary address and if not present it then checks secondary (see table 1 below for each sensor's addresses)
 * All pressures are in hPA.
 * All temperatures are in Celsius.
 * Code enables setting Pressure/Temperature OverSampling and IIR values.
-* It also can calculate altitude based on current pressure and sea level pressure.
+* Altitude is calculated using the difference between sensor's current pressure and sea level pressure setting.
 * One can adjusting sea level pressure setting to known local measurements.
   * For sea level pressure, the driver defaults to 1013.25 hpa which is the international accepted world-wide average hPa. However you should know that weather causes sea level presssure to vary significantly (typ: 990 hPa to 1040 hPA).
   * It is recommended to set the current sea level pressure on each use to that of the nearest airport, for example: https://www.weather.gov/wrh/timeseries?site=KPDX
