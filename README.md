@@ -1,5 +1,5 @@
 # Micropython BMPxxx - BMP585, BMP581, BMP380, and BMP280 driver
-MicroPython Driver for the Bosch BMP585, BMP581, BMP390, and BMP280  pressure sensors using I2C. It has the ability to adjust sea level pressure and/or the sensors altitude at a known elevation for accurate future tracking. Raspberry Pi Pico and Pico 2. Buy the hard-to-find BMP585 sensor here: (coming soon)
+MicroPython Driver for the Bosch BMP585, BMP581, BMP390, and BMP280  pressure sensors using I2C. It has the ability to adjust sea level pressure and/or the sensors altitude at a known elevation for accurate future tracking. Raspberry Pi Pico and Pico 2. Buy the hard-to-find BMP585 sensor here: https://www.tindie.com/products/brad_aiperf/bmp585-high-accuracy-pressure-sensor-33v-board/ or you can get the $30 Bosch shuttle board and hack it as described below.
 
 ## Driver Features with focus on BMP585 & BMP581 Sensors
 Code includes:
