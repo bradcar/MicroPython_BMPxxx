@@ -3,9 +3,9 @@ MicroPython Driver for the Bosch BMP585, BMP581, BMP390, and BMP280  pressure se
 
 ## Driver Features with focus on BMP585 & BMP581 Sensors
 Code includes:
-* BMP585, BMP581, BMP390, and BMP280 sensors are supported
-* I2C only (possible future additions may include SDI)
-  * checks i2c primary address and if not present it then checks secondary (see table 1 below for each sensor's addresses)
+* BMP585, BMP581, BMP390, and BMP280 sensors are supported.
+* I2C only (possible future additions may include SDI).
+  * checks i2c primary address and if not present it then checks secondary (see table 1 below for each sensor's addresses).
 * All pressures are in hPA.
 * All temperatures are in Celsius.
 * Code enables setting Pressure/Temperature OverSampling and IIR values.
