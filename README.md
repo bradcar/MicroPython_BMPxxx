@@ -189,9 +189,8 @@ Code based on great work by Jose & Scott!
 ## My custom BMP585 Board
 I wanted a small BMP585 sensor board (I2C), so I designed my own. One can apply waterproofing to this board for underwater pressure sensing. It is only 16.1 mm * 12 mm. Getting the amazing but hard-to-find BMP585 sensor: https://www.tindie.com/products/brad_aiperf/bmp585-high-accuracy-pressure-sensor-33v-board/ 
 
-![BMP585 Board front - my design](imgs/bmp585-front.png)
-![BMP585 Board back - my design](imgs/bmp585-back.png)
-
+![BMP585 Board front - my design](imgs/bmp585-front_A5A0225.jpg)
+![BMP585 Board back - my design](imgs/bmp585-back_A5A0226.jpg)
 
 ## Hacked Bosch BMP585 Shuttle Board
 Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I2C interface with Raspberry Pi. Shuttleboard pin details: https://www.electroniclinic.com/bosch-bmp585-barometric-pressure-sensor-with-arduino/
