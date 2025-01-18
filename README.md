@@ -3,23 +3,25 @@ MicroPython Driver for the Bosch BMP585, BMP581, BMP390, and BMP280  pressure se
 
 ## Driver Features with focus on BMP585 & BMP581 Sensors
 Code includes:
-* BMP585, BMP581, BMP390, and BMP280 sensors are supported
-* I2C only (driver would need modifications for SDI)
-  * checks i2c primary address and if not present it then checks secondary (see table 1 below for addresses for each sensor)
+* BMP585, BMP581, BMP390, and BMP280 sensors are supported.
+* I2C only (possible future additions may include SDI).
+  * checks i2c primary address and if not present it then checks secondary (see table 1 below for each sensor's addresses).
 * All pressures are in hPA.
 * All temperatures are in Celsius.
 * Code enables setting Pressure/Temperature OverSampling and IIR values.
-* It also can calculate altitude based on current pressure and sea level pressure.
+* Altitude is calculated using the difference between sensor's current pressure and sea level pressure setting.
 * One can adjusting sea level pressure setting to known local measurements.
   * For sea level pressure, the driver defaults to 1013.25 hpa which is the international accepted world-wide average hPa. However you should know that weather causes sea level presssure to vary significantly (typ: 990 hPa to 1040 hPA).
-  * It is best to set sea level pressure on each use to that of the nearest airport, for example: https://www.weather.gov/wrh/timeseries?site=KPDX
+  * It is recommended to set the current sea level pressure on each use to that of the nearest airport, for example: https://www.weather.gov/wrh/timeseries?site=KPDX
   * Your local sea level pressure is NOT the pressure at your sensor, it is pressure that would be measured if your altitude was sea level.
-  * altitude measurements may be way off if you do not set sea level to the nearest local known sea level pressure at the current time. Even at 360 feet (111m), altitudes can be off by 1500 feet (500m) depending on the weather.
+  * Altitude measurements will be inaccurate by over 1000' (500m) depending on the weather, if you do not set sea level to the nearest local known sea level pressure at the current time.
   * Altitude calcuLations in this code use NSF's NCAR formula: https://ncar.github.io/aircraft_ProcessingAlgorithms/www/PressureAltitude.pdf
-* Various error checkks are coded throughout the driver.
+* Various error checks are coded throughout the driver.
+
+Buy the amazing but hard-to-find BMP585 sensor here: https://www.tindie.com/products/brad_aiperf/bmp585-high-accuracy-pressure-sensor-33v-board/ or you can get the $30 Bosch shuttle board and hack it as described below.
 
 ## Getting Started - Installing
-This driver has three required files: __init__.py, bmpxxx.py, and i2c_helpers.py. All three must be copied to the board (/ or /lib) in order for it to work. We find it best to have them in a directory [micropython_bmpxxx](micropython_bmpxxx). The best way to start is to try some of the provided [examples](examples).
+This driver has three required files: __init__.py, bmpxxx.py, and i2c_helpers.py. All three must be copied to the board (/ or /lib) in order for it to work. We find it best to have them in a directory [micropython_bmpxxx](micropython_bmpxxx). Next, try some of the provided [examples](examples).
 
 ## Sample Usage
 Required Imports:
@@ -182,22 +184,16 @@ Code based on great work by Jose & Scott!
   * adafruit_register.i2c_struct, adafruit_register.i2c_bits.  Author: Scott Shawcroft
 
 ## Todos
-* Open Question: IIR code for BMP585 & BMP581 uses the same IIR for pressure and temperature, this simplifies control and is like the bmp280 & bmp390 sensors, but this decision takes away flexibility for these newer sensors.
-* Need to test my custom designed-custom BMP581. BMP585 tested and it works. 
+* Open Question: IIR code for BMP585 & BMP581 uses the same IIR for pressure and temperature, this simplifies control and is like the bmp280 & bmp390 sensors, but this decision takes away flexibility for these newer sensors. 
 
 ## My custom BMP585 Board
-I wanted a small BMP585 sensor board (I2C), so I designed my own. I can apply waterproofing to this board for underwater pressure sensing. It is only 16.1 mm * 11.9 mm. JLCPCB fabricated my BMP585, board. This sensor board was designed using EasyEDA. Current image shows the larger 19mm x 11.9mm prototype.
+I wanted a small BMP585 sensor board (I2C), so I designed my own. One can apply waterproofing to this board for underwater pressure sensing. It is only 16.1 mm * 12 mm. Getting the amazing but hard-to-find BMP585 sensor: https://www.tindie.com/products/brad_aiperf/bmp585-high-accuracy-pressure-sensor-33v-board/ 
 
 ![BMP585 Board front - my design](imgs/bmp585-front.png)
 ![BMP585 Board back - my design](imgs/bmp585-back.png)
 
-## My custom BMP581 Board
-I wanted a small BMP581 sensor board (I2C), so I designed my own. It is only 19.8 mm * 13.3 mm. JLCPCB fabricated this BMP581. This sensor board was designed using EasyEDA.
 
-![BMP585 Board front - my design](imgs/bmp581-front-cad.png)
-![BMP585 Board back - my design](imgs/bmp581-back-cad.png)
-
-## Hacked BMP585 Shuttle Board
+## Hacked Bosch BMP585 Shuttle Board
 Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I2C interface with Raspberry Pi. Shuttleboard pin details: https://www.electroniclinic.com/bosch-bmp585-barometric-pressure-sensor-with-arduino/
 * 1.27mm pins not breadboard friendly (boardboards use 2.54mm)
 * 3.3v:
