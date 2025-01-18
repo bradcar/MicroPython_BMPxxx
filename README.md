@@ -15,7 +15,7 @@ Code includes:
   * It is recommended to set the current sea level pressure on each use to that of the nearest airport, for example: https://www.weather.gov/wrh/timeseries?site=KPDX
   * Your local sea level pressure is NOT the pressure at your sensor, it is pressure that would be measured if your altitude was sea level.
   * Altitude measurements will be inaccurate by over 1000' (500m) depending on the weather, if you do not set sea level to the nearest local known sea level pressure at the current time.
-  * Altitude calcuLations in this code use NSF's NCAR formula: https://ncar.github.io/aircraft_ProcessingAlgorithms/www/PressureAltitude.pdf
+  * Altitude calculations in this code use NSF's NCAR formula: https://ncar.github.io/aircraft_ProcessingAlgorithms/www/PressureAltitude.pdf
 * Various error checks are coded throughout the driver.
 
 Buy the amazing but hard-to-find BMP585 sensor here: https://www.tindie.com/products/brad_aiperf/bmp585-high-accuracy-pressure-sensor-33v-board/ or you can get the $30 Bosch shuttle board and hack it as described below.
