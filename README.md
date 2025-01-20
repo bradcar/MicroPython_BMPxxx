@@ -4,7 +4,7 @@ MicroPython Driver for the Bosch BMP585, BMP581, BMP390, and BMP280  pressure se
 ## Driver Features with focus on BMP585 & BMP581 Sensors
 Code includes:
 * BMP585, BMP581, BMP390, and BMP280 sensors are supported.
-* I2C only (possible future additions may include SDI).
+* I2C only (possible TODO include SDI).
   * checks i2c primary address and if not present it then checks secondary (see table 1 below for each sensor's addresses).
 * All pressures are in hPA.
 * All temperatures are in Celsius.
@@ -184,7 +184,8 @@ Code based on great work by Jose & Scott!
   * adafruit_register.i2c_struct, adafruit_register.i2c_bits.  Author: Scott Shawcroft
 
 ## Todos
-* Open Question: IIR code for BMP585 & BMP581 uses the same IIR for pressure and temperature, this simplifies control and is like the bmp280 & bmp390 sensors, but this decision takes away flexibility for these newer sensors. 
+* Open Question: IIR code for BMP585 & BMP581 uses the same IIR for pressure and temperature, this simplifies control and is like the bmp280 & bmp390 sensors, but this decision takes away flexibility for these newer sensors.
+* add SDI code
 
 ## My custom BMP585 Board
 I wanted a small BMP585 sensor board (I2C), so I designed my own. One can apply waterproofing to this board for underwater pressure sensing. It is only 16.1 mm * 12 mm. Getting the amazing but hard-to-find BMP585 sensor: https://www.tindie.com/products/brad_aiperf/bmp585-high-accuracy-pressure-sensor-33v-board/ 
