@@ -80,7 +80,7 @@ for iir_coef in bmp.iir_coefficient_values:
     print(f"New IRR setting: {bmp.iir_coefficient}")
 ```
 ## I2C Addresses
-If you only have one sensor on the same I2C, they it will use the table below to scan the addresses. If you have multiple devices on the same I2C it is a good practice to specify the sensors address. To change the address to secondary you need to look look up the specs of your specific sensor. Often addresses can be changed with a solder blob or by connecting specific pins on the sensor to ground or vcc. This driver will scan for both the primary and secondary addresses. It then checks each sensors unique id to see if it is one of these bmp sensors.
+If you only have one sensor on the same I2C, they it will use the table below to scan the addresses. If you have multiple devices on the same I2C, it is a good practice to specify the sensors address. To change the address to secondary you need to look look up the specs of your specific sensor. Often addresses can be changed with a solder blob or by connecting specific pins on the sensor to ground or vcc. This driver will scan for both the primary and secondary addresses. It then checks each sensors unique id to see if it is one of these bmp sensors.
 
 Table 1: I2C Sensor Address
 | Sensor | Default | Secondary | 
