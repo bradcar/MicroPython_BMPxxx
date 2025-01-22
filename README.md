@@ -1,5 +1,5 @@
 # Micropython BMPxxx - BMP585, BMP581, BMP380, and BMP280 driver
-MicroPython Driver for the Bosch BMP585, BMP581, BMP390, and BMP280  pressure sensors using I2C. It has the ability to adjust sea level pressure and/or the sensors altitude at a known elevation for accurate future tracking. Raspberry Pi Pico and Pico 2.
+MicroPython Driver for the Bosch BMP585, BMP581, BMP390, and BMP280  pressure sensors using I2C. It has the ability to adjust sea level pressure or the sensors altitude to a known elevation for accurate tracking. Raspberry Pi Pico and Pico 2.
 
 ## Driver Features with focus on BMP585 & BMP581 Sensors
 Code includes:
@@ -11,7 +11,7 @@ Code includes:
 * Code enables setting Pressure/Temperature OverSampling and IIR values.
 * Altitude is calculated using the difference between sensor's current pressure and sea level pressure setting.
 * One can adjusting sea level pressure setting to known local measurements.
-  * For sea level pressure, the driver defaults to 1013.25 hpa which is the international accepted world-wide average hPa. However you should know that weather causes sea level presssure to vary significantly (typ: 990 hPa to 1040 hPA).
+  * For sea level pressure, the driver defaults to 1013.25 hpa which is the international accepted world-wide average hPa. However, you should know that weather causes sea level pressure to vary significantly (typ: 990 hPa to 1040 hPA).
   * It is recommended to set the current sea level pressure on each use to that of the nearest airport, for example: https://www.weather.gov/wrh/timeseries?site=KPDX
   * Your local sea level pressure is NOT the pressure at your sensor, it is pressure that would be measured if your altitude was sea level.
   * Altitude measurements will be inaccurate by over 1000' (500m) depending on the weather, if you do not set sea level to the nearest local known sea level pressure at the current time.
