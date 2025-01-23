@@ -34,7 +34,7 @@ If you have BMP581, define your machine.I2C object using I2C 1:
 i2c = I2C(1, sda=Pin(2), scl=Pin(3))
 bmp = bmpxxx.BMP581(i2c)
 ```
-Or, If if you have a different sensor specify the appropriate one, below we show for BMP390, supported sensor (BMP585, BMP581, BMP390, BMP280):
+Or, if you have a different sensor specify the appropriate one, below we show for BMP390, supported sensor (BMP585, BMP581, BMP390, BMP280):
 ```
 i2c = I2C(1, sda=Pin(2), scl=Pin(3))
 bmp = bmpxxx.BMP390(i2c)
@@ -57,7 +57,7 @@ print(f"alt = {meters:.2f} meters")
 ```
 Increase BMP585/BMP581 sensor to highest resolution using oversampling. Each sensor has different allowable values:
 ```
-# Highest resolution for BMP585 & BMP581, often we also set IIR to smooth out noise
+# Highest resolution for BMP585 & BMP581, can also set IIR to smooth out noise
 bmp.pressure_oversample_rate = bmp.OSR128
 bmp.temperature_oversample_rate = bmp.OSR8
 bmp.iir_coefficient = bmp.COEF_7
