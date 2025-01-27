@@ -1,0 +1,10 @@
+{
+    "urls": [
+      ["micropython_bmpxxx/__init__.py",    "github:bradcar/MicroPython_BMPxxx/micropython_bmpxxx/__init__.py"],
+      ["micropython_bmpxxx/bmpxxx.py",      "github:bradcar/MicroPython_BMPxxx/micropython_bmpxxx/bmpxxx.py"],
+      ["micropython_bmpxxx/i2c_helpers.py", "github:bradcar/MicroPython_BMPxxx/micropython_bmpxxx/i2c_helpers.py"]
+    ],
+    "deps": [
+    ],
+    "version": "0.0.1"
+}
