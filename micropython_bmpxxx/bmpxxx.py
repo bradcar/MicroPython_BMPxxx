@@ -1161,6 +1161,8 @@ class BME280(BMP280):
     _CONFIG_BME280 = const(0xf5)
     _RESET_BME280 = const(0xe0)
     _TRIM_COEFF_BME280 = const(0x88)
+    _TRIM_HUMDID_COEFF_BME280 = const(0xe1)
+    
 
     _device_id = RegisterStruct(_REG_WHOAMI_BME280, "B")
 
@@ -1172,8 +1174,8 @@ class BME280(BMP280):
     _reset_register = CBits(8, _RESET_BME280, 0)
     _iir_coefficient = CBits(3, _CONFIG_BME280, 2)
 
-    # read pressure 0xf7 and temp 0xfa
-    _d = CBits(48, 0xf7, 0, 6)
+    # read pressure 0xf7, temp 0xfa, humidity 0xfd
+    _d = CBits(64, 0xf7, 0, 8)
 
     def __init__(self, i2c, address: int = None) -> None:
         time.sleep_ms(3)  # t_powup done in 2ms
@@ -1201,7 +1203,7 @@ class BME280(BMP280):
         self._reset_register_BME280 = _SOFTRESET
         time.sleep_ms(5)  # soft reset finishes in ?ms
 
-        self._read_calibration_bmp280()
+        self._read_calibration_bme280()
 
         # To start measurements: temp OSR1, pressure OSR1 must be init with Normal power mode
         # set all values at onc
@@ -1215,3 +1217,103 @@ class BME280(BMP280):
 
         self.t_fine = 0
         self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
+
+    def _read_calibration_bme280(self):
+        """
+        Read & save the calibration coefficients
+        Unpack data specified in string: "<<HhhHhhhhhhhh"
+            Little-endian (<), 16-bit unsigned (H), 16-bit unsigned (H), 8-bit signed (b), 16-bit signed (h)
+        """
+        coeff = self._i2c.readfrom_mem(self._address, _TRIM_COEFF_BME280, 26)
+        values = struct.unpack("<HhhHhhhhhhhhBB", coeff)
+        self.t1, self.t2, self.t3, self.p1, self.p2, self.p3, self.p4, self.p5, self.p6, self.p7, self.p8, self.p9, _, self.h1 = values
+
+        coeff = self._i2c.readfrom_mem(self._address, _TRIM_HUMDID_COEFF_BME280, 7)
+        values = struct.unpack("<hBbhb", coeff)
+        self.h2, self.h3, self.h4, self.h5, self.h6 = values
+        # convert h4, h5, allow for signed values
+        self.h4 = (self.h4 * 16) + (self.h5 & 0xF)
+        self.h5 //= 16
+
+        # values for one of sensors in comments, each sensor different
+        #         print(f"t1 (16-bit unsigned, H): {self.t1}")    # 27753
+        #         print(f"t2 (16-bit signed, h): {self.t2}")      # 26492
+        #         print(f"t3 (16-bit signed, h): {self.t3}")      # -1000
+        #         print(f"p1 (16-bit unsigned, H): {self.p1}")    # 37585
+        #         print(f"p2 (16-bit signed, h): {self.p2}")      # -10627
+        #         print(f"p3 (16-bit signed, h): {self.p3}")      # 3024
+        #         print(f"p4 (16-bit signed, h): {self.p4}")      # 9631
+        #         print(f"p5 (16-bit signed, h): {self.p5}")      # 119
+        #         print(f"p6 (16-bit signed, h): {self.p6}")      # -7
+        #         print(f"p7 (16-bit signed, h): {self.p7}")      # 15500
+        #         print(f"p8 (16-bit signed, h): {self.p8}")      # -14600
+        #         print(f"p9 (16-bit signed, h): {self.p9}")      # 6000
+        #         print(f"h1 (8-bit unsigned, B): {self.h1}")     # 75
+        #         print(f"h2 (16-bit signed, h): {self.h2}")      # 370
+        #         print(f"h3 (8-bit unsigned, B): {self.h3}")     # 0
+        #         print(f"h4 (16-bit signed, h): {self.h4}")      # 301
+        #         print(f"h5 (8-bit signed, b): {self.h5}")       # 50
+        return
+
+    def _get_raw_temp_pressure_humid(self):
+        raw_data = self._d
+        h_lsb = (raw_data >> 56) & 0xFF
+        h_msb = (raw_data >> 48) & 0xFF
+        t_xlsb = (raw_data >> 40) & 0xFF
+        t_lsb = (raw_data >> 32) & 0xFF
+        t_msb = (raw_data >> 24) & 0xFF
+        p_xlsb = (raw_data >> 16) & 0xFF
+        p_lsb = (raw_data >> 8) & 0xFF
+        p_msb = raw_data & 0xFF
+        self._p_raw = (p_msb << 12) | (p_lsb << 4) | (p_xlsb >> 4)
+        self._t_raw = (t_msb << 12) | (t_lsb << 4) | (t_xlsb >> 4)
+        self._h_raw = (h_msb << 8) | h_lsb
+        return self._t_raw, self._p_raw, self._h_raw
+
+    def _calculate_humidity_compensation_bme280(self, raw_temp: float, raw_humid: float) -> float:
+        var1 = (((raw_temp / 16384) - (self.t1 / 1024)) * self.t2)
+        var2 = ((((raw_temp / 131072) - (self.t1 / 8192)) *
+                 ((raw_temp / 131072) - (self.t1 / 8192))) * self.t3)
+        self.t_fine = int(var1 + var2)  # Store t_fine as an instance variable
+        
+        h = (self.t_fine - 76800.0)
+        h = ((raw_humid - (self.h4 * 64.0 + self.h5 / 16384.0 * h)) *
+             (self.h2 / 65536.0 * (1.0 + self.h6 / 67108864.0 * h *
+                                       (1.0 + self.h3 / 67108864.0 * h))))
+        humidity = h * (1.0 - self.h1 * h / 524288.0)
+        if (humidity < 0):
+            humidity = 0
+        if (humidity > 100):
+            humidity = 100.0
+        return humidity
+
+
+    @property
+    def temperature(self) -> float:
+        """
+        The temperature sensor in Celsius
+        :return: Temperature in Celsius
+        """
+        raw_temp, raw_pressure, raw_humid = self._get_raw_temp_pressure_humid()
+        return self._calculate_temperature_compensation_bmp280(raw_temp)
+
+    @property
+    def pressure(self) -> float:
+        """
+        The sensor pressure in hPa
+        :return: Pressure in hPa
+        """
+        raw_temp, raw_pressure, raw_humid = self._get_raw_temp_pressure_humid()
+        tempc = self._calculate_temperature_compensation_bmp280(raw_temp)
+        comp_press = self._calculate_pressure_compensation_bmp280(raw_pressure, tempc)
+        return comp_press / 100.0  # Convert to hPa
+    
+    @property
+    def humidity(self) -> float:
+        """
+        The sensor humidity in %
+        :return: humidity in %
+        """
+        raw_temp, raw_pressure, raw_humid = self._get_raw_temp_pressure_humid()
+        return self._calculate_humidity_compensation_bme280(raw_temp, raw_humid)
+
