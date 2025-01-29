@@ -1100,3 +1100,118 @@ class BMP280(BMP581):
         tempc = self._calculate_temperature_compensation_bmp280(raw_temp)
         comp_press = self._calculate_pressure_compensation_bmp280(raw_pressure, tempc)
         return comp_press / 100.0  # Convert to hPa
+
+class BME280(BMP280):
+    """Driver for the BME280 Sensor connected over I2C.
+
+    :param ~machine.I2C i2c: The I2C bus the BMP280 is connected to.
+    :param int address: The I2C device address. Defaults to :const:`0x7F`
+
+    :raises RuntimeError: if the sensor is not found
+
+     **Quickstart: Importing and using the device**
+
+    .. code-block:: python
+
+        from machine import Pin, I2C
+        from micropython_bmpxxx import bmpxxx
+
+    Once this is done you can define your `machine.I2C` object and define your sensor object
+
+    .. code-block:: python
+
+        i2c = I2C(1, sda=Pin(2), scl=Pin(3))
+        bmp = bmpxxx.BMP280(i2c)
+
+    Now you have access to the attributes
+
+    .. code-block:: python
+
+        press = bmp.pressure
+        temp = bmp.temperature
+
+        # Highest recommended resolution for bme280
+        bmp.pressure_oversample_rate = bmp.OSR16
+        bmp.temperature_oversample_rate = bmp.OSR2
+        meters = bmp.altitude
+    """
+    # Power Modes for BME280
+    power_mode_values = (STANDBY, FORCED, NORMAL)
+    BME280_NORMAL_POWER = const(0x03)
+    BME280_FORCED_POWER = const(0x01)
+
+    # oversampling rates
+    # Below we give OSR_SKIP a unique value 0x05, but will remap it to bmp280 values
+    # When we get       OSR1=0, OSR2=1, OSR4=2, OSR8=3, OSR16=4, OSR_SKIP=5
+    # input to BMP280,  OSR1=1, OSR2=2, OSR4=3, OSR8=4, OSR16=5, OSR_SKIP=0
+    # this will be translated in _translate_osr_bmp280
+    # OSR_SKIP = const(0x05)
+
+    # OSR_SKIP turns off sampling and we do not present it as setable from outside the driver
+    pressure_oversample_rate_values = (OSR1, OSR2, OSR4, OSR8, OSR16)
+    temperature_oversample_rate_values = (OSR1, OSR2, OSR4, OSR8, OSR16)
+
+    BMP280_I2C_ADDRESS_DEFAULT = 0x77
+    BMP280_I2C_ADDRESS_SECONDARY = 0x76
+
+    ###  BME280 Constants - notice very different than bmp581
+    _REG_WHOAMI_BME280 = const(0xd0)
+    _PWR_CTRL_BME280 = const(0x1b)
+    _CONTROL_REGISTER_BME280 = const(0xF4)
+    _CONFIG_BME280 = const(0xf5)
+    _RESET_BME280 = const(0xe0)
+    _TRIM_COEFF_BME280 = const(0x88)
+
+    _device_id = RegisterStruct(_REG_WHOAMI_BME280, "B")
+
+    _mode = CBits(2, _CONTROL_REGISTER_BME280, 0)
+    _pressure_oversample_rate = CBits(3, _CONTROL_REGISTER_BME280, 2)
+    _temperature_oversample_rate = CBits(3, _CONTROL_REGISTER_BME280, 5)
+    _control_register = CBits(8, _CONTROL_REGISTER_BME280, 0)
+    _config_register = CBits(8, _CONFIG_BME280, 0)
+    _reset_register = CBits(8, _RESET_BME280, 0)
+    _iir_coefficient = CBits(3, _CONFIG_BME280, 2)
+
+    # read pressure 0xf7 and temp 0xfa
+    _d = CBits(48, 0xf7, 0, 6)
+
+    def __init__(self, i2c, address: int = None) -> None:
+        time.sleep_ms(3)  # t_powup done in 2ms
+
+        # If no address is provided, try the default, then secondary
+        if address is None:
+            if self._check_address(i2c, self.BME280_I2C_ADDRESS_DEFAULT):
+                address = self.BME280_I2C_ADDRESS_DEFAULT
+            elif self._check_address(i2c, self.BME280_I2C_ADDRESS_SECONDARY):
+                address = self.BME280_I2C_ADDRESS_SECONDARY
+            else:
+                raise RuntimeError("BME280 sensor not found at I2C expected address (0x77,0x76).")
+        else:
+            # Check if the specified address is valid
+            if not self._check_address(i2c, address):
+                raise RuntimeError(f"BME280 sensor not found at specified I2C address ({hex(address)}).")
+            print("WARNING: BME280 - ONLY pressure and temp supported - NOT humidity")
+
+
+        self._i2c = i2c
+        self._address = address
+        if self._read_device_id() != 0x60:  # check _device_id after i2c established
+            raise RuntimeError("Failed to find the BME280 sensor with id 0x60")
+
+        self._reset_register_BME280 = _SOFTRESET
+        time.sleep_ms(5)  # soft reset finishes in ?ms
+
+        self._read_calibration_bmp280()
+
+        # To start measurements: temp OSR1, pressure OSR1 must be init with Normal power mode
+        # set all values at onc
+        self._config_register = 0x00
+        self._control_register = (self._translate_osr_bmp280(OSR1) << 5) + (
+                self._translate_osr_bmp280(OSR1) << 2) + BME280_NORMAL_POWER
+        _ = self.pressure
+
+        time.sleep_ms(4)  # mode change takes 3ms
+        time.sleep_ms(63)  # OSR can be take up to 62.5ms standby
+
+        self.t_fine = 0
+        self.sea_level_pressure = WORLD_AVERAGE_SEA_LEVEL_PRESSURE
