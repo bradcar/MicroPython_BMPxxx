@@ -1121,14 +1121,17 @@ class BME280(BMP280):
     .. code-block:: python
 
         i2c = I2C(1, sda=Pin(2), scl=Pin(3))
-        bmp = bmpxxx.BMP280(i2c)
+        bme = bmpxxx.BME280(i2c)
 
-    Now you have access to the attributes
+    Now you have access to the attributes,
+    NOTE: ONLY this BME280 sensor has humidity measurements !!
 
     .. code-block:: python
 
-        press = bmp.pressure
-        temp = bmp.temperature
+        press = bme.pressure
+        temp = bme.temperature
+        humid = bme.humidity
+        dew = bme.dew_point
 
         # Highest recommended resolution for bme280
         bmp.pressure_oversample_rate = bmp.OSR16
@@ -1157,6 +1160,7 @@ class BME280(BMP280):
     ###  BME280 Constants - notice very different than bmp581
     _REG_WHOAMI_BME280 = const(0xd0)
     _PWR_CTRL_BME280 = const(0x1b)
+    _HUMID_CONTROL_REGISTER_BME280 = const(0xF2)
     _CONTROL_REGISTER_BME280 = const(0xF4)
     _CONFIG_BME280 = const(0xf5)
     _RESET_BME280 = const(0xe0)
@@ -1169,6 +1173,8 @@ class BME280(BMP280):
     _mode = CBits(2, _CONTROL_REGISTER_BME280, 0)
     _pressure_oversample_rate = CBits(3, _CONTROL_REGISTER_BME280, 2)
     _temperature_oversample_rate = CBits(3, _CONTROL_REGISTER_BME280, 5)
+    _humidity_oversample_rate = CBits(3, _HUMID_CONTROL_REGISTER_BME280, 0)
+    _humid_control_register = CBits(3, _HUMID_CONTROL_REGISTER_BME280, 0)
     _control_register = CBits(8, _CONTROL_REGISTER_BME280, 0)
     _config_register = CBits(8, _CONFIG_BME280, 0)
     _reset_register = CBits(8, _RESET_BME280, 0)
@@ -1192,8 +1198,6 @@ class BME280(BMP280):
             # Check if the specified address is valid
             if not self._check_address(i2c, address):
                 raise RuntimeError(f"BME280 sensor not found at specified I2C address ({hex(address)}).")
-            print("WARNING: BME280 - ONLY pressure and temp supported - NOT humidity")
-
 
         self._i2c = i2c
         self._address = address
@@ -1208,6 +1212,7 @@ class BME280(BMP280):
         # To start measurements: temp OSR1, pressure OSR1 must be init with Normal power mode
         # set all values at onc
         self._config_register = 0x00
+        self._humid_control_register = self._translate_osr_bmp280(OSR1)
         self._control_register = (self._translate_osr_bmp280(OSR1) << 5) + (
                 self._translate_osr_bmp280(OSR1) << 2) + BME280_NORMAL_POWER
         _ = self.pressure
@@ -1287,7 +1292,6 @@ class BME280(BMP280):
             humidity = 100.0
         return humidity
 
-
     @property
     def temperature(self) -> float:
         """
@@ -1317,3 +1321,50 @@ class BME280(BMP280):
         raw_temp, raw_pressure, raw_humid = self._get_raw_temp_pressure_humid()
         return self._calculate_humidity_compensation_bme280(raw_temp, raw_humid)
 
+    def _calculate_dew_point(self, temperature, humidity, pressure) -> float:
+        """
+        Dew-point calculator uses the Sonntag formula (1990) for water vapor pressure
+        https://www.weather.gov/media/epz/wxcalc/rhTdFromWetBulb.pdf
+       
+        Calculation first determines the saturation vapor pressure (es),
+        the wet-bulb vapor pressure (ew), then computes the actual vapor pressure (e)
+        using a correction factor involving station pressure.
+        Finally, relative humidity and dew point temperature are derived using logarithmic equations.
+ 
+        [Sonntag90] Sonntag D.: Important New Values of the Physical Constants of 1986,
+        Vapour Pressure Formulations based on the IST-90 and Psychrometer Formulae;
+        Z. Meteorol., 70 (5), pp. 340-344, 1990.
+        
+        :return: dew point in celsius
+        """
+        from math import exp, log  
+        # Constants from the paper (Sonntag, 1990)
+        a = 17.67
+        b  = 243.5
+
+        # Compute saturation vapor pressure (es first parenthetical) in hPa
+        # Compute actual vapor pressure (e - 2nd parenthetical) in hPa
+        # Apply pressure correction factor (3rd parenthetical)
+        corrected_e = (6.112 * exp((a * temperature) / (b + temperature))) * (humidity / 100.0) * (pressure / 1013.25)
+
+        # Compute dew point temperature (Td)
+        alpha = log(corrected_e / 6.112)
+        dew_point = (b * alpha) / (a - alpha)
+        return dew_point
+
+    @property
+    def dew_point(self) -> float:
+        """
+        example:
+        Sensor pressure = 1008.5769 hPa
+        temp = 20.06 C
+        humidity = 33.9%
+        dew_point = 3.62
+
+        :return: dew point in celsius
+        """
+        raw_temp, raw_pressure, raw_humid = self._get_raw_temp_pressure_humid()
+        t = self._calculate_temperature_compensation_bmp280(raw_temp)
+        p = (self._calculate_pressure_compensation_bmp280(raw_pressure, t))/100.0
+        h = self._calculate_humidity_compensation_bme280(raw_temp, raw_humid)    
+        return self._calculate_dew_point(t, h, p)
