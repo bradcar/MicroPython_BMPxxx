@@ -1,21 +1,22 @@
 # Micropython BMPxxx - BMP585, BMP581, BMP380, BMP280, and BME280 driver
 MicroPython Driver for the Bosch BMP585, BMP581, BMP390, BMP280 and BME280  pressure sensors using I2C. It has the ability to set the sensors altitude to a known elevation for accurate tracking or adjust sea level pressure. Raspberry Pi Pico and Pico 2. To find other MicroPython drivers see: https://awesome-micropython.com/
 
-## Driver Features with focus on BMP585 & BMP581 Sensors
+## IC2 Driver Features with focus on BMP585 & BMP581 Sensors
 Code includes:
 * BMP585, BMP581, BMP390, BMP280, and BME280 sensors are supported on I2C.
 * All pressures are in hPA.
 * All temperatures are in Celsius.
-* Altitude is calculated using the difference between sensor's current pressure and sea level pressure setting.
-  * Altitude calculations in this code use NSF's NCAR formula: https://ncar.github.io/aircraft_ProcessingAlgorithms/www/PressureAltitude.pdf
-  * Altitude measurements will be inaccurate by over 1000' (500m) depending on the weather, if you do not set sea level to the nearest local known sea level.
+* Altitude is computed based on difference between sensor's current pressure and sea level pressure setting.
+  * Altitude calculations use the acccurate NSF's NCAR formula: https://ncar.github.io/aircraft_ProcessingAlgorithms/www/PressureAltitude.pdf
+  * Due to weather, altitude measurements may be inaccurate by over 1000' (500m) if not calibrated at known altitude or if the sea level pressure is not set.
+  * One can set current location altitude for future tracking.
+* One can also adjust sea level pressure setting to known local measurements.
+  * It is recommended to set the current sea level pressure on each use to that of the nearest airport, for example: https://www.weather.gov/wrh/timeseries?site=KPDX
+  * The driver's sea level pressure defaults to the international standard 1013.25 hPa. However, please note that local weather causes sea level pressure to vary significantly (990 hPa to 1040 hPA).
+  * Your local sea level pressure is NOT the pressure at your sensor, it is pressure that would be measured if your altitude was sea level.
 * I2C only (possible TODO includes SPI).
   * Driver checks i2c primary address and if not present it then checks secondary (table 1 showw each sensor's addresses).
 * Code enables setting Pressure/Temperature OverSampling and IIR values.
-* One can adjusting sea level pressure setting to known local measurements.
-  * Your local sea level pressure is NOT the pressure at your sensor, it is pressure that would be measured if your altitude was sea level.
-  * The driver's sea level pressure defaults to 1013.25 hpa which is the international accepted world-wide average hPa. However, please note that weather causes sea level pressure to vary significantly (typ: 990 hPa to 1040 hPA).
-  * It is recommended to set the current sea level pressure on each use to that of the nearest airport, for example: https://www.weather.gov/wrh/timeseries?site=KPDX
 * BME280 also supported - driver has humidity and dew_point functions for this sensor only.
   * Dew Point calculations use Sonntag's 1990 formula which uses humidity, temp, and pressure.
 * Various error checks are coded throughout the driver.
