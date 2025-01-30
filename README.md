@@ -8,7 +8,7 @@ Code includes:
 * All temperatures are in Celsius.
 * Altitude is computed based on difference between sensor's current pressure and sea level pressure setting.
   * Altitude calculations use the acccurate NSF's NCAR formula: https://ncar.github.io/aircraft_ProcessingAlgorithms/www/PressureAltitude.pdf
-  * Due to weather, altitude measurements may be inaccurate by over 1000' (500m) if not calibrated at known altitude or if the sea level pressure is not set.
+  * Due to weather changes, altitude measurements may be inaccurate by over 1000' (500m) if not calibrated at known altitude or if the sea level pressure is not set.
   * One can set current location altitude for future tracking.
 * One can also adjust sea level pressure setting to known local measurements.
   * It is recommended to set the current sea level pressure on each use to that of the nearest airport, for example: https://www.weather.gov/wrh/timeseries?site=KPDX
