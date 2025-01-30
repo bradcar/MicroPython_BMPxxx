@@ -5,7 +5,7 @@ MicroPython Driver for the Bosch BMP585, BMP581, BMP390, BMP280 and BME280  pres
 Code includes:
 * BMP585, BMP581, BMP390, and BMP280 sensors are supported.
 * BME280 also supported - driver has humidity and dew_point functions for this sensor only.
-  * Dew Point calculations using Sonntag's 1990 formula which uses humidity, temp, and pressure.
+  * Dew Point calculations use Sonntag's 1990 formula which uses humidity, temp, and pressure.
 * I2C only (possible TODO include SPI).
   * checks i2c primary address and if not present it then checks secondary (see table 1 below for each sensor's addresses).
 * All pressures are in hPA.
