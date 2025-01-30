@@ -34,7 +34,7 @@ while True:
     temp = bme.temperature
     print(f"temp = {temp:.2f} C")
     humid = bme.humidity
-    print(f"humidity = {humid:.1f}%")
+    print(f"humidity = {humid:.2f}%")
     dew = bme.dew_point
     print(f"dew_point temperature = {dew:.2f} C")
   
