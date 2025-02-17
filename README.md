@@ -170,7 +170,9 @@ bmp.OSR1 corresponds to x1 for all sensors, bmp.OSR2 corresponds to x2 for all s
 * Bosch BMP280, old generation, released 2015.
   * Relative accuracy of +/-0.12 hPa and typical absolute accuracy of +/-1.0 hPa.
   * Measure change in height of+/-1 meter.
-
+* Bosch BME280, old generation nearly same as bmp280 but also has humidity, released 2013.
+  * Relative accuracy of +/-0.12 hPa and typical absolute accuracy of +/-1.0 hPa.
+  * Measure change in height of+/-1 meter.
 Bosch video showing using BMP585 underwater (the Bosch shuttle board won't work underwater :) ):
 * https://www.youtube.com/watch?v=BaAhb2vaAQg
 
