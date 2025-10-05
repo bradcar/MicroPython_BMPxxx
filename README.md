@@ -213,9 +213,9 @@ Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I
   * wire to 3.3v  (pin 3 of 9 pin connector)
 * SDI/SDA: I2C SDA (pin 4 of 9 pin connector)
 
-Images of my quick hack to shuttle board:
+Images of my quick hack to the Bosch shuttle board:
 
-![Quick hack to BMP585 Shuttle Board back](imgs/bmp585-shuttle-back.png)
-![Quick hack to BMP585 Shuttle Board front](imgs/bmp585_shuttle-front.png)
+![Quick hack to BMP585 Shuttle Board back](imgs/bmp585-shuttle-back.jpg)
+![Quick hack to BMP585 Shuttle Board front](imgs/bmp585_shuttle-front.jpg)
 
 Additional info: https://www.aiperf.com/raspberry-pi/bmp585.html
