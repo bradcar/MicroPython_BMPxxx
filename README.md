@@ -85,7 +85,7 @@ for iir_coef in bmp.iir_coefficient_values:
     print(f"New IRR setting: {bmp.iir_coefficient}")
 ```
 ## I2C Addresses
-If you only have one sensor on the same I2C, they it will use the table below to scan the addresses. If you have multiple devices on the same I2C, it is a good practice to specify the sensors address. To change the address to secondary you need to look look up the specs of your specific sensor. Often addresses can be changed with a solder blob or by connecting specific pins on the sensor to ground or vcc. This driver will scan for both the primary and secondary addresses. It then checks each sensors unique id to see if it is one of these bmp sensors.
+If you only have one sensor on an I2C, use the default addresses. If you have multiple devices on the same I2C, it is a good practice to specify each sensor's address. To change the address to secondary you need to look look up the specs of your specific sensor. Often addresses can be changed with a solder blob or by connecting specific pins on the sensor to ground or Vcc. This driver will scan for both the primary and secondary addresses. It also checks the sensor's unique id to verify it is a BMP sensors.
 
 Table 1: I2C Sensor Address
 | Sensor | Default | Secondary | 
@@ -98,7 +98,7 @@ Table 1: I2C Sensor Address
 
 The following code is useful when scanning for device addresses on I2C. I always put this in my code when bringing up new sensor. Also if device not found triple-check all wiring.
 ```
-# Notice this is using i2c1 not i2c0(typically used for REPL)
+# Notice Below shows using i2c1 not i2c0 (i2c0 typically used for REPL connection to the host)
 i2c = I2C(id=1, scl=Pin(27), sda=Pin(26))
 i2c1_devices = i2c.scan()
 if i2c1_devices:
@@ -138,8 +138,8 @@ The table 3 below is Bosch's recommended oversampling pressure and temperature s
 Table 3: BMP390 Recommendations from Bosch
 | Oversampling setting | OSR Pressure | Pressure<br /> Oversampling | Temperature<br /> Oversampling | IIR | Sample Use |
 | :-------------------- |:---:|:---:|:---:|:---:|:--- |
-| Ultra low power       | 000 | x1  | x1  | COEF_0 | Weather monitoring<br />lowest power, iif off|
-| Low power             | 001 | x2  | x1  | COEF_0 | Drop detecton, iir off |
+| Ultra low power       | 000 | x1  | x1  | COEF_0 | Weather monitoring<br />lowest power, IIR off|
+| Low power             | 001 | x2  | x1  | COEF_0 | Drop detection, IIR off |
 | Standard resolution   | 010 | x4  | x1  | COEF_3 | Handheld dynamic|
 | High resolution       | 011 | x8  | x1  | COEF_1 | Drone,<br />low power|
 | Ultra high resolution | 100 | x16 | x2  | COEF_3 | Indoor navigation|
@@ -152,6 +152,12 @@ bmp.temperature_oversample_rate = bmp.OSR2
 bmp.iir_coefficient = bmp.COEF_3
 ```
 bmp.OSR1 corresponds to x1 for all sensors, bmp.OSR2 corresponds to x2 for all sensors, bmp.OSR4 corresponds to x4 for all sensors, etc. If you go over for a particular sensor, then an error message will show possible values.
+
+## Example using Pi Zero with Debian Linux
+
+TODO: Add example - you can see example code in examples/bmp585_altitude_pi_zero.py
+
+Notice this should also work with Pi 4 and Pi 5, but this has not been tested.
 
 ## Example projects using this Driver
 * Digital altimeter: https://github.com/bradcar/digital-altimeter-rp2
