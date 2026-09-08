@@ -1,13 +1,15 @@
 # Micropython BMPxxx - BMP585, BMP581, BMP390, BMP280, and BME280 driver
-MicroPython Driver for the Bosch BMP585, BMP581, BMP390, BMP280 and BME280  pressure sensors using I2C interface. One can set the sensor's altitude to a known elevation for accurate altituder tracking or adjust sea level pressure to account for the weather. Tested on Raspberry Pi Pico2 and Pico 2. To find other MicroPython drivers see: https://awesome-micropython.com/
+MicroPython Driver for the Bosch BMP585, BMP581, BMP390, BMP280 and BME280  pressure sensors using I2C interface. One can set the sensor's altitude to a known elevation for accurate altitude tracking or adjust sea level pressure to account for the weather. Tested on Raspberry Pi Pico2 and Pico 2. In 2026, support for Pi Zero running Debian was added. To find other MicroPython drivers see: https://awesome-micropython.com/
 
 ## IC2 Driver Features with focus on BMP585 & BMP581 Sensors
-Code includes:
+This code includes:
+* Pi Pico and Pi Pico 2 microcontrollers supported.
+* Pi Zero (Debian Linux) is also supported, but pi_zero_i2c_bridge_utils.py must be included in your library code.
 * BMP585, BMP581, BMP390, BMP280, and BME280 sensors are supported on I2C.
 * All pressures are in hPA.
 * All temperatures are in Celsius.
 * Altitude is computed based on difference between sensor's current pressure and sea level pressure setting.
-  * Altitude calculations use the acccurate NSF's NCAR formula: https://ncar.github.io/aircraft_ProcessingAlgorithms/www/PressureAltitude.pdf
+  * Altitude calculations use the accurate NSF's NCAR formula: https://ncar.github.io/aircraft_ProcessingAlgorithms/www/PressureAltitude.pdf
   * Due to weather changes, altitude measurements may be inaccurate by over 1000' (500m) if not calibrated at known altitude or if the sea level pressure is not set.
   * One can set current location altitude for future tracking.
 * One can also adjust sea level pressure setting to known local measurements.
@@ -65,7 +67,7 @@ bmp.pressure_oversample_rate = bmp.OSR128
 bmp.temperature_oversample_rate = bmp.OSR8
 bmp.iir_coefficient = bmp.COEF_7
 ```
-Below are other settings you can adjust on the sensor, see data sheet for more info:
+Below are the other settings you can adjust on the sensor, see data sheet for more info:
 ```
 print("Current power mode setting: ", bmp.power_mode)
 for power_mode in bmp.power_mode_values:
@@ -201,12 +203,12 @@ I wanted a small BMP585 sensor board (I2C), so I designed my own. One can apply 
 
 ## Hacked Bosch BMP585 Shuttle Board
 Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I2C interface with Raspberry Pi. Shuttleboard pin details: https://www.electroniclinic.com/bosch-bmp585-barometric-pressure-sensor-with-arduino/
-* 1.27mm pins not breadboard friendly (boardboards use 2.54mm)
+* 1.27mm pins not breadboard friendly (breadboards use 2.54mm)
 * 3.3v:
   * vdd to 3.3v (pin 1 of 7 pin connector)
   * vddio to 3.3v (pin 2 of 7 pin connector)
-* gnd:
-  * wire gnd to ground (pins 3 of 7 pin connector)
+* GND:
+  * wire GND to ground (pins 3 of 7 pin connector)
 * CS for I2C mode:
   * wire to 3.3v (pin 1 of 9 pin connector)
 * SCK/SCL: I2C SCL (pin 2 of 9 pin connector)
