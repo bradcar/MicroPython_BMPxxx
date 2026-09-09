@@ -1197,7 +1197,7 @@ class BME280(BMP280):
     _CONFIG_BME280 = const(0xf5)
     _RESET_BME280 = const(0xe0)
     _TRIM_COEFF_BME280 = const(0x88)
-    _TRIM_HUMDID_COEFF_BME280 = const(0xe1)
+    _TRIM_HUMID_COEFF_BME280 = const(0xe1)
 
     _device_id = RegisterStruct(_REG_WHOAMI_BME280, "B")
 
@@ -1235,7 +1235,7 @@ class BME280(BMP280):
         if self._read_device_id() != 0x60:  # check _device_id after i2c established
             raise RuntimeError("Failed to find the BME280 sensor with id 0x60")
 
-        self._reset_register_BME280 = _SOFTRESET
+        self._reset_register = _SOFTRESET
         time.sleep_ms(5)  # soft reset finishes in ?ms
 
         self._read_calibration_bme280()
@@ -1264,12 +1264,19 @@ class BME280(BMP280):
         values = struct.unpack("<HhhHhhhhhhhhBB", coeff)
         self.t1, self.t2, self.t3, self.p1, self.p2, self.p3, self.p4, self.p5, self.p6, self.p7, self.p8, self.p9, _, self.h1 = values
 
-        coeff = self._i2c.readfrom_mem(self._address, self._TRIM_HUMDID_COEFF_BME280, 7)
-        values = struct.unpack("<hBbhb", coeff)
-        self.h2, self.h3, self.h4, self.h5, self.h6 = values
-        # convert h4, h5, allow for signed values
-        self.h4 = (self.h4 * 16) + (self.h5 & 0xF)
-        self.h5 //= 16
+        coeff = self._i2c.readfrom_mem(self._address, self._TRIM_HUMID_COEFF_BME280, 7)
+        # Unpack 7 bytes into 6 variables (<hBbBbb)
+        h2, h3, h4_msb, h4_lsb_h5_lsb, h5_msb, h6 = struct.unpack("<hBbBbb", coeff)
+        self.h2 = h2
+        self.h3 = h3
+        self.h6 = h6
+
+        # Reconstruct 12-bit signed integers with explicit sign extension
+        raw_h4 = (h4_msb << 4) | (h4_lsb_h5_lsb & 0x0F)
+        self.h4 = raw_h4 - 4096 if (raw_h4 & 0x0800) else raw_h4
+
+        raw_h5 = (h5_msb << 4) | (h4_lsb_h5_lsb >> 4)
+        self.h5 = raw_h5 - 4096 if (raw_h5 & 0x0800) else raw_h5
 
         # values for one of sensors in comments, each sensor different
         #         print(f"t1 (16-bit unsigned, H): {self.t1}")    # 27753
@@ -1284,11 +1291,13 @@ class BME280(BMP280):
         #         print(f"p7 (16-bit signed, h): {self.p7}")      # 15500
         #         print(f"p8 (16-bit signed, h): {self.p8}")      # -14600
         #         print(f"p9 (16-bit signed, h): {self.p9}")      # 6000
+        
         #         print(f"h1 (8-bit unsigned, B): {self.h1}")     # 75
         #         print(f"h2 (16-bit signed, h): {self.h2}")      # 370
         #         print(f"h3 (8-bit unsigned, B): {self.h3}")     # 0
         #         print(f"h4 (16-bit signed, h): {self.h4}")      # 301
-        #         print(f"h5 (8-bit signed, b): {self.h5}")       # 50
+        #         print(f"h5 (16-bit signed, h): {self.h5}")      # 
+        #         print(f"h6 (8-bit signed, b): {self.h6}")       #
         return
 
     def _get_raw_temp_pressure_humid(self):
@@ -1307,10 +1316,10 @@ class BME280(BMP280):
         return self._t_raw, self._p_raw, self._h_raw
 
     def _calculate_humidity_compensation_bme280(self, raw_temp: float, raw_humid: float) -> float:
-        var1 = (((raw_temp / 16384) - (self.t1 / 1024)) * self.t2)
-        var2 = ((((raw_temp / 131072) - (self.t1 / 8192)) *
-                 ((raw_temp / 131072) - (self.t1 / 8192))) * self.t3)
-        self.t_fine = int(var1 + var2)  # Store t_fine as an instance variable
+        var1 = (((raw_temp / 16384.0) - (self.t1 / 1024.0)) * self.t2)
+        var2 = ((((raw_temp / 131072.0) - (self.t1 / 8192.0)) *
+                 ((raw_temp / 131072.0) - (self.t1 / 8192.0))) * self.t3)
+        self.t_fine = var1 + var2  # Store t_fine as an instance variable
 
         h = (self.t_fine - 76800.0)
         h = ((raw_humid - (self.h4 * 64.0 + self.h5 / 16384.0 * h)) *
@@ -1318,7 +1327,7 @@ class BME280(BMP280):
                                    (1.0 + self.h3 / 67108864.0 * h))))
         humidity = h * (1.0 - self.h1 * h / 524288.0)
         if humidity < 0:
-            humidity = 0
+            humidity = 0.0
         if humidity > 100:
             humidity = 100.0
         return humidity
