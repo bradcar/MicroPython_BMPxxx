@@ -1,13 +1,15 @@
 # Micropython BMPxxx - BMP585, BMP581, BMP390, BMP280, and BME280 driver
-MicroPython Driver for the Bosch BMP585, BMP581, BMP390, BMP280 and BME280  pressure sensors using I2C interface. One can set the sensor's altitude to a known elevation for accurate altituder tracking or adjust sea level pressure to account for the weather. Tested on Raspberry Pi Pico2 and Pico 2. To find other MicroPython drivers see: https://awesome-micropython.com/
+MicroPython Driver for the Bosch BMP585, BMP581, BMP390, BMP280 and BME280  pressure sensors using I2C interface. One can set the sensor's altitude to a known elevation for accurate altitude tracking or adjust sea level pressure to account for the weather. Tested on Raspberry Pi Pico2 and Pico 2. In 2026, support for Pi Zero running Debian was added. To find other MicroPython drivers see: https://awesome-micropython.com/
 
 ## IC2 Driver Features with focus on BMP585 & BMP581 Sensors
-Code includes:
+This code includes:
+* Pi Pico and Pi Pico 2 microcontrollers supported.
+* Pi Zero (Debian Linux) is also supported, but pi_zero_i2c_bridge_utils.py must be included in your library code.
 * BMP585, BMP581, BMP390, BMP280, and BME280 sensors are supported on I2C.
 * All pressures are in hPA.
 * All temperatures are in Celsius.
 * Altitude is computed based on difference between sensor's current pressure and sea level pressure setting.
-  * Altitude calculations use the acccurate NSF's NCAR formula: https://ncar.github.io/aircraft_ProcessingAlgorithms/www/PressureAltitude.pdf
+  * Altitude calculations use the accurate NSF's NCAR formula: https://ncar.github.io/aircraft_ProcessingAlgorithms/www/PressureAltitude.pdf
   * Due to weather changes, altitude measurements may be inaccurate by over 1000' (500m) if not calibrated at known altitude or if the sea level pressure is not set.
   * One can set current location altitude for future tracking.
 * One can also adjust sea level pressure setting to known local measurements.
@@ -65,7 +67,7 @@ bmp.pressure_oversample_rate = bmp.OSR128
 bmp.temperature_oversample_rate = bmp.OSR8
 bmp.iir_coefficient = bmp.COEF_7
 ```
-Below are other settings you can adjust on the sensor, see data sheet for more info:
+Below are the other settings you can adjust on the sensor, see data sheet for more info:
 ```
 print("Current power mode setting: ", bmp.power_mode)
 for power_mode in bmp.power_mode_values:
@@ -83,7 +85,7 @@ for iir_coef in bmp.iir_coefficient_values:
     print(f"New IRR setting: {bmp.iir_coefficient}")
 ```
 ## I2C Addresses
-If you only have one sensor on the same I2C, they it will use the table below to scan the addresses. If you have multiple devices on the same I2C, it is a good practice to specify the sensors address. To change the address to secondary you need to look look up the specs of your specific sensor. Often addresses can be changed with a solder blob or by connecting specific pins on the sensor to ground or vcc. This driver will scan for both the primary and secondary addresses. It then checks each sensors unique id to see if it is one of these bmp sensors.
+If you only have one sensor on an I2C, use the default addresses. If you have multiple devices on the same I2C, it is a good practice to specify each sensor's address. To change the address to secondary you need to look look up the specs of your specific sensor. Often addresses can be changed with a solder blob or by connecting specific pins on the sensor to ground or Vcc. This driver will scan for both the primary and secondary addresses. It also checks the sensor's unique id to verify it is a BMP sensors.
 
 Table 1: I2C Sensor Address
 | Sensor | Default | Secondary | 
@@ -96,7 +98,7 @@ Table 1: I2C Sensor Address
 
 The following code is useful when scanning for device addresses on I2C. I always put this in my code when bringing up new sensor. Also if device not found triple-check all wiring.
 ```
-# Notice this is using i2c1 not i2c0(typically used for REPL)
+# Notice Below shows using i2c1 not i2c0 (i2c0 typically used for REPL connection to the host)
 i2c = I2C(id=1, scl=Pin(27), sda=Pin(26))
 i2c1_devices = i2c.scan()
 if i2c1_devices:
@@ -136,8 +138,8 @@ The table 3 below is Bosch's recommended oversampling pressure and temperature s
 Table 3: BMP390 Recommendations from Bosch
 | Oversampling setting | OSR Pressure | Pressure<br /> Oversampling | Temperature<br /> Oversampling | IIR | Sample Use |
 | :-------------------- |:---:|:---:|:---:|:---:|:--- |
-| Ultra low power       | 000 | x1  | x1  | COEF_0 | Weather monitoring<br />lowest power, iif off|
-| Low power             | 001 | x2  | x1  | COEF_0 | Drop detecton, iir off |
+| Ultra low power       | 000 | x1  | x1  | COEF_0 | Weather monitoring<br />lowest power, IIR off|
+| Low power             | 001 | x2  | x1  | COEF_0 | Drop detection, IIR off |
 | Standard resolution   | 010 | x4  | x1  | COEF_3 | Handheld dynamic|
 | High resolution       | 011 | x8  | x1  | COEF_1 | Drone,<br />low power|
 | Ultra high resolution | 100 | x16 | x2  | COEF_3 | Indoor navigation|
@@ -150,6 +152,12 @@ bmp.temperature_oversample_rate = bmp.OSR2
 bmp.iir_coefficient = bmp.COEF_3
 ```
 bmp.OSR1 corresponds to x1 for all sensors, bmp.OSR2 corresponds to x2 for all sensors, bmp.OSR4 corresponds to x4 for all sensors, etc. If you go over for a particular sensor, then an error message will show possible values.
+
+## Example using Pi Zero with Debian Linux
+
+TODO: Add example - you can see example code in examples/bmp585_altitude_pi_zero.py
+
+Notice this should also work with Pi 4 and Pi 5, but this has not been tested.
 
 ## Example projects using this Driver
 * Digital altimeter: https://github.com/bradcar/digital-altimeter-rp2
@@ -201,12 +209,12 @@ I wanted a small BMP585 sensor board (I2C), so I designed my own. One can apply 
 
 ## Hacked Bosch BMP585 Shuttle Board
 Bosch makes the BMP585 shuttle board, but it must be wired as below to use the I2C interface with Raspberry Pi. Shuttleboard pin details: https://www.electroniclinic.com/bosch-bmp585-barometric-pressure-sensor-with-arduino/
-* 1.27mm pins not breadboard friendly (boardboards use 2.54mm)
+* 1.27mm pins not breadboard friendly (breadboards use 2.54mm)
 * 3.3v:
   * vdd to 3.3v (pin 1 of 7 pin connector)
   * vddio to 3.3v (pin 2 of 7 pin connector)
-* gnd:
-  * wire gnd to ground (pins 3 of 7 pin connector)
+* GND:
+  * wire GND to ground (pins 3 of 7 pin connector)
 * CS for I2C mode:
   * wire to 3.3v (pin 1 of 9 pin connector)
 * SCK/SCL: I2C SCL (pin 2 of 9 pin connector)
