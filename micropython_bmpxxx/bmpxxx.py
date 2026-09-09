@@ -142,12 +142,19 @@ class BMP581:
     temperature_oversample_rate_values = (OSR1, OSR2, OSR4, OSR8, OSR16, OSR32, OSR64, OSR128)
     
     # ODR Constants (ODR_CONFIG register 0x37)
-    ODR_1_HZ = const(0x00)
-    ODR_5_HZ = const(0x02)
-    ODR_10_HZ = const(0x04)
-    ODR_50_HZ = const(0x0B)
-    ODR_100_HZ = const(0x10)
-    ODR_240_HZ = const(0x1F)  # Maximum hardware sampling rate
+    ODR_240_HZ = const(0x00)  # 240.000 Hz (Maximum hardware ODR)
+    ODR_219_HZ = const(0x01)  # 218.537 Hz
+    ODR_200_HZ = const(0x02)  # 199.111 Hz
+    ODR_160_HZ = const(0x04)  # 160.000 Hz
+    ODR_120_HZ = const(0x08)  # 120.000 Hz
+    ODR_100_HZ = const(0x0A)  # 100.299 Hz 
+    ODR_80_HZ  = const(0x0C)  # 80.000 Hz
+    ODR_50_HZ  = const(0x0F)  # 50.056 Hz
+    ODR_20_HZ  = const(0x15)  # 20.000 Hz
+    ODR_10_HZ  = const(0x17)  # 10.000 Hz
+    ODR_5_HZ   = const(0x18)  # 5.000 Hz
+    ODR_1_HZ   = const(0x1C)  # 1.000 Hz
+    ODR_0_125_HZ = const(0x1F) # 0.125 Hz (Slowest hardware ODR)
 
     # IIR Filters Coefficients
     COEF_0 = const(0x00)
